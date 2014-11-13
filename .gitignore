@@ -6,7 +6,9 @@
 # Package Files #
 *.jar
 *.war
-*.ear
+*.ea
+*.py
+*.pyc
 
 # Output Files #
 *.txt

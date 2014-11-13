@@ -14,20 +14,10 @@ import weka.filters.unsupervised.attribute.Remove;
 public class KMeans extends SimpleKMeans{
 
     /**
-     * Removes the 'play' attribute from the weather.numeric.arff data set.
-     * @param  train     The data
-     * @return           The data without the 'play' attribute
-     * @throws Exception [description]
+     * [best_labels description]
      */
-    private static Instances remove_attribute(Instances train) throws Exception {
-            // remove play attribute
-            String[] remove_op = new String[2];
-            remove_op[0] = "-R"; // "range"
-            remove_op[1] = "5"; // fifth attribute ('play')
-            Remove remove = new Remove();
-            remove.setOptions(remove_op);
-            remove.setInputFormat(train);
-            return Filter.useFilter(train, remove);
+    private best_labels(int num_clusters) {
+
     }
 
     /**
@@ -56,11 +46,30 @@ public class KMeans extends SimpleKMeans{
             return clusters;
     }
 
+     /**
+     * Removes the 'play' attribute from the weather.numeric.arff data set.
+     * @param  train     The data
+     * @return           The data without the 'play' attribute
+     * @throws Exception [description]
+     */
+    private static Instances remove_attribute(Instances train) throws Exception {
+            // remove play attribute
+            String[] remove_op = new String[2];
+            remove_op[0] = "-R"; // "range"
+            remove_op[1] = "5"; // fifth attribute ('play')
+            Remove remove = new Remove();
+            remove.setOptions(remove_op);
+            remove.setInputFormat(train);
+            return Filter.useFilter(train, remove);
+    }
+
     /**
      * [kMeans description]
      * @throws Exception [description]
      */
     public static void kMeans() throws Exception {
+
+        int num_clusters = 2;
 
         // load data
         String infile = "./data/weather.numeric.arff";
@@ -78,7 +87,7 @@ public class KMeans extends SimpleKMeans{
 
         // create model
         KMeans kmeans = new KMeans();
-        kmeans.setNumClusters(2);
+        kmeans.setNumClusters(num_clusters);
         kmeans.buildClusterer(newTrain);
 
         // print out clusters
