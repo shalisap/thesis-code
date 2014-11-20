@@ -14,7 +14,7 @@ public class KMeans implements ClusterAlg {
     // also needs similarity fn
     SimilarityFn simFn;
     Instances data;
-    int k = 2; // default value of k
+    int k = 2; // default value of k; number of clusters to generate
 
     void setK(int num) {
         k = num;

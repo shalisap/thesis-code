@@ -26,7 +26,7 @@ public class EuclideanDistance implements SimilarityFn {
         double sum = 0.0;
         for (int i = 0; i <x.numAttributes(); i++) {
             if (!Double.isNaN(x.value(i)) && !Double.isNaN(y.value(i))) {
-                sum += (y.value(i) - x.value(i)) * (y.value(i) - x.value(i));
+                sum += Math.pow((y.value(i) - x.value(i)), 2);
             }
         }
         return Math.sqrt(sum);
