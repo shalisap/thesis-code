@@ -1,5 +1,3 @@
-package clustering;
-
 import weka.core.Instance;
 import weka.core.Instances;
 import SimilarityFn;
@@ -30,7 +28,7 @@ public class KMeans implements ClusterAlg {
     * Constructor for KMeans that takes data and
     * a similarity function.
     */
-   public KMeans(Instances d, SimilarityFn s) {
+   KMeans(Instances d, SimilarityFn s) {
         simFn = s;
         data = d;
    }
