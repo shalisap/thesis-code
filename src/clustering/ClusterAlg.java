@@ -10,8 +10,8 @@ import weka.core.Instances;
  */
 public interface ClusterAlg {
 
-     void cluster();
+     public void cluster();
 
-     int[][] getClusters();
+     public int[][] getClusters();
 
 }

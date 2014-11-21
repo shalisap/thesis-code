@@ -1,4 +1,4 @@
-package similarity;
+package distance;
 
 import weka.core.Instance;
 import weka.core.Instances;
@@ -8,7 +8,7 @@ import weka.core.Instances;
  *
  * @author Shalisa Pattarawuttiwong
  */
-public class ManhattanDistance implements SimilarityFn {
+public class ManhattanDistance extends AbstractDistance {
 
   Instance x;
   Instance y;
@@ -18,6 +18,7 @@ public class ManhattanDistance implements SimilarityFn {
    *
    * @return        the euclidean distance between the two instances
    */
+    @Override
     public double calculateDistance() {
         if (x.numAttributes() != y.numAttributes()) {
             // throw exception

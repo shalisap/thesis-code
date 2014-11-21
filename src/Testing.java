@@ -5,8 +5,10 @@ import weka.core.Instances;
 import weka.core.Instance;
 import weka.filters.Filter;
 import weka.filters.unsupervised.attribute.Remove;
-import similarity.EuclideanDistance;
-import similarity.ManhattanDistance;
+import distance.EuclideanDistance;
+import distance.ManhattanDistance;
+//import clustering.KMeans;
+import java.util.Random;
 
 public class Testing
 {
@@ -40,5 +42,19 @@ public class Testing
         } else {
             System.out.println("Manhattan Distance: CORRECT");
         }
+
+        // Random
+        Random rand = new Random();
+        Instance randomInstance = train.instance(rand.nextInt(train.numInstances()));
+        System.out.println(randomInstance.toString());
+
+        // // Testing K Means
+        // EuclideanDistance eucD = new EuclideanDistance();
+        // KMeans kmeans = new KMeans(train, eucD);
+        // kmeans.setNumClusters(2);
+        // kmeans.setNumIterations(100);
+        // kmeans.cluster();
+        // System.out.println(kmeans.getClusters());
+
     }
 }
