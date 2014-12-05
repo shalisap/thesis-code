@@ -12,6 +12,6 @@ public interface ClusterAlg {
 
      public void cluster();
 
-     public int[][] getClusters();
+     public int[] getClusters();
 
 }

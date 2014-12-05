@@ -19,7 +19,7 @@ public class EuclideanDistance extends AbstractDistance {
    * @return        the euclidean distance between the two instances
    */
     @Override
-    public double calculateDistance() {
+    public double calculateDistance(Instance x, Instance y) {
         if (x.numAttributes() != y.numAttributes()) {
             // throw exception
             System.out.println("Both instances should contain the same number of values");

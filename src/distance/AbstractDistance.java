@@ -8,6 +8,7 @@ package distance;
  */
 public abstract class AbstractDistance implements DistanceFunction {
 
+    @Override
     public boolean compare(double x, double y) {
         return x < y;
     }
