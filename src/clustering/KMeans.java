@@ -154,22 +154,17 @@ public class KMeans implements ClusterAlg {
                 countPosition[assignment[i]]++;
             }
 
-            // System.out.print("Sum Position: ");
-            // for (int i = 0; i < sumPosition.length; i++) {
-            //     System.out.print(Arrays.toString(sumPosition[i]));
-            // }
-            // System.out.print("\nCount Position: " + Arrays.toString(countPosition));
+            System.out.print("Sum Position: ");
+            for (int i = 0; i < sumPosition.length; i++) {
+                System.out.print(Arrays.toString(sumPosition[i]));
+            }
+            System.out.print("\nCount Position: " + Arrays.toString(countPosition));
 
             centroidsChanged = false;
             randomCentroids = false;
 
             for (int i = 0; i < this.numClusters; i++) {
                 if (countPosition[i] > 0) {
-                    // double[] tmp = new double[instanceLength];
-                    // for (int j = 0; j < instanceLength; j++) {
-                    //     tmp[j] = (float) sumPosition[i][j] / countPosition[i];
-                    // }
-                    // Instance newCentroid = new Instance(tmp);
                     Instance newCentroid = new Instance(instanceLength);
                     for (int j = 0; j < instanceLength; j++) {
                         newCentroid.setValue(j, (float) sumPosition[i][j] / countPosition[i]);
@@ -177,7 +172,6 @@ public class KMeans implements ClusterAlg {
                     if (distFn.calculateDistance(newCentroid, this.centroids.instance(i)) > 0.0001) {
                         centroidsChanged = true;
                         // write a replace method in Instance.java?
-                        // centroids[i] = newCentroid;
                         this.centroids.delete(i);
                         this.centroids.add(newCentroid);
                     }
@@ -197,9 +191,6 @@ public class KMeans implements ClusterAlg {
               //System.out.println("\nRecalculated centroids: " + this.centroids.toString());
 
             this.output = new int[this.data.numInstances()];
-            // for (int i = 0; i < centroids.numInstances(); i++) {
-            //     output[i] = new int[instanceLength];
-            // }
             for (int i = 0; i < this.data.numInstances(); i++) {
                 int tmpCluster = 0;
                 double minDistance = distFn.calculateDistance(centroids.instance(0), this.data.instance(i));
