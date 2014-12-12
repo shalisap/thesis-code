@@ -17,6 +17,9 @@ public class HierAgglo implements ClusterAlg {
 
     /**
      * Holds the similarity/distance function to be used
+     * single linkage: distance of 2 closest objects in diff clusters
+     * complete linkage: greatest distance between obj in diff clusters
+     * group average linkage: average dist between all pairs in obj in diff clusters
      */
     protected DistanceFunction distFn;
 

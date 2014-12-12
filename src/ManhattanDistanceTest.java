@@ -1,4 +1,4 @@
-import distance.EuclideanDistance;
+import distance.ManhattanDistance;
 
 import org.junit.Test;
 import org.junit.Ignore;
@@ -11,11 +11,11 @@ import static org.mockito.Mockito.when;
 import weka.core.Instance;
 
 /**
- * Tests for EuclideanDistance
+ * Tests for ManhattanDistanceTest
  *
  * @author  Shalisa Pattarawuttiwong
  */
-public class EuclideanDistanceTest {
+public class ManhattanDistanceTest {
 
     private static Instance mockedInstance1;
     private static Instance mockedInstance2;
@@ -40,64 +40,64 @@ public class EuclideanDistanceTest {
     }
 
     /**
-     * Testing the euclidean distance function when there are instances each with
+     * Testing the manhattan distance function when there are instances each with
      * a single positive attribute each.
-     * The answer should be sqrt((15.0-10.0)^2) = 5.00
+     * The answer should be abs(15.0-10.0) = 5.00
      */
     @Test
     public void testCalculateSingleAttributePositiveDistance() throws Exception{
         double [] attrs1 = {10.0};
         double [] attrs2 = {15.0};
         setUp(attrs1, attrs2);
-        EuclideanDistance eucDist = new EuclideanDistance(mockedInstance1, mockedInstance2);
-        double result = eucDist.calculateDistance(mockedInstance1, mockedInstance2);
+        ManhattanDistance manDist = new ManhattanDistance(mockedInstance1, mockedInstance2);
+        double result = manDist.calculateDistance(mockedInstance1, mockedInstance2);
         assertEquals(5.00, result, 0.001);
     }
 
     /**
-     * Testing the euclidean distance function when there are instances where
+     * Testing the manhattan distance function when there are instances where
      * contains a single negative attribute.
-     * The answer should be sqrt((15.0-(-10.0))^2) = 25.00
+     * The answer should be abs(15.0-(-10.0)) = 25.00
      */
     @Test
     public void testCalculateSingleAttributeNegativeDistance() throws Exception{
         double [] attrs1 = {-10.0};
         double [] attrs2 = {15.0};
         setUp(attrs1, attrs2);
-        EuclideanDistance eucDist = new EuclideanDistance(mockedInstance1, mockedInstance2);
-        double result = eucDist.calculateDistance(mockedInstance1, mockedInstance2);
+        ManhattanDistance manDist = new ManhattanDistance(mockedInstance1, mockedInstance2);
+        double result = manDist.calculateDistance(mockedInstance1, mockedInstance2);
         assertEquals(25.00, result, 0.001);
     }
 
     /**
-     * Testing the euclidean distance function when there are instances each with
+     * Testing the manhattan distance function when there are instances each with
      * a single negative attribute.
-     * The answer should be sqrt((-15.0-(-10.0))^2) = 5.00
+     * The answer should be abs(-15.0-(-10.0)) = 5.00
      */
     @Test
     public void testCalculateSingleAttribute2NegativeDistance() throws Exception{
         double [] attrs1 = {-10.0};
         double [] attrs2 = {-15.0};
         setUp(attrs1, attrs2);
-        EuclideanDistance eucDist = new EuclideanDistance(mockedInstance1, mockedInstance2);
-        double result = eucDist.calculateDistance(mockedInstance1, mockedInstance2);
+        ManhattanDistance manDist = new ManhattanDistance(mockedInstance1, mockedInstance2);
+        double result = manDist.calculateDistance(mockedInstance1, mockedInstance2);
         assertEquals(5.00, result, 0.001);
     }
 
     /**
-     * Testing the euclidean distance function when there are instances each with
+     * Testing the manhattan distance function when there are instances each with
      * multiple attributes.
      * The answer should be
-     * sqrt((-10.0-15.0)^2 + (8.5-(-4.2))^2 + (3.0-2.0)^2) = 28.058688
+     * abs((-10.0-15.0) + (8.5-(-4.2)) + (3.0-2.0)) = 38.7
      */
     @Test
     public void testCalculateMultipleAttributeDistance() throws Exception{
         double [] attrs1 = {-10.0, 8.5, 3.0};
         double [] attrs2 = {15.0, -4.2, 2.0};
         setUp(attrs1, attrs2);
-        EuclideanDistance eucDist = new EuclideanDistance(mockedInstance1, mockedInstance2);
-        double result = eucDist.calculateDistance(mockedInstance1, mockedInstance2);
-        assertEquals(28.058688, result, 0.001);
+        ManhattanDistance manDist = new ManhattanDistance(mockedInstance1, mockedInstance2);
+        double result = manDist.calculateDistance(mockedInstance1, mockedInstance2);
+        assertEquals(38.7, result, 0.001);
     }
 
     /**
@@ -111,8 +111,8 @@ public class EuclideanDistanceTest {
         double [] attrs1 = {-10.0, 3.00};
         double [] attrs2 = {15.0};
         setUp(attrs1, attrs2);
-        EuclideanDistance eucDist = new EuclideanDistance(mockedInstance1, mockedInstance2);
-        double result = eucDist.calculateDistance(mockedInstance1, mockedInstance2);
+        ManhattanDistance manDist = new ManhattanDistance(mockedInstance1, mockedInstance2);
+        double result = manDist.calculateDistance(mockedInstance1, mockedInstance2);
         assertEquals("Both instances should contain the same number of values", result);
     }
 
