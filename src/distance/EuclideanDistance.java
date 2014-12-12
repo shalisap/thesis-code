@@ -38,4 +38,7 @@ public class EuclideanDistance extends AbstractDistance {
         y = b;
    }
 
+   public EuclideanDistance() {
+
+   }
 }

@@ -1,0 +1,6 @@
+@relation testSingle
+
+@attribute number numeric
+
+@data
+10

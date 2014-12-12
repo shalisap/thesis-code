@@ -70,7 +70,6 @@ public class KMeans implements ClusterAlg {
             System.out.println("There should at least be one cluster"); // should throw exception
         }
 
-        //this.centroids = new Instances(numClusters);
         this.centroids = new Instances(this.data, numClusters);
         int instanceLength = this.data.instance(0).numAttributes();
 
@@ -85,17 +84,11 @@ public class KMeans implements ClusterAlg {
                 Attribute att = inst.attribute(j);
                 double val = inst.value(j);
                 if (max.isMissing(att) && min.isMissing(att)) {
-                    //max.put(j, att);
-                    //min.put(j, att);
                     max.setValue(j, val);
                     min.setValue(j, val);
                 } else if (max.value(j) < val) {
-                    //max.put(j, att);
-                    //max.deleteAttributeAt(j);
                     max.setValue(j, val);
                 } else if (min.value(j) > val)
-                    //min.put(j, att);
-                    //min.deleteAttributeAt(j);
                     min.setValue(j, val);
                 }
         }
@@ -154,11 +147,11 @@ public class KMeans implements ClusterAlg {
                 countPosition[assignment[i]]++;
             }
 
-            System.out.print("Sum Position: ");
-            for (int i = 0; i < sumPosition.length; i++) {
-                System.out.print(Arrays.toString(sumPosition[i]));
-            }
-            System.out.print("\nCount Position: " + Arrays.toString(countPosition));
+            // System.out.print("Sum Position: ");
+            // for (int i = 0; i < sumPosition.length; i++) {
+            //     System.out.print(Arrays.toString(sumPosition[i]));
+            // }
+            // System.out.print("\nCount Position: " + Arrays.toString(countPosition));
 
             centroidsChanged = false;
             randomCentroids = false;
