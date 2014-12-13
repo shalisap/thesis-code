@@ -12,4 +12,5 @@ public abstract class AbstractDistance implements DistanceFunction {
 	public boolean compare(double x, double y) {
 		return x < y;
 	}
+}
 
