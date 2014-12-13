@@ -46,7 +46,8 @@ public class KMeans implements ClusterAlg {
      * Set the number of clusters to find
      * @param k Number of clusters
      */
-    public void setNumClusters(int k) 
+
+    public void setNumClusters(int k)
     		throws IllegalArgumentException{
     	if (k <= 0) {
     		throw new IllegalArgumentException("Cannot set the number "
@@ -58,17 +59,18 @@ public class KMeans implements ClusterAlg {
      * Set the number of iterations to run
      * @param i Number of iterations
      */
-    public void setNumIterations(int i) 
+
+    public void setNumIterations(int i)
     		throws IllegalArgumentException{
     	if (i <= 0) {
     		throw new IllegalArgumentException("Cannot set iterations "
     				+ "to fewer than 1");
     	} else this.iterations = i;
     }
-	
+
     /**
      * Runs the kmeans clustering algorithm.
-     * Implementation similar to the implementation of 
+     * Implementation similar to the implementation of
      * kmeans in the Java Machine Learning Library.
      */
 	@Override
@@ -76,7 +78,7 @@ public class KMeans implements ClusterAlg {
         Random rand = new Random(); // random number generator
         this.centroids = new Instances(this.data, this.numClusters);
         int instanceLength = this.data.instance(0).numAttributes();
-	
+
         // Create instances that contain the min/max values for the attributes -- move to own function
         Instance min = new Instance(instanceLength);
         Instance max = new Instance(instanceLength);
@@ -97,22 +99,22 @@ public class KMeans implements ClusterAlg {
         		}
         	}
         }
-        
+
         // Randomize centroids for first iteration
         for (int j = 0; j < this.numClusters; j++) {
         	Instance randomInstance = this.data.instance(
         			rand.nextInt(this.data.numInstances()));
         	this.centroids.add(randomInstance);
         }
-        
+
         int iterationCount = 0;
         boolean centroidsChanged = true;
         boolean randomCentroids = true;
-        while (randomCentroids || (iterationCount < this.iterations 
+        while (randomCentroids || (iterationCount < this.iterations
         		&& centroidsChanged)) {
         	iterationCount++;
         	int[] assignment = new int[this.data.numInstances()];
-        	
+
         	if (iterationCount == 1) {
         		// assign each object to the group with the closest centroid
         		for (int i = 0; i < this.data.numInstances(); i++) {
@@ -133,11 +135,11 @@ public class KMeans implements ClusterAlg {
         	} else {
         		assignment = this.output;
         	}
-        	
-            // When all objects assigned, recalculate positions of K 
-        	// centroids, start over. The new centroid is the weighted 
+
+            // When all objects assigned, recalculate positions of K
+        	// centroids, start over. The new centroid is the weighted
         	// center of the current cluster
-        	double[][] sumPosition = new 
+        	double[][] sumPosition = new
         			double[this.numClusters][instanceLength];
         	int[] countPosition = new int[this.numClusters];
         	for (int i = 0; i < this.data.numInstances(); i++) {
@@ -147,18 +149,18 @@ public class KMeans implements ClusterAlg {
         		}
         		countPosition[assignment[i]]++;
         	}
-        	
+
         	centroidsChanged = false;
         	randomCentroids = false;
-        	
+
         	for (int i = 0; i < this.numClusters; i++) {
         		if (countPosition[i] > 0) {
         			Instance newCentroid = new Instance(instanceLength);
         			for (int j = 0; j < instanceLength; j++) {
-        				newCentroid.setValue(j, 
+        				newCentroid.setValue(j,
         						(float) sumPosition[i][j] / countPosition[i]);
         			}
-        			if (distFn.calculateDistance(newCentroid, 
+        			if (distFn.calculateDistance(newCentroid,
         					this.centroids.instance(i)) > 0.0001) {
         				centroidsChanged = true;
         				// write a replace method in Instance.java?
@@ -178,7 +180,7 @@ public class KMeans implements ClusterAlg {
         			this.centroids.add(randomInstance);
         		}
         	}
-        	
+
         	this.output = new int[this.data.numInstances()];
         	for (int i = 0; i < this.data.numInstances(); i++) {
         		int tmpCluster = 0;
@@ -204,12 +206,13 @@ public class KMeans implements ClusterAlg {
 	public int[] getClusters() {
 		return this.output;
 	}
-	
+
    /**
     * Constructor for KMeans that takes data and
     * a similarity function.
     */
-   public KMeans(Instances d, DistanceFunction s) 
+
+   public KMeans(Instances d, DistanceFunction s)
 		   throws IllegalArgumentException {
         this.distFn = s;
         if (d.numInstances() <= 0) {
@@ -217,5 +220,4 @@ public class KMeans implements ClusterAlg {
     				+ " cannot be empty");
         } else this.data = d;
    }
-
 }

@@ -10,11 +10,11 @@ import distance.DistanceFunction;
 
 /**
  * Implementation of Hierarchical Agglomerative Clustering
- * 
+ *
  * @author Shalisa Pattarawuttiwong
  */
 public class HierAgglo implements ClusterAlg {
-	
+
     /**
      * Holds the similarity/distance function to be used
      * single linkage: distance of 2 closest objects in diff clusters
@@ -47,18 +47,19 @@ public class HierAgglo implements ClusterAlg {
      * Runs the hierarchical agglomerative clustering algorithm.
      * Implementation similar to the implementation of kmeans in the Java Machine Learning Library.
      */
-	@Override
-	public void cluster() {
-	}
+
+    @Override
+    public void cluster() {
+    }
 
     /**
      * Returns the labels from hierarchical agglomerative clustering of the data
      */
-	@Override
-	public int[] getClusters() {
-		return this.output;
-	}
-	
+    @Override
+    public int[] getClusters(){
+        return this.output;
+    }
+
    /**
     * Constructor for HierAgglo that takes data and
     * a similarity function.
