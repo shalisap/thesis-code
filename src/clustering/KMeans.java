@@ -40,13 +40,27 @@ public class KMeans implements ClusterAlg {
     /**
      * Holds the labels for each instance in the data
      */
-    private int[] output;
+    private int[] clusters;
 
     /**
      * Set the number of clusters to find
      * @param k Number of clusters
      */
 
+    /**
+     * Constructor for KMeans that takes data and
+     * a similarity function.
+     */
+
+    public KMeans(Instances d, DistanceFunction s)
+ 		   throws IllegalArgumentException {
+         this.distFn = s;
+         if (d.numInstances() <= 0) {
+     		throw new IllegalArgumentException("The dataset"
+     				+ " cannot be empty");
+         } else this.data = d;
+    }
+    
     public void setNumClusters(int k)
     		throws IllegalArgumentException{
     	if (k <= 0) {
@@ -79,7 +93,8 @@ public class KMeans implements ClusterAlg {
         this.centroids = new Instances(this.data, this.numClusters);
         int instanceLength = this.data.instance(0).numAttributes();
 
-        // Create instances that contain the min/max values for the attributes -- move to own function
+        // Create instances that contain the min/max values for the attributes 
+        // -- move to own function?
         Instance min = new Instance(instanceLength);
         Instance max = new Instance(instanceLength);
         // for each instance -- not iterable
@@ -108,33 +123,30 @@ public class KMeans implements ClusterAlg {
         }
 
         int iterationCount = 0;
+        this.clusters = new int[this.data.numInstances()];
+		// assign each object to the group with the closest centroid
+		for (int i = 0; i < this.data.numInstances(); i++) {
+			int tmpCluster = 0;
+			double minDistance = distFn.calculateDistance(
+					this.centroids.instance(0), this.data.instance(i));
+			for (int j = 1; j < this.centroids.numInstances(); j++) {
+				double dist = distFn.calculateDistance(
+						this.centroids.instance(j),
+						this.data.instance(i));
+				if (distFn.compare(dist, minDistance)) {
+					minDistance = dist;
+					tmpCluster = j;
+				}
+			}
+			this.clusters[i] = tmpCluster;
+		}
+		iterationCount++;
+        
         boolean centroidsChanged = true;
         boolean randomCentroids = true;
         while (randomCentroids || (iterationCount < this.iterations
         		&& centroidsChanged)) {
         	iterationCount++;
-        	int[] assignment = new int[this.data.numInstances()];
-
-        	if (iterationCount == 1) {
-        		// assign each object to the group with the closest centroid
-        		for (int i = 0; i < this.data.numInstances(); i++) {
-        			int tmpCluster = 0;
-        			double minDistance = distFn.calculateDistance(
-        					this.centroids.instance(0), this.data.instance(i));
-        			for (int j = 1; j < this.centroids.numInstances(); j++) {
-        				double dist = distFn.calculateDistance(
-        						this.centroids.instance(j),
-        						this.data.instance(i));
-        				if (distFn.compare(dist, minDistance)) {
-        					minDistance = dist;
-        					tmpCluster = j;
-        				}
-        			}
-        			assignment[i] = tmpCluster;
-        		}
-        	} else {
-        		assignment = this.output;
-        	}
 
             // When all objects assigned, recalculate positions of K
         	// centroids, start over. The new centroid is the weighted
@@ -145,11 +157,10 @@ public class KMeans implements ClusterAlg {
         	for (int i = 0; i < this.data.numInstances(); i++) {
         		Instance in = this.data.instance(i);
         		for (int j = 0; j < instanceLength; j++) {
-        			sumPosition[assignment[i]][j] += in.value(j);
+        			sumPosition[this.clusters[i]][j] += in.value(j);
         		}
-        		countPosition[assignment[i]]++;
+        		countPosition[this.clusters[i]]++;
         	}
-
         	centroidsChanged = false;
         	randomCentroids = false;
 
@@ -181,7 +192,7 @@ public class KMeans implements ClusterAlg {
         		}
         	}
 
-        	this.output = new int[this.data.numInstances()];
+        	this.clusters = new int[this.data.numInstances()];
         	for (int i = 0; i < this.data.numInstances(); i++) {
         		int tmpCluster = 0;
         		double minDistance = distFn.calculateDistance(
@@ -194,7 +205,7 @@ public class KMeans implements ClusterAlg {
         				tmpCluster = j;
         			}
         		}
-        		this.output[i] = tmpCluster;
+        		this.clusters[i] = tmpCluster;
         	}
         }
 	}
@@ -204,20 +215,9 @@ public class KMeans implements ClusterAlg {
 	 */
 	@Override
 	public int[] getClusters() {
-		return this.output;
+		if (this.clusters == null) {
+			cluster();
+		} 
+		return this.clusters;
 	}
-
-   /**
-    * Constructor for KMeans that takes data and
-    * a similarity function.
-    */
-
-   public KMeans(Instances d, DistanceFunction s)
-		   throws IllegalArgumentException {
-        this.distFn = s;
-        if (d.numInstances() <= 0) {
-    		throw new IllegalArgumentException("The dataset"
-    				+ " cannot be empty");
-        } else this.data = d;
-   }
 }
