@@ -83,6 +83,13 @@ public class KMeans implements ClusterAlg {
     }
 
     /**
+     * 
+     */
+    private void chooseCentroids(){
+    	// should be return Instances
+    }
+    
+    /**
      * Runs the kmeans clustering algorithm.
      * Implementation similar to the implementation of
      * kmeans in the Java Machine Learning Library.
@@ -116,10 +123,18 @@ public class KMeans implements ClusterAlg {
         }
 
         // Randomize centroids for first iteration
-        for (int j = 0; j < this.numClusters; j++) {
+        while (this.centroids.numInstances() < this.numClusters) {
+        	boolean addRandom = true;
         	Instance randomInstance = this.data.instance(
         			rand.nextInt(this.data.numInstances()));
-        	this.centroids.add(randomInstance);
+        	for (int k = 0; k < this.centroids.numInstances(); k++) {
+        		if (randomInstance == this.centroids.instance(k)) {
+        			addRandom = false;
+        		}
+        	}
+        	if (addRandom = true) {
+        		this.centroids.add(randomInstance);
+        	}
         }
 
         int iterationCount = 0;
