@@ -1,12 +1,11 @@
 package clustering;
 
-import java.util.Random;
-//import java.util.Arrays;
+import java.util.*;
 
-import weka.core.Instance;
 import weka.core.Instances;
-import weka.core.Attribute;
 import distance.DistanceFunction;
+import weka.core.Attribute;
+import weka.core.Instance;
 
 /**
  * Implementation of KMeans.
@@ -42,16 +41,12 @@ public class KMeans implements ClusterAlg {
      */
     private int[] clusters;
 
-    /**
-     * Set the number of clusters to find
-     * @param k Number of clusters
-     */
-
+    private boolean chooseInitCentroids = false;
+    	
     /**
      * Constructor for KMeans that takes data and
      * a similarity function.
      */
-
     public KMeans(Instances d, DistanceFunction s)
  		   throws IllegalArgumentException {
          this.distFn = s;
@@ -61,6 +56,10 @@ public class KMeans implements ClusterAlg {
          } else this.data = d;
     }
     
+    /**
+     * Set the number of clusters to find
+     * @param k Number of clusters
+     */
     public void setNumClusters(int k)
     		throws IllegalArgumentException{
     	if (k <= 0) {
@@ -73,7 +72,6 @@ public class KMeans implements ClusterAlg {
      * Set the number of iterations to run
      * @param i Number of iterations
      */
-
     public void setNumIterations(int i)
     		throws IllegalArgumentException{
     	if (i <= 0) {
@@ -81,12 +79,58 @@ public class KMeans implements ClusterAlg {
     				+ "to fewer than 1");
     	} else this.iterations = i;
     }
+    
+    public void setChooseInitCentroids(boolean i) {
+    	this.chooseInitCentroids = i;
+    }
 
     /**
-     * 
+     * Randomizes the initial centroids chosen.
      */
-    private void chooseCentroids(){
-    	// should be return Instances
+    private void randomizeInitCentroids(){
+        Random rand = new Random(); // random number generator
+        while (this.centroids.numInstances() < this.numClusters) {
+        	boolean addRandom = true;
+        	Instance randomInstance = this.data.instance(
+        			rand.nextInt(this.data.numInstances()));
+        	for (int k = 0; k < this.centroids.numInstances(); k++) {
+        		if (randomInstance == this.centroids.instance(k)) {
+        			addRandom = false;
+        		}
+        	}
+        	if (addRandom == true) {
+        		this.centroids.add(randomInstance);
+        	}
+        }
+    }
+    
+    /**
+     * Allows the user to choose the intiail centroids.
+     */
+    private void pickInitCentroids(){
+		Scanner input = new Scanner(System.in);
+    	while (this.centroids.numInstances() < this.numClusters) {
+    		boolean addInstance = true;
+    		System.out.println(this.data.toString());
+    		
+    		System.out.println("Enter the index of the centroid wanted: ");
+    		int index = input.nextInt();
+    		Instance chosenInstance = this.data.instance(index);
+    		
+    		// check if already chosen
+    		for (int i = 0; i < this.centroids.numInstances(); i++) {
+    			if (chosenInstance == this.data.instance(i)) {
+    				System.out.println("Picked an instance that is already " +
+    									"chosen. Choose again.");
+    				addInstance = false;
+    			}
+    		}
+    		
+    		if (addInstance == true) {
+    			this.centroids.add(chosenInstance);
+    		}
+    	}
+    	//input.close();???
     }
     
     /**
@@ -122,19 +166,10 @@ public class KMeans implements ClusterAlg {
         	}
         }
 
-        // Randomize centroids for first iteration
-        while (this.centroids.numInstances() < this.numClusters) {
-        	boolean addRandom = true;
-        	Instance randomInstance = this.data.instance(
-        			rand.nextInt(this.data.numInstances()));
-        	for (int k = 0; k < this.centroids.numInstances(); k++) {
-        		if (randomInstance == this.centroids.instance(k)) {
-        			addRandom = false;
-        		}
-        	}
-        	if (addRandom = true) {
-        		this.centroids.add(randomInstance);
-        	}
+        if (this.chooseInitCentroids == false) {
+        	randomizeInitCentroids();
+        } else {
+        	pickInitCentroids();
         }
 
         int iterationCount = 0;

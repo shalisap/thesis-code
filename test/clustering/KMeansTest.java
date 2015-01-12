@@ -45,7 +45,7 @@ public class KMeansTest {
         }
         return num.size();
     }
-
+    
     /**
      * Testing KMeans for one instance, one cluster using EuclideanDistance
      */
@@ -57,6 +57,7 @@ public class KMeansTest {
         KMeans kmeans = new KMeans(data, eucDist);
         kmeans.setNumClusters(1);
         kmeans.setNumIterations(100);
+        kmeans.setChooseInitCentroids(true);
         kmeans.cluster();
         // test by number of clusters?
         assertEquals(1, getNumClusters(kmeans.getClusters()));
@@ -74,6 +75,7 @@ public class KMeansTest {
         KMeans kmeans = new KMeans(data, eucDist);
         kmeans.setNumClusters(1);
         kmeans.setNumIterations(100);
+        kmeans.setChooseInitCentroids(true);
         kmeans.cluster();
         assertEquals(1, getNumClusters(kmeans.getClusters()));
     }
