@@ -41,6 +41,10 @@ public class KMeans implements ClusterAlg {
      */
     private int[] clusters;
 
+    /**
+     * If true, allows the user to pick the initial centroids,
+     * if false, randomize the initial centroids.
+     */
     private boolean chooseInitCentroids = false;
     	
     /**
@@ -80,6 +84,10 @@ public class KMeans implements ClusterAlg {
     	} else this.iterations = i;
     }
     
+    /**
+     * Choose to randomize or manually pick centroids.
+     * @param i True for user's pick, false for randomize.
+     */
     public void setChooseInitCentroids(boolean i) {
     	this.chooseInitCentroids = i;
     }
@@ -105,32 +113,34 @@ public class KMeans implements ClusterAlg {
     }
     
     /**
-     * Allows the user to choose the intiail centroids.
+     * Allows the user to choose the initial centroids.
      */
-    private void pickInitCentroids(){
-		Scanner input = new Scanner(System.in);
-    	while (this.centroids.numInstances() < this.numClusters) {
-    		boolean addInstance = true;
-    		System.out.println(this.data.toString());
-    		
-    		System.out.println("Enter the index of the centroid wanted: ");
-    		int index = input.nextInt();
-    		Instance chosenInstance = this.data.instance(index);
-    		
-    		// check if already chosen
-    		for (int i = 0; i < this.centroids.numInstances(); i++) {
-    			if (chosenInstance == this.data.instance(i)) {
-    				System.out.println("Picked an instance that is already " +
-    									"chosen. Choose again.");
-    				addInstance = false;
-    			}
+    public void pickInitCentroids(){
+    	// print instances
+    	boolean duplicate = true;
+    	ArrayList<String> indices = new ArrayList<String>();
+    	
+    	System.out.println("Instances");
+    	for (int i = 0; i < this.data.numInstances(); i++) {
+    		System.out.println(i + ": " + this.data.instance(i));
+    	}
+    	
+		System.out.println("Enter indices of the distinct centroids wanted (Ex: 0 1 done): ");
+    	Scanner input = new Scanner(System.in);
+    	
+    	String index = input.next();
+    	while ((!index.equals("done")) && duplicate == true) {
+    		if (indices.contains(index)) {
+    			duplicate = false;
     		}
-    		
-    		if (addInstance == true) {
-    			this.centroids.add(chosenInstance);
+    		else {
+    			indices.add(index);
+	    		Instance chosenInstance = this.data.instance(Integer.parseInt(index));	
+	    		this.centroids.add(chosenInstance);
+	    		index = input.next();
     		}
     	}
-    	//input.close();???
+		System.out.println();
     }
     
     /**
@@ -170,6 +180,13 @@ public class KMeans implements ClusterAlg {
         	randomizeInitCentroids();
         } else {
         	pickInitCentroids();
+        	while (this.centroids.numInstances() != this.numClusters) {
+        		System.out.println("Centroids chosen not equal to "
+        				+ "the number of clusters wanted or "
+        				+ "duplicates of centroids chosen");
+                this.centroids = new Instances(this.data, this.numClusters);
+        		pickInitCentroids();
+        	}
         }
 
         int iterationCount = 0;

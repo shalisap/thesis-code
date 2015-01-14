@@ -54,10 +54,11 @@ public class KMeansTest {
         readInInstances("./data/testSingle.arff");
         EuclideanDistance eucD = new EuclideanDistance();
         DistanceFunction eucDist = eucD;
-        KMeans kmeans = new KMeans(data, eucDist);
+        KMeans kmeans = new KMeans(this.data, eucDist);
         kmeans.setNumClusters(1);
         kmeans.setNumIterations(100);
         kmeans.setChooseInitCentroids(true);
+        System.out.println("---------- One Instance, One Cluster (0 done) ----------");
         kmeans.cluster();
         // test by number of clusters?
         assertEquals(1, getNumClusters(kmeans.getClusters()));
@@ -65,20 +66,40 @@ public class KMeansTest {
 
     /**
      * Testing KMeans for two instances, one cluster using EuclideanDistance
-     * Also need to have function to pick initial centroids
+     * Picked the first instance as the centroid
      */
     @Test
-    public void twoInstancesOneClusterKMeansTest() throws Exception {
+    public void twoInstancesOneCluster1KMeansTest() throws Exception {
         readInInstances("./data/testTwo.arff");
         EuclideanDistance eucD = new EuclideanDistance();
         DistanceFunction eucDist = eucD;
-        KMeans kmeans = new KMeans(data, eucDist);
+        KMeans kmeans = new KMeans(this.data, eucDist);
         kmeans.setNumClusters(1);
         kmeans.setNumIterations(100);
         kmeans.setChooseInitCentroids(true);
+        System.out.println("---------- Two Instances, One Cluster (0 done) ----------");
         kmeans.cluster();
         assertEquals(1, getNumClusters(kmeans.getClusters()));
     }
+    
+    /**
+     * Testing KMeans for two instances, one cluster using EuclideanDistance
+     * Picked the second instance as the centroid
+     */
+    @Test
+    public void twoInstancesOneCluster2KMeansTest() throws Exception {
+        readInInstances("./data/testTwo.arff");
+        EuclideanDistance eucD = new EuclideanDistance();
+        DistanceFunction eucDist = eucD;
+        KMeans kmeans = new KMeans(this.data, eucDist);
+        kmeans.setNumClusters(1);
+        kmeans.setNumIterations(100);
+        kmeans.setChooseInitCentroids(true);
+        System.out.println("---------- Two Instances, One Cluster (1 done) ----------");
+        kmeans.cluster();
+        assertEquals(1, getNumClusters(kmeans.getClusters()));
+    }
+
 
    /**
      * Testing KMeans for two instances, two clusters using EuclideanDistance
@@ -88,16 +109,18 @@ public class KMeansTest {
         readInInstances("./data/testTwo.arff");
         EuclideanDistance eucD = new EuclideanDistance();
         DistanceFunction eucDist = eucD;
-        KMeans kmeans = new KMeans(data, eucDist);
+        KMeans kmeans = new KMeans(this.data, eucDist);
         kmeans.setNumClusters(2);
         kmeans.setNumIterations(100);
+        kmeans.setChooseInitCentroids(true);
+        System.out.println("---------- Two Instances, Two Clusters (0 1 done) ----------");
         kmeans.cluster();
         assertEquals(2, getNumClusters(kmeans.getClusters()));
     }
 
    /**
      * Testing KMeans for three instances, one cluster using EuclideanDistance
-     * three options with various initial centroids
+     * First 2 as initial centroids
      */
     @Test
     //@Ignore
@@ -105,34 +128,49 @@ public class KMeansTest {
         readInInstances("./data/testThreeTwoCloser.arff");
         EuclideanDistance eucD = new EuclideanDistance();
         DistanceFunction eucDist = eucD;
-        KMeans kmeans = new KMeans(data, eucDist);
+        KMeans kmeans = new KMeans(this.data, eucDist);
         kmeans.setNumClusters(1);
         kmeans.setNumIterations(100);
+        kmeans.setChooseInitCentroids(true);
+        System.out.println("---------- Three Instances, Two Clusters (0 1 done) ----------");
         kmeans.cluster();
         assertEquals(1, getNumClusters(kmeans.getClusters()));
     }
 	
-	/**
-	 * Test method for {@link clustering.KMeans#setNumClusters(int)}.
-	 */
-	@Test
-	@Ignore
-	public final void testSetNumClusters() {
-	}
+    /**
+     * Testing KMeans for three instances, one cluster using EuclideanDistance
+     * Last 2 as initial centroids
+     */
+    @Test
+    //@Ignore
+    public void threeInstancesTwoClustersKMeansTest() throws Exception {
+        readInInstances("./data/testThreeTwoCloser.arff");
+        EuclideanDistance eucD = new EuclideanDistance();
+        DistanceFunction eucDist = eucD;
+        KMeans kmeans = new KMeans(this.data, eucDist);
+        kmeans.setNumClusters(1);
+        kmeans.setNumIterations(100);
+        kmeans.setChooseInitCentroids(true);
+        System.out.println("---------- Three Instances, Two Clusters (1 2 done) ----------");
+        kmeans.cluster();
+        assertEquals(1, getNumClusters(kmeans.getClusters()));
+    }
 
-	/**
-	 * Test method for {@link clustering.KMeans#setNumIterations(int)}.
-	 */
-	@Test
-	@Ignore
-	public final void testSetNumIterations() {
-	}
-
-	/**
-	 * Test method for {@link clustering.KMeans#getClusters()}.
-	 */
-	@Test
-	@Ignore
-	public final void testGetClusters() {
-	}
-}
+    /**
+     * Testing KMeans for three instances, one cluster using EuclideanDistance
+     * First and Last as initial centroids
+     */
+    @Test
+    //@Ignore
+    public void threeInstancesTwoClustersKMeansTest() throws Exception {
+        readInInstances("./data/testThreeTwoCloser.arff");
+        EuclideanDistance eucD = new EuclideanDistance();
+        DistanceFunction eucDist = eucD;
+        KMeans kmeans = new KMeans(this.data, eucDist);
+        kmeans.setNumClusters(1);
+        kmeans.setNumIterations(100);
+        kmeans.setChooseInitCentroids(true);
+        System.out.println("---------- Three Instances, Two Clusters (0 2 done) ----------");
+        kmeans.cluster();
+        assertEquals(1, getNumClusters(kmeans.getClusters()));
+    }
