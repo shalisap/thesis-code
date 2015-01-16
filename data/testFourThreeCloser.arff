@@ -1,0 +1,9 @@
+@relation testThreeTwoCloser
+
+@attribute number numeric
+
+@data
+3
+8
+10
+11

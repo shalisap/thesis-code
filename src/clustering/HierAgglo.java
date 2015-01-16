@@ -107,6 +107,13 @@ public class HierAgglo implements ClusterAlg {
     					allClusters[a][c] = allClusters[a][c] - 1;
     				}
     			}
+    		} else {
+    			// check again? 
+    			for (int c = 0; c < numInstances; c++) {
+    				if (allClusters[a][c] > numInstances - 1 - a) {
+    					allClusters[a][c] = allClusters[a][c] - 1;
+    				}
+    			}
     		}
     	}
     }
@@ -142,11 +149,12 @@ public class HierAgglo implements ClusterAlg {
      */
     @Override
     public int[] getClusters(){
-        return this.allClusters[numClusters];
+        return this.allClusters[this.data.numInstances() - this.numClusters];
     }
     
     /**
-     * Returns the entire tree
+     * Returns the entire tree with decreasing number of clusters
+     * further down the array.
      */
     public int[][] getAllClusters(){
         return this.allClusters;
