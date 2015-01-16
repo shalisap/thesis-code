@@ -92,7 +92,7 @@ public class HierAggloTest {
         DistanceFunction eucDist = eucD;
         AgglomerationMethod singleLink = new SingleLinkage();
         HierAgglo hierAgglo = new HierAgglo(data, eucDist, singleLink);
-        System.out.println("---------- All Clusters ----------");
+        System.out.println("---------- Single Linkage ----------");
         hierAgglo.cluster();
         
         for (int[] cluster: hierAgglo.getAllClusters()) {
@@ -181,4 +181,201 @@ public class HierAggloTest {
         assertEquals(expResult4, determineClusters(hierAgglo.getClusters()));
 	}
 
+	/**
+	 * Testing HierAgglo for all clusters with 4 instances - complete linkage
+	 */
+	@Test
+	public final void testClusterCompleteLink() throws Exception {
+		readInInstances("./data/testFourThreeCloser.arff");
+        EuclideanDistance eucD = new EuclideanDistance();
+        DistanceFunction eucDist = eucD;
+        AgglomerationMethod completeLink = new CompleteLinkage();
+        HierAgglo hierAgglo = new HierAgglo(data, eucDist, completeLink);
+        System.out.println("---------- Complete Linkage ----------");
+        hierAgglo.cluster();
+        
+        for (int[] cluster: hierAgglo.getAllClusters()) {
+        	System.out.println("level " + Arrays.toString(cluster));
+        }
+        
+        // build expected results 
+        // 4 clusters [[10], [11], [3], [8]]
+        ArrayList<ArrayList<String>> expResult1 = new ArrayList<ArrayList<String>>();
+        ArrayList<String> cluster0a = new ArrayList<String>();
+        ArrayList<String> cluster1a = new ArrayList<String>();
+        ArrayList<String> cluster2a = new ArrayList<String>();
+        ArrayList<String> cluster3a = new ArrayList<String>();
+        cluster0a.add(data.instance(0).toString());
+        cluster1a.add(data.instance(1).toString());
+        cluster2a.add(data.instance(2).toString());
+        cluster3a.add(data.instance(3).toString());
+        expResult1.add(cluster0a);
+        expResult1.add(cluster1a);
+        expResult1.add(cluster2a);
+        expResult1.add(cluster3a);
+    	Collections.sort(expResult1, new Comparator<ArrayList<String>>() {
+    		public int compare(ArrayList<String> a, ArrayList<String> b) {
+    			return a.get(0).compareTo(b.get(0));
+    		}
+    	});
+    	
+    	// 3 clusters [[10, 11], [3], [8]]
+        ArrayList<ArrayList<String>> expResult2 = new ArrayList<ArrayList<String>>();
+        ArrayList<String> cluster0b = new ArrayList<String>();
+        ArrayList<String> cluster1b = new ArrayList<String>();
+        ArrayList<String> cluster2b = new ArrayList<String>();
+        cluster0b.add(data.instance(0).toString());
+        cluster1b.add(data.instance(1).toString());
+        cluster2b.add(data.instance(2).toString());
+        cluster2b.add(data.instance(3).toString());
+        Collections.sort(cluster2b);
+        expResult2.add(cluster0b);
+        expResult2.add(cluster1b);
+        expResult2.add(cluster2b);
+    	Collections.sort(expResult2, new Comparator<ArrayList<String>>() {
+    		public int compare(ArrayList<String> a, ArrayList<String> b) {
+    			return a.get(0).compareTo(b.get(0));
+    		}
+    	});
+    	
+    	// 2 clusters [[10, 11, 8], [3]]
+        ArrayList<ArrayList<String>> expResult3 = new ArrayList<ArrayList<String>>();
+        ArrayList<String> cluster0c = new ArrayList<String>();
+        ArrayList<String> cluster1c = new ArrayList<String>();
+        cluster0c.add(data.instance(0).toString());
+        cluster1c.add(data.instance(1).toString());
+        cluster1c.add(data.instance(2).toString());
+        cluster1c.add(data.instance(3).toString());
+        Collections.sort(cluster1c);
+        expResult3.add(cluster0c);
+        expResult3.add(cluster1c);
+    	Collections.sort(expResult3, new Comparator<ArrayList<String>>() {
+    		public int compare(ArrayList<String> a, ArrayList<String> b) {
+    			return a.get(0).compareTo(b.get(0));
+    		}
+    	});
+    	
+    	// 1 cluster [[10, 11, 3, 8]]
+        ArrayList<ArrayList<String>> expResult4 = new ArrayList<ArrayList<String>>();
+        ArrayList<String> cluster0d = new ArrayList<String>();
+        cluster0d.add(data.instance(0).toString());
+        cluster0d.add(data.instance(1).toString());
+        cluster0d.add(data.instance(2).toString());
+        cluster0d.add(data.instance(3).toString());
+        Collections.sort(cluster0d);
+        expResult4.add(cluster0d);
+    	Collections.sort(expResult4, new Comparator<ArrayList<String>>() {
+    		public int compare(ArrayList<String> a, ArrayList<String> b) {
+    			return a.get(0).compareTo(b.get(0));
+    		}
+    	});
+        
+    	hierAgglo.setNumClusters(4);
+        assertEquals(expResult1, determineClusters(hierAgglo.getClusters()));
+    	hierAgglo.setNumClusters(3);
+        assertEquals(expResult2, determineClusters(hierAgglo.getClusters()));
+    	hierAgglo.setNumClusters(2);
+        assertEquals(expResult3, determineClusters(hierAgglo.getClusters()));
+    	hierAgglo.setNumClusters(1);
+        assertEquals(expResult4, determineClusters(hierAgglo.getClusters()));
+	}
+	
+	/**
+	 * Testing HierAgglo for all clusters with 4 instances - group average method (UPGMA)
+	 */
+	@Test
+	public final void testClusterGroupAverage() throws Exception {
+		readInInstances("./data/testFourThreeCloser.arff");
+        EuclideanDistance eucD = new EuclideanDistance();
+        DistanceFunction eucDist = eucD;
+        AgglomerationMethod groupAvg = new AverageLinkage();
+        HierAgglo hierAgglo = new HierAgglo(data, eucDist, groupAvg);
+        System.out.println("---------- Group Average (UPGMA) ----------");
+        hierAgglo.cluster();
+        
+        for (int[] cluster: hierAgglo.getAllClusters()) {
+        	System.out.println("level " + Arrays.toString(cluster));
+        }
+        
+        // build expected results 
+        // 4 clusters [[10], [11], [3], [8]]
+        ArrayList<ArrayList<String>> expResult1 = new ArrayList<ArrayList<String>>();
+        ArrayList<String> cluster0a = new ArrayList<String>();
+        ArrayList<String> cluster1a = new ArrayList<String>();
+        ArrayList<String> cluster2a = new ArrayList<String>();
+        ArrayList<String> cluster3a = new ArrayList<String>();
+        cluster0a.add(data.instance(0).toString());
+        cluster1a.add(data.instance(1).toString());
+        cluster2a.add(data.instance(2).toString());
+        cluster3a.add(data.instance(3).toString());
+        expResult1.add(cluster0a);
+        expResult1.add(cluster1a);
+        expResult1.add(cluster2a);
+        expResult1.add(cluster3a);
+    	Collections.sort(expResult1, new Comparator<ArrayList<String>>() {
+    		public int compare(ArrayList<String> a, ArrayList<String> b) {
+    			return a.get(0).compareTo(b.get(0));
+    		}
+    	});
+    	
+    	// 3 clusters [[10, 11], [3], [8]]
+        ArrayList<ArrayList<String>> expResult2 = new ArrayList<ArrayList<String>>();
+        ArrayList<String> cluster0b = new ArrayList<String>();
+        ArrayList<String> cluster1b = new ArrayList<String>();
+        ArrayList<String> cluster2b = new ArrayList<String>();
+        cluster0b.add(data.instance(0).toString());
+        cluster1b.add(data.instance(1).toString());
+        cluster2b.add(data.instance(2).toString());
+        cluster2b.add(data.instance(3).toString());
+        Collections.sort(cluster2b);
+        expResult2.add(cluster0b);
+        expResult2.add(cluster1b);
+        expResult2.add(cluster2b);
+    	Collections.sort(expResult2, new Comparator<ArrayList<String>>() {
+    		public int compare(ArrayList<String> a, ArrayList<String> b) {
+    			return a.get(0).compareTo(b.get(0));
+    		}
+    	});
+    	
+    	// 2 clusters [[10, 11, 8], [3]]
+        ArrayList<ArrayList<String>> expResult3 = new ArrayList<ArrayList<String>>();
+        ArrayList<String> cluster0c = new ArrayList<String>();
+        ArrayList<String> cluster1c = new ArrayList<String>();
+        cluster0c.add(data.instance(0).toString());
+        cluster1c.add(data.instance(1).toString());
+        cluster1c.add(data.instance(2).toString());
+        cluster1c.add(data.instance(3).toString());
+        Collections.sort(cluster1c);
+        expResult3.add(cluster0c);
+        expResult3.add(cluster1c);
+    	Collections.sort(expResult3, new Comparator<ArrayList<String>>() {
+    		public int compare(ArrayList<String> a, ArrayList<String> b) {
+    			return a.get(0).compareTo(b.get(0));
+    		}
+    	});
+    	
+    	// 1 cluster [[10, 11, 3, 8]]
+        ArrayList<ArrayList<String>> expResult4 = new ArrayList<ArrayList<String>>();
+        ArrayList<String> cluster0d = new ArrayList<String>();
+        cluster0d.add(data.instance(0).toString());
+        cluster0d.add(data.instance(1).toString());
+        cluster0d.add(data.instance(2).toString());
+        cluster0d.add(data.instance(3).toString());
+        Collections.sort(cluster0d);
+        expResult4.add(cluster0d);
+    	Collections.sort(expResult4, new Comparator<ArrayList<String>>() {
+    		public int compare(ArrayList<String> a, ArrayList<String> b) {
+    			return a.get(0).compareTo(b.get(0));
+    		}
+    	});
+        
+    	hierAgglo.setNumClusters(4);
+        assertEquals(expResult1, determineClusters(hierAgglo.getClusters()));
+    	hierAgglo.setNumClusters(3);
+        assertEquals(expResult2, determineClusters(hierAgglo.getClusters()));
+    	hierAgglo.setNumClusters(2);
+        assertEquals(expResult3, determineClusters(hierAgglo.getClusters()));
+    	hierAgglo.setNumClusters(1);
+        assertEquals(expResult4, determineClusters(hierAgglo.getClusters()));
+	}
 }

@@ -60,10 +60,10 @@ public class HierAgglo implements ClusterAlg {
         }
         
     	final boolean[] indexUsed = new boolean[numInstances];
-    	final int[] clusterCardinalities = new int[numInstances];
+    	final int[] numPerCluster = new int[numInstances];
     	for (int i = 0; i < numInstances; i++) {
     		indexUsed[i] = true;
-    		clusterCardinalities[i] = 1;
+    		numPerCluster[i] = 1;
     	}
     	
     	// perform numInstances - 2 agglomerations? Don't do first or last.
@@ -79,13 +79,13 @@ public class HierAgglo implements ClusterAlg {
     		for (int k = 0; k < numInstances; k++) {
     			if (k != i && k != j && indexUsed[k]) {
     				final double dist = agglomerationMethod.computeDist(distMatrix[i][k],
-    						distMatrix[j][k], distMatrix[i][j], clusterCardinalities[i],
-    						clusterCardinalities[j], clusterCardinalities[k]);
+    						distMatrix[j][k], distMatrix[i][j], numPerCluster[i],
+    						numPerCluster[j], numPerCluster[k]);
     				distMatrix[i][k] = dist;
     				distMatrix[k][i] = dist;
     			}
     		}
-    		clusterCardinalities[i] = clusterCardinalities[i] + clusterCardinalities[j];
+    		numPerCluster[i] = numPerCluster[i] + numPerCluster[j];
     	
     		// erase cluster j
     		indexUsed[j] = false;

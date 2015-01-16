@@ -16,14 +16,14 @@ public interface AgglomerationMethod {
 	 * @param dik dissimilarity between clusters i and k
 	 * @param djk dissimilarity between clusters j and k
 	 * @param dij dissimilarity between clusters i and j
-	 * @param ci cardinality of cluster i
-	 * @param cj cardinality of cluster j
-	 * @param ck cardinality of cluster k
+	 * @param numi number of elements in cluster i
+	 * @param numj number of elements cluster j
+	 * @param numk number of elements cluster k
 	 * 
 	 * @return dissimilarity between cluster (i,j) and cluster k.
 	 */
 	public double computeDist(double dik, double djk, double dij, 
-			int ci, int cj, int ck);
+			int numi, int numj, int numk);
 
 	/**
 	 * 

@@ -13,13 +13,13 @@ public class CompleteLinkage implements AgglomerationMethod {
 	 * The maximum of the dissimilarity between i and k, or between j and k is the 
 	 * distance between two clusters.
 	 * 
-	 * distance between C(k) and C(i) U C(k) = 
+	 * distance between C(k) and C(i) U C(j) = 
 	 * 		max{D(C(k), C(i), D(C(k), C(j))}, 
 	 * 			where C(i), C(j), C(k) are groups of data points.
 	 */
 	@Override
-	public double computeDist(double dik, double djk, double dij, int ci,
-			int cj, int ck) {
+	public double computeDist(double dik, double djk, double dij, int numi,
+			int numj, int numk) {
 		return Math.max(dik, djk);
 	}
 	
