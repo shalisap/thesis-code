@@ -12,6 +12,7 @@ public class EuclideanDistance extends AbstractDistance {
 
 	Instance x;
 	Instance y;
+	Instances data;
 
 	/**
 	 * Calculates the distance between two instances.
@@ -32,10 +33,37 @@ public class EuclideanDistance extends AbstractDistance {
 		}
 		return Math.sqrt(sum);
 	}
+	
+	/**
+	 * Calculates the dissimilarity matrix 
+	 *
+	 * @return    the dissimilarity matrix using the euclidean distance
+	 */
+	@Override
+	public double[][] calculateDistMatrix(Instances data) {
+		double[][] disMatrix = new double[data.numInstances()][data.numInstances()];
+		// fill diagonal
+		for (int i = 0; i < disMatrix.length; i++) {
+			disMatrix[i][i] = 0.0;
+		}
+		// Assuming symmetric measure, complete half and mirror across diagonal
+		for (int i = 0; i < disMatrix.length; i++) {
+			for (int j = 0; j < i; j++) {
+				double dist = calculateDistance(data.instance(i), data.instance(j));
+				disMatrix[i][j] = dist;
+				disMatrix[j][i] = dist;
+			}
+		}
+		return disMatrix;
+	}
 
 	public EuclideanDistance(Instance a, Instance b) {
-		x = a;
-		y = b;
+		this.x = a;
+		this.y = b;
+	}
+	
+	public EuclideanDistance(Instances x) {
+		this.data = x;
 	}
 
 	public EuclideanDistance(){

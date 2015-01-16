@@ -12,11 +12,12 @@ public class ManhattanDistance extends AbstractDistance {
 
 	Instance x;
 	Instance y;
+	Instances data;
 
 	/**
 	 * Calculates the distance between two instances.
 	 *
-	 * @return    the euclidean distance between the two instances
+	 * @return    the manhattan distance between the two instances
 	 */
 	@Override
 	public double calculateDistance(Instance x, Instance y) {
@@ -30,9 +31,36 @@ public class ManhattanDistance extends AbstractDistance {
 		}
 		return sum;
 	}
+	
+	/**
+	 * Calculates the dissimilarity matrix 
+	 *
+	 * @return    the dissimilarity matrix using the manhattan distance
+	 */
+	@Override
+	public double[][] calculateDistMatrix(Instances data) {
+		final double[][] disMatrix = new double[data.numInstances()][data.numInstances()];
+		// fill diagonal
+		for (int i = 0; i < disMatrix.length; i++) {
+			disMatrix[i][i] = 0.0;
+		}
+		// Assuming symmetric measure, complete half and mirror across diagonal
+		for (int i = 0; i < disMatrix.length; i++) {
+			for (int j = 0; j < i; j++) {
+				final double dist = calculateDistance(data.instance(i), data.instance(j));
+				disMatrix[i][j] = dist;
+				disMatrix[j][i] = dist;
+			}
+		}
+		return disMatrix;
+	}
 
 	public ManhattanDistance(Instance a, Instance b) {
-		x = a;
-		y = b;
+		this.x = a;
+		this.y = b;
+	}
+	
+	public ManhattanDistance(Instances x) {
+		this.data = x;
 	}
 }

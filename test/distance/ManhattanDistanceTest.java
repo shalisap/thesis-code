@@ -2,6 +2,9 @@ package distance;
 
 import static org.junit.Assert.*;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+
 import org.junit.Test;
 import org.junit.Ignore;
 //import org.junit.BeforeClass;
@@ -10,6 +13,7 @@ import org.junit.Ignore;
 //import static org.mockito.Mockito.when;
 
 import weka.core.Instance;
+import weka.core.Instances;
 
 /**
  * Tests for ManhattanDistance
@@ -20,6 +24,7 @@ public class ManhattanDistanceTest {
 
 	private static Instance instance1;
 	private static Instance instance2;
+	private static Instances data;
 	
 	/**
 	 * Creates instances to allow testing of various inputs
@@ -38,6 +43,15 @@ public class ManhattanDistanceTest {
 		}
 	}
 
+    /**
+     * Reads in instances from a .arff file
+     * @param filename   name of the .arff file
+     */
+    public static void readInInstances(String filename)  throws Exception{
+        BufferedReader reader = new BufferedReader(new FileReader(filename));
+        data = new Instances(reader);
+    }
+	
     /**
      * Testing the manhattan distance function when there are instances each with
      * a single positive attribute each.
@@ -116,5 +130,17 @@ public class ManhattanDistanceTest {
 					+ "contain the same number of attributes", result);
     }
 
-
+    /**
+     * Testing the calculate matrix function.
+     */
+    @Test
+    public final void testCalculateDistMatrix() throws Exception{
+    	// 3, 8, 10
+    	readInInstances("./data/testThreeTwoCloser.arff");
+    	double[][] expResult = {{0.0, 5.0, 7.0},{5.0, 0.0, 2.0},{7.0, 2.0, 0.0}};
+    	ManhattanDistance manDist = new ManhattanDistance(data);
+    	double[][] calc = manDist.calculateDistMatrix(data);
+    	assertEquals(expResult, calc);
+    }
+    
 }
