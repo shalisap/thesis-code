@@ -149,6 +149,9 @@ public class HierAgglo implements ClusterAlg {
      */
     @Override
     public int[] getClusters(){
+		if (this.allClusters == null) {
+			cluster();
+		} 
         return this.allClusters[this.data.numInstances() - this.numClusters];
     }
     
@@ -157,6 +160,9 @@ public class HierAgglo implements ClusterAlg {
      * further down the array.
      */
     public int[][] getAllClusters(){
+		if (this.allClusters == null) {
+			cluster();
+		} 
         return this.allClusters;
     }
 

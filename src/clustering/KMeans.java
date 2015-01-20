@@ -8,7 +8,7 @@ import weka.core.Attribute;
 import weka.core.Instance;
 
 /**
- * Implementation of KMeans.
+ * Implementation of K-Means.
  *
  * @author Shalisa Pattarawuttiwong
  */
@@ -145,8 +145,6 @@ public class KMeans implements ClusterAlg {
     
     /**
      * Runs the kmeans clustering algorithm.
-     * Implementation similar to the implementation of
-     * kmeans in the Java Machine Learning Library.
      */
 	@Override
 	public void cluster() {
