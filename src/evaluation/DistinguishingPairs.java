@@ -113,7 +113,7 @@ public class DistinguishingPairs extends AbstractEvaluation implements
 	public DistinguishingPairs(int n,Instances d, int[] a, int[] b) {
 		this.data = d;
 		
-		if (getNumClusters(cluster1) != getNumClusters(cluster2)) {
+		if (getNumClusters(cluster1) != getNumClusters(cluster2))
     		throw new IllegalArgumentException("Clusters cannot have"
     				+ "different number of total clusters");
 		this.cluster1 = a;
