@@ -1,109 +1,76 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project basedir="." default="build" name="thesis-code">
-    <property environment="env"/>
-    <property name="junit.output.dir" value="junit"/>
-    <property name="debuglevel" value="source,lines,vars"/>
-    <property name="target" value="1.8"/>
-    <property name="source" value="1.8"/>
-    <path id="thesis-code.classpath">
-        <pathelement location="bin"/>
-        <pathelement location="lib/hamcrest-core-1.3.jar"/>
-        <pathelement location="lib/junit-4.12.jar"/>
-        <pathelement location="lib/mockito-all-1.10.14.jar"/>
-        <pathelement location="lib/weka.jar"/>
-    </path>
-    <target name="init">
-        <mkdir dir="bin"/>
-        <copy includeemptydirs="false" todir="bin">
-            <fileset dir="src">
-                <exclude name="**/*.launch"/>
-                <exclude name="**/*.java"/>
-            </fileset>
-        </copy>
-        <copy includeemptydirs="false" todir="bin">
-            <fileset dir="test">
-                <exclude name="**/*.launch"/>
-                <exclude name="**/*.java"/>
-            </fileset>
-        </copy>
-    </target>
-    <target name="clean">
-        <delete dir="bin"/>
-    </target>
-    <target depends="clean" name="cleanall"/>
-    <target depends="build-subprojects,build-project" name="build"/>
-    <target name="build-subprojects"/>
-    <target depends="init" name="build-project">
-        <echo message="${ant.project.name}: ${ant.file}"/>
-        <javac debug="true" debuglevel="${debuglevel}" destdir="bin" includeantruntime="false" source="${source}" target="${target}">
-            <src path="src"/>
-            <src path="test"/>
-            <classpath refid="thesis-code.classpath"/>
-        </javac>
-    </target>
-    <target description="Build all projects which reference this project. Useful to propagate changes." name="build-refprojects"/>
-    <target name=".compare">
-        <mkdir dir="${junit.output.dir}"/>
-        <junit fork="yes" printsummary="withOutAndErr">
-            <formatter type="xml"/>
-            <test name="clustering.HierAggloTest.8" todir="${junit.output.dir}"/>
-            <classpath refid="thesis-code.classpath"/>
-        </junit>
-    </target>
-    <target name="EuclideanDistanceTest">
-        <mkdir dir="${junit.output.dir}"/>
-        <junit fork="yes" printsummary="withOutAndErr">
-            <formatter type="xml"/>
-            <test name="distance.EuclideanDistanceTest" todir="${junit.output.dir}"/>
-            <classpath refid="thesis-code.classpath"/>
-        </junit>
-    </target>
-    <target name="HierAggloTest">
-        <mkdir dir="${junit.output.dir}"/>
-        <junit fork="yes" printsummary="withOutAndErr">
-            <formatter type="xml"/>
-            <test name="clustering.HierAggloTest" todir="${junit.output.dir}"/>
-            <classpath refid="thesis-code.classpath"/>
-        </junit>
-    </target>
-    <target name="HierAggloTest.testClusterSingleLink">
-        <mkdir dir="${junit.output.dir}"/>
-        <junit fork="yes" printsummary="withOutAndErr">
-            <formatter type="xml"/>
-            <test name="clustering.HierAggloTest" todir="${junit.output.dir}"/>
-            <classpath refid="thesis-code.classpath"/>
-        </junit>
-    </target>
-    <target name="KMeansTest">
-        <mkdir dir="${junit.output.dir}"/>
-        <junit fork="yes" printsummary="withOutAndErr">
-            <formatter type="xml"/>
-            <test name="clustering.KMeansTest" todir="${junit.output.dir}"/>
-            <classpath refid="thesis-code.classpath"/>
-        </junit>
-    </target>
-    <target name="KMedoidsTest">
-        <mkdir dir="${junit.output.dir}"/>
-        <junit fork="yes" printsummary="withOutAndErr">
-            <formatter type="xml"/>
-            <test name="clustering.KMedoidsTest" todir="${junit.output.dir}"/>
-            <classpath refid="thesis-code.classpath"/>
-        </junit>
-    </target>
-    <target name="ManhattanDistanceTest">
-        <mkdir dir="${junit.output.dir}"/>
-        <junit fork="yes" printsummary="withOutAndErr">
-            <formatter type="xml"/>
-            <test name="distance.ManhattanDistanceTest" todir="${junit.output.dir}"/>
-            <classpath refid="thesis-code.classpath"/>
-        </junit>
-    </target>
-    <target name="junitreport">
-        <junitreport todir="${junit.output.dir}">
-            <fileset dir="${junit.output.dir}">
-                <include name="TEST-*.xml"/>
-            </fileset>
-            <report format="frames" todir="${junit.output.dir}"/>
-        </junitreport>
-    </target>
+<project name="shalisa-thesis" default="compile" basedir=".">
+    <description>
+        simple example build file
+    </description>
+  <!-- set global properties for this build -->
+  <property name="src" location="src"/>
+  <property name="build" location="build"/>
+  <property name="src.test" location="test"/>
+  <property name="build.test" location="build.test"/>
+  <property name="dist"  location="dist"/>
+  <property name="reports" location="reports"/>
+  <property name="doc" location="doc" />
+
+  <path id="class.path">
+	  <fileset dir="../extras">
+		  <include name="*.jar" />
+	  </fileset>
+  </path>
+
+  <target name="init">
+    <!-- Create the time stamp -->
+    <tstamp/>
+    <!-- Create the build directory structure used by compile -->
+    <mkdir dir="${build}"/>
+  </target>
+
+  <target name="compile" depends="init"
+        description="compile the source " >
+    <!-- Compile the java code from ${src} into ${build} -->
+    <javac srcdir="${src}" destdir="${build}">
+		<classpath refid="class.path" />
+	</javac>
+  </target>
+
+  <target name="test" depends="compile">
+	  <mkdir dir="${build.test}" />
+	  <mkdir dir="${reports}" />
+	  <javac srcdir="${src.test}" destdir="${build.test}">
+		  <classpath>
+			  <path refid="class.path"/>
+			  <pathelement path="${build}"/>
+		  </classpath>
+	  </javac>
+	  <junit printsummary="yes" haltonfailure="no" failureproperty="junit.fail">
+		  <formatter type="plain"/>
+          <classpath>
+			  <path refid="class.path"/>
+			  <pathelement path="${build}"/>
+			  <pathelement path="${build.test}"/>
+		  </classpath>
+		  <batchtest todir="${reports}">
+			  <fileset dir="${src.test}">
+				  <include name="**/*Test.java"/>
+			  </fileset>
+		  </batchtest>
+	  </junit>
+	  <fail if="junit.fail" message="TEST FAILURES!" />
+  </target>
+
+  <target name="dist" depends="compile"
+        description="generate the distribution" >
+    <!-- Create the distribution directory -->
+    <mkdir dir="${dist}/lib"/>
+
+    <!-- Put everything in ${build} into the MyProject-${DSTAMP}.jar file -->
+    <jar jarfile="${dist}/lib/MyProject-${DSTAMP}.jar" basedir="${build}"/>
+  </target>
+
+  <target name="clean"
+        description="clean up" >
+    <!-- Delete the ${build} and ${dist} directory trees -->
+    <delete dir="${build}"/>
+    <delete dir="${dist}"/>
+  </target>
 </project>
+
