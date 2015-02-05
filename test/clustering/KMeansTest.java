@@ -100,7 +100,10 @@ public class KMeansTest {
         KMeans kmeans = new KMeans(data, eucDist);
         kmeans.setNumClusters(1);
         kmeans.setNumIterations(100);
-        kmeans.setChooseInitCentroids(true);
+        //kmeans.setInitCentroids([0]);
+        Set<Integer> init = new HashSet<Integer>();
+        init.add(0);
+        kmeans.setInitCentroids(init);
         System.out.println("---------- One Instance, One Cluster "
         		+ "(0 done) ----------");
         kmeans.cluster();
@@ -132,7 +135,9 @@ public class KMeansTest {
         KMeans kmeans = new KMeans(data, eucDist);
         kmeans.setNumClusters(1);
         kmeans.setNumIterations(100);
-        kmeans.setChooseInitCentroids(true);
+        Set<Integer> init = new HashSet<Integer>();
+        init.add(0);
+        kmeans.setInitCentroids(init);
         System.out.println("---------- Two Instances, One Cluster "
         		+ "(0 done) ----------");
         kmeans.cluster();
@@ -166,7 +171,9 @@ public class KMeansTest {
         KMeans kmeans = new KMeans(data, eucDist);
         kmeans.setNumClusters(1);
         kmeans.setNumIterations(100);
-        kmeans.setChooseInitCentroids(true);
+        Set<Integer> init = new HashSet<Integer>();
+        init.add(1);
+        kmeans.setInitCentroids(init);
         System.out.println("---------- Two Instances, One Cluster "
         		+ "(1 done) ----------");
         kmeans.cluster();
@@ -200,7 +207,10 @@ public class KMeansTest {
         KMeans kmeans = new KMeans(data, eucDist);
         kmeans.setNumClusters(2);
         kmeans.setNumIterations(100);
-        kmeans.setChooseInitCentroids(true);
+        Set<Integer> init = new HashSet<Integer>();
+        init.add(0);
+        init.add(1);
+        kmeans.setInitCentroids(init);
         System.out.println("---------- Two Instances, Two Clusters "
         		+ "(0 1 done) ----------");
         kmeans.cluster();
@@ -236,7 +246,9 @@ public class KMeansTest {
         KMeans kmeans = new KMeans(data, eucDist);
         kmeans.setNumClusters(1);
         kmeans.setNumIterations(100);
-        kmeans.setChooseInitCentroids(true);
+        Set<Integer> init = new HashSet<Integer>();
+        init.add(0);
+        kmeans.setInitCentroids(init);
         System.out.println("---------- Three Instances, One Cluster"
         		+ " (0 done) ----------");
         kmeans.cluster();
@@ -272,7 +284,9 @@ public class KMeansTest {
         KMeans kmeans = new KMeans(data, eucDist);
         kmeans.setNumClusters(1);
         kmeans.setNumIterations(100);
-        kmeans.setChooseInitCentroids(true);
+        Set<Integer> init = new HashSet<Integer>();
+        init.add(1);
+        kmeans.setInitCentroids(init);
         System.out.println("---------- Three Instances, One Cluster"
         		+ " (1 done) ----------");
         kmeans.cluster();
@@ -308,7 +322,9 @@ public class KMeansTest {
         KMeans kmeans = new KMeans(data, eucDist);
         kmeans.setNumClusters(1);
         kmeans.setNumIterations(100);
-        kmeans.setChooseInitCentroids(true);
+        Set<Integer> init = new HashSet<Integer>();
+        init.add(2);
+        kmeans.setInitCentroids(init);
         System.out.println("---------- Three Instances, One Cluster "
         		+ "(2 done) ----------");
         kmeans.cluster();
@@ -344,7 +360,10 @@ public class KMeansTest {
         KMeans kmeans = new KMeans(data, eucDist);
         kmeans.setNumClusters(2);
         kmeans.setNumIterations(100);
-        kmeans.setChooseInitCentroids(true);
+        Set<Integer> init = new HashSet<Integer>();
+        init.add(0);
+        init.add(1);
+        kmeans.setInitCentroids(init);
         System.out.println("---------- Three Instances, Two Clusters "
         		+ "(0 1 done) ----------");
         kmeans.cluster();
@@ -388,7 +407,10 @@ public class KMeansTest {
         KMeans kmeans = new KMeans(data, eucDist);
         kmeans.setNumClusters(2);
         kmeans.setNumIterations(100);
-        kmeans.setChooseInitCentroids(true);
+        Set<Integer> init = new HashSet<Integer>();
+        init.add(1);
+        init.add(2);
+        kmeans.setInitCentroids(init);
         System.out.println("---------- Three Instances, Two Clusters "
         		+ "(1 2 done) ----------");
         kmeans.cluster();
@@ -432,7 +454,10 @@ public class KMeansTest {
         KMeans kmeans = new KMeans(data, eucDist);
         kmeans.setNumClusters(2);
         kmeans.setNumIterations(100);
-        kmeans.setChooseInitCentroids(true);
+        Set<Integer> init = new HashSet<Integer>();
+        init.add(0);
+        init.add(2);
+        kmeans.setInitCentroids(init);
         System.out.println("---------- Three Instances, Two Clusters"
         		+ " (0 2 done) ----------");
         kmeans.cluster();
@@ -475,7 +500,11 @@ public class KMeansTest {
         KMeans kmeans = new KMeans(data, eucDist);
         kmeans.setNumClusters(3);
         kmeans.setNumIterations(100);
-        kmeans.setChooseInitCentroids(true);
+        Set<Integer> init = new HashSet<Integer>();
+        init.add(0);
+        init.add(1);
+        init.add(2);
+        kmeans.setInitCentroids(init);
         System.out.println("---------- Three Instances, three Clusters "
         		+ "(0 1 2 done) ----------");
         kmeans.cluster();

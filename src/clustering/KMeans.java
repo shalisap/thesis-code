@@ -83,19 +83,12 @@ public class KMeans implements ClusterAlg {
     				+ "to fewer than 1");
     	} else this.iterations = i;
     }
-    
-    /**
-     * Choose to randomize or manually pick centroids.
-     * @param i True for user's pick, false for randomize.
-     */
-    public void setChooseInitCentroids(boolean i) {
-    	this.chooseInitCentroids = i;
-    }
 
     /**
      * Randomizes the initial centroids chosen.
      */
     private void randomizeInitCentroids(){
+        this.centroids = new Instances(this.data, this.numClusters);
         Random rand = new Random(); // random number generator
         while (this.centroids.numInstances() < this.numClusters) {
         	boolean addRandom = true;
@@ -115,7 +108,9 @@ public class KMeans implements ClusterAlg {
     /**
      * Allows the user to choose the initial centroids.
      */
-    public void pickInitCentroids(){
+    public void setInitCentroids(Set<Integer> centroids){
+    	
+    	/*
     	// print instances
     	boolean duplicate = true;
     	ArrayList<String> indices = new ArrayList<String>();
@@ -129,6 +124,22 @@ public class KMeans implements ClusterAlg {
     	Scanner input = new Scanner(System.in);
     	
     	String index = input.next();
+    	*/
+    	
+        this.centroids = new Instances(this.data, this.numClusters);
+    	for (int item: centroids) {
+    		this.centroids.add(this.data.instance(item));
+    	}
+        this.chooseInitCentroids = true;
+  
+    	if (this.centroids.numInstances() != this.numClusters) {
+    		throw new IllegalArgumentException("Centroids chosen not equal to "
+    				+ "the number of clusters wanted or "
+    				+ "duplicates of centroids chosen");
+    	}
+    	
+       this.chooseInitCentroids = true;
+    	/*
     	while ((!index.equals("done")) && duplicate == true) {
     		if (indices.contains(index)) {
     			duplicate = false;
@@ -139,8 +150,7 @@ public class KMeans implements ClusterAlg {
 	    		this.centroids.add(chosenInstance);
 	    		index = input.next();
     		}
-    	}
-		System.out.println();
+    		*/
     }
     
     /**
@@ -149,7 +159,6 @@ public class KMeans implements ClusterAlg {
 	@Override
 	public void cluster() {
         Random rand = new Random(); // random number generator
-        this.centroids = new Instances(this.data, this.numClusters);
         int instanceLength = this.data.instance(0).numAttributes();
 
         // Create instances that contain the min/max values for the attributes 
@@ -174,17 +183,13 @@ public class KMeans implements ClusterAlg {
         	}
         }
 
-        if (this.chooseInitCentroids == false) {
+        if (this.chooseInitCentroids == false && this.centroids == null) {
         	randomizeInitCentroids();
-        } else {
-        	pickInitCentroids();
-        	while (this.centroids.numInstances() != this.numClusters) {
-        		System.out.println("Centroids chosen not equal to "
-        				+ "the number of clusters wanted or "
-        				+ "duplicates of centroids chosen");
-                this.centroids = new Instances(this.data, this.numClusters);
-        		pickInitCentroids();
-        	}
+        	
+        	// will never happen??
+        } else if (this.chooseInitCentroids == true && this.centroids == null) {
+        	throw new IllegalArgumentException("Must set initial "
+        			+ "centroids before running cluster()");
         }
 
         int iterationCount = 0;
