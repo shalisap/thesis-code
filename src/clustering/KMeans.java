@@ -8,45 +8,51 @@ import weka.core.Attribute;
 import weka.core.Instance;
 
 /**
- * Implementation of K-Means.
+ * Implementation of K-Means clustering.
  *
  * @author Shalisa Pattarawuttiwong
  */
 public class KMeans implements ClusterAlg {
 
     /**
-     * Holds the similarity/distance function to be used
+     * The similarity/distance function to be used
      */
     protected DistanceFunction distFn;
 
     /**
-     * Holds the data to be processed
+     * The data to be clustered
      */
-    Instances data;
-
-    int numClusters = 2; // default value of k; number of clusters to generate
+    protected Instances data;
 
     /**
-     * Holds the number of iterations
+     * The number of clusters, k, to generate
+     */
+    protected int numClusters = 2; // default value of k
+
+    /**
+     * The number of iterations to run cluster()
      */
     private int iterations = 1;
 
     /**
-     * Holds the cluster centroids
+     * The cluster centroids, [c{0}, c{1}, ..., c{n-1}], where
+     * each c{i}, 0 <= i < n, is an instance representing 
+     * a centroid and n is the number of clusters.
      */
     private Instances centroids;
 
     /**
-     * Holds the labels for each instance in the data
+     * [i{0}, i{1}, ..., i{n-1}] where each i{j}, 0 <= j < n belongs 
+     * to a partition, C{k}, 0 <= k <= numClusters, of the dataset. 
      */
     private int[] clusters;
 
     /**
-     * If true, allows the user to pick the initial centroids,
+     * If true, pick the initial centroids,
      * if false, randomize the initial centroids.
      */
     private boolean chooseInitCentroids = false;
-    	
+    
     /**
      * Constructor for KMeans that takes data and
      * a similarity function.
@@ -61,7 +67,7 @@ public class KMeans implements ClusterAlg {
     }
     
     /**
-     * Set the number of clusters to find
+     * Set the number of clusters to generate
      * @param k Number of clusters
      */
     public void setNumClusters(int k)
@@ -73,7 +79,7 @@ public class KMeans implements ClusterAlg {
     }
 
     /**
-     * Set the number of iterations to run
+     * Set the number of iterations to run cluster()
      * @param i Number of iterations
      */
     public void setNumIterations(int i)
@@ -83,7 +89,7 @@ public class KMeans implements ClusterAlg {
     				+ "to fewer than 1");
     	} else this.iterations = i;
     }
-
+    
     /**
      * Randomizes the initial centroids chosen.
      */
@@ -107,24 +113,9 @@ public class KMeans implements ClusterAlg {
     
     /**
      * Allows the user to choose the initial centroids.
+     * @param centroids Set of integers representing indices of centroids
      */
     public void setInitCentroids(Set<Integer> centroids){
-    	
-    	/*
-    	// print instances
-    	boolean duplicate = true;
-    	ArrayList<String> indices = new ArrayList<String>();
-    	
-    	System.out.println("Instances");
-    	for (int i = 0; i < this.data.numInstances(); i++) {
-    		System.out.println(i + ": " + this.data.instance(i));
-    	}
-    	
-		System.out.println("Enter indices of the distinct centroids wanted (Ex: 0 1 done): ");
-    	Scanner input = new Scanner(System.in);
-    	
-    	String index = input.next();
-    	*/
     	
         this.centroids = new Instances(this.data, this.numClusters);
     	for (int item: centroids) {
@@ -139,22 +130,24 @@ public class KMeans implements ClusterAlg {
     	}
     	
        this.chooseInitCentroids = true;
-    	/*
-    	while ((!index.equals("done")) && duplicate == true) {
-    		if (indices.contains(index)) {
-    			duplicate = false;
-    		}
-    		else {
-    			indices.add(index);
-	    		Instance chosenInstance = this.data.instance(Integer.parseInt(index));	
-	    		this.centroids.add(chosenInstance);
-	    		index = input.next();
-    		}
-    		*/
     }
     
+	/**
+	 * Returns the clusters from KMeans clustering of the data, 
+     * [i{0}, i{1}, ..., i{n-1}] where each i{j}, 0 <= j < n belongs 
+     * to a partition, C{k}, 0 <= k <= numClusters, of the dataset. 
+	 * 
+	 */
+	@Override
+	public int[] getClusters() {
+		if (this.clusters == null) {
+			cluster();
+		} 
+		return this.clusters;
+	}
+	
     /**
-     * Runs the kmeans clustering algorithm.
+     * Runs the kmeans clustering algorithm on the data given.
      */
 	@Override
 	public void cluster() {
@@ -280,14 +273,5 @@ public class KMeans implements ClusterAlg {
         }
 	}
 
-	/**
-	 * Returns the labels from KMeans clustering of the data.
-	 */
-	@Override
-	public int[] getClusters() {
-		if (this.clusters == null) {
-			cluster();
-		} 
-		return this.clusters;
-	}
+	
 }
