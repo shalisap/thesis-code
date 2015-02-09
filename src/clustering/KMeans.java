@@ -113,7 +113,7 @@ public class KMeans implements ClusterAlg {
     
     /**
      * Allows the user to choose the initial centroids.
-     * @param centroids Set of integers representing indices of centroids
+     * @param centroids Set of integers representing indices of the data
      */
     public void setInitCentroids(Set<Integer> centroids){
     	
@@ -155,7 +155,6 @@ public class KMeans implements ClusterAlg {
         int instanceLength = this.data.instance(0).numAttributes();
 
         // Create instances that contain the min/max values for the attributes 
-        // -- move to own function?
         Instance min = new Instance(instanceLength);
         Instance max = new Instance(instanceLength);
         // for each instance -- not iterable
