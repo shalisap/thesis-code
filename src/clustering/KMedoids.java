@@ -7,47 +7,50 @@ import weka.core.Instances;
 import distance.DistanceFunction;
 
 /**
- * Implementation of K-Medoids.
+ * Implementation of K-Medoids clustering.
  * 
  * @author Shalisa Pattarawuttiwong
  */
 public class KMedoids implements ClusterAlg {
 	
     /**
-     * Holds the similarity/distance function to be used
+     * The similarity/distance function to be used
      */
     protected DistanceFunction distFn;
 
     /**
-     * Holds the data to be processed
+     * The data to be clustered
      */
-    Instances data;
+    protected Instances data;
 
     /**
-     * Holds the number of clusters to be generated
+     * The number of clusters, k, to generate
      */
-    int numClusters = 2; // default value of k; number of clusters to generate
+    protected int numClusters = 2; // default value of k
 
     /**
-     * Holds the number of iterations
+     * The number of maximum iterations to run cluster()
      */
     private int iterations = 1;
 
     /**
-     * Holds the cluster medoids
+     * The cluster medoids, [m{0}, m{1}, ..., m{n-1}], where
+     * each c{i}, 0 <= m < n, is an instance representing 
+     * a medoid and n is the number of clusters.
      */
     private Instance[] medoids;
     
     /**
-     * If true, allows the user to pick the initial medoids,
+     * [i{0}, i{1}, ..., i{n-1}] where each i{j}, 0 <= j < n belongs 
+     * to a partition, C{k}, 0 <= k <= numClusters, of the dataset. 
+     */
+    private int[] clusters;
+    
+    /**
+     * If true, pick the initial medoids,
      * if false, randomize the initial medoids.
      */
     private boolean chooseInitMedoids = false;
-
-    /**
-     * Holds the labels for each instance in the data
-     */
-    private int[] clusters;
     
     /**
      * Random number generator 
@@ -55,7 +58,7 @@ public class KMedoids implements ClusterAlg {
     private Random rand;
     
     /**
-     * Constructor for KMeans that takes data and
+     * Constructor for KMedoids that takes data and
      * a similarity function.
      */
     public KMedoids(Instances d, DistanceFunction s)
@@ -69,7 +72,7 @@ public class KMedoids implements ClusterAlg {
     }
     
     /**
-     * Set the number of clusters to find
+     * Set the number of clusters to generate
      * @param k Number of clusters
      */
     public void setNumClusters(int k)
@@ -81,7 +84,7 @@ public class KMedoids implements ClusterAlg {
     }
 
     /**
-     * Set the number of iterations to run
+     * Set the number of maximum iterations to run cluster()
      * @param i Number of iterations
      */
     public void setNumIterations(int i)
@@ -90,14 +93,6 @@ public class KMedoids implements ClusterAlg {
     		throw new IllegalArgumentException("Cannot set iterations "
     				+ "to fewer than 1");
     	} else this.iterations = i;
-    }
-    
-    /**
-     * Choose to randomize or manually pick centroids.
-     * @param i True for user's pick, false for randomize.
-     */
-    public void setChooseInitMedoids(boolean i) {
-    	this.chooseInitMedoids = i;
     }
     
     /**
@@ -142,74 +137,70 @@ public class KMedoids implements ClusterAlg {
      * Randomizes the initial medoids chosen. 
      */
     public void randomizeInitMedoids(){
-		// randomize initial medoids
-    	int index = 0;
-    	while (medoids.length < numClusters) {
-    		boolean addRandom = true;
-			Instance randInst = data.instance(rand.nextInt(data.numInstances()));
-			// randomize first pick of medoids.
-			if (Arrays.asList(medoids).contains(randInst)) {
-				addRandom = false;
-			}
-			if (addRandom == true) {
-				medoids[index] = randInst;
-				index++;
-			}
-		}
+        medoids = new Instance[this.numClusters];
+        
+        // construct list xs where xs[i] = i
+        List<Integer> random = new ArrayList<Integer>();
+        for (int i = 0; i < data.numInstances(); i++) {
+        	random.add(i);
+        }
+        
+        // shuffle xs
+        Collections.shuffle(random);
+        
+        for (int k = 0; k < numClusters; k++) {
+        	medoids[k] = data.instance(random.get(k));
+        }
     }
     
     /**
      * Allows the user to choose the initial medoids.
+     * @param pickedMed Set of integers representing indices of the data
      */
-    public void pickInitMedoids(){
-    	// print instances
-    	boolean duplicate = true;
-    	ArrayList<String> indices = new ArrayList<String>();
+    public void setInitMedoids(Set<Integer> pickedMed){
     	
-    	System.out.println("Instances");
-    	for (int i = 0; i < data.numInstances(); i++) {
-    		System.out.println(i + ": " + data.instance(i));
+        medoids = new Instance[this.numClusters];
+        int index = 0;
+    	for (int item: pickedMed) {
+    		medoids[index] = data.instance(item);
+    		//centroids.add(this.data.instance(item));
+    		index++;
+    	}
+  
+    	if (medoids.length != numClusters) {
+    		throw new IllegalArgumentException("Centroids chosen not equal to "
+    				+ "the number of clusters wanted or "
+    				+ "duplicates of centroids chosen");
     	}
     	
-		System.out.println("Enter indices of the distinct medoids wanted (Ex: 0 1 done): ");
-    	Scanner input = new Scanner(System.in);
-    	
-    	int i = 0;
-    	String index = input.next();
-    	while ((!index.equals("done")) && duplicate == true) {
-    		if (indices.contains(index)) {
-    			duplicate = false;
-    		}
-    		else {
-    			indices.add(index);
-	    		Instance chosenInstance = data.instance(Integer.parseInt(index));	
-	    		medoids[i] = chosenInstance;
-	    		index = input.next();
-	    		i++;
-    		}
-    	}
-		System.out.println();
+       this.chooseInitMedoids = true;
+    
     }
     
 	/** 
-	 * 
+	 * Returns the labels from KMedoids clustering of the data
+	 */
+	@Override
+	public int[] getClusters() {
+		if (this.clusters == null) {
+			cluster();
+		} 
+		return this.clusters;
+	}
+    
+	/** 
+	 * Runs the k-medoids clustering algorithm on the data given.
 	 */
 	@Override
 	public void cluster() {
 		// initialize clusters to have max values
 		clusters = new int[data.numInstances()];
-    	medoids = new Instance[numClusters];
-        if (chooseInitMedoids == false) {
+        
+        if (!this.chooseInitMedoids && this.medoids == null) {
         	randomizeInitMedoids();
-        } else {
-        	pickInitMedoids();
-        	while (medoids.length != numClusters) {
-        		System.out.println("Medoids chosen not equal to "
-        				+ "the number of clusters wanted or "
-        				+ "duplicates of centroids chosen");
-                medoids = new Instance[numClusters];
-        		pickInitMedoids();
-        	}
+        } else if (this.chooseInitMedoids && this.medoids == null) {
+        	throw new IllegalArgumentException("Must set initial "
+        			+ "centroids before running cluster()");
         }
 		
 		boolean changed = true;
@@ -261,17 +252,6 @@ public class KMedoids implements ClusterAlg {
 				}
 			}
 		}
-	}
-
-	/** 
-	 * Returns the labels from KMedoids clustering of the data
-	 */
-	@Override
-	public int[] getClusters() {
-		if (this.clusters == null) {
-			cluster();
-		} 
-		return this.clusters;
 	}
 
 }

@@ -29,7 +29,7 @@ public class KMeans implements ClusterAlg {
     protected int numClusters = 2; // default value of k
 
     /**
-     * The number of iterations to run cluster()
+     * The number of maximum iterations to run cluster()
      */
     private int iterations = 1;
 
@@ -78,7 +78,7 @@ public class KMeans implements ClusterAlg {
     }
 
     /**
-     * Set the number of iterations to run cluster()
+     * Set the number of maximum iterations to run cluster()
      * @param i Number of iterations
      */
     public void setNumIterations(int i)
@@ -112,7 +112,7 @@ public class KMeans implements ClusterAlg {
     
     /**
      * Allows the user to choose the initial centroids.
-     * @param centroids Set of integers representing indices of the data
+     * @param pickedCent Set of integers representing indices of the data
      */
     public void setInitCentroids(Set<Integer> pickedCent){
     	

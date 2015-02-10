@@ -7,8 +7,9 @@ import java.io.*;
 import java.util.*;
 
 import static org.junit.Assert.*;
+
 import org.junit.Test;
-import org.junit.Ignore;
+//import org.junit.Ignore;
 
 import weka.core.Instances;
 //import weka.core.Instance;
@@ -100,7 +101,9 @@ public class KMedoidsTest {
         KMedoids kmedoids = new KMedoids(data, eucDist);
         kmedoids.setNumClusters(1);
         kmedoids.setNumIterations(100);
-        kmedoids.setChooseInitMedoids(true);
+        Set<Integer> init = new HashSet<Integer>();
+        init.add(0);
+        kmedoids.setInitMedoids(init);
         System.out.println("---------- One Instance, One Cluster "
         		+ "(0 done) ----------");
         kmedoids.cluster();
@@ -132,7 +135,9 @@ public class KMedoidsTest {
         KMedoids kmedoids = new KMedoids(data, eucDist);
         kmedoids.setNumClusters(1);
         kmedoids.setNumIterations(100);
-        kmedoids.setChooseInitMedoids(true);
+        Set<Integer> init = new HashSet<Integer>();
+        init.add(0);
+        kmedoids.setInitMedoids(init);
         System.out.println("---------- Two Instances, One Cluster "
         		+ "(0 done) ----------");
         kmedoids.cluster();
@@ -166,7 +171,9 @@ public class KMedoidsTest {
         KMedoids kmedoids = new KMedoids(data, eucDist);
         kmedoids.setNumClusters(1);
         kmedoids.setNumIterations(100);
-        kmedoids.setChooseInitMedoids(true);
+        Set<Integer> init = new HashSet<Integer>();
+        init.add(1);
+        kmedoids.setInitMedoids(init);
         System.out.println("---------- Two Instances, One Cluster "
         		+ "(1 done) ----------");
         kmedoids.cluster();
@@ -200,7 +207,10 @@ public class KMedoidsTest {
         KMedoids kmedoids = new KMedoids(data, eucDist);
         kmedoids.setNumClusters(2);
         kmedoids.setNumIterations(100);
-        kmedoids.setChooseInitMedoids(true);
+        Set<Integer> init = new HashSet<Integer>();
+        init.add(0);
+        init.add(1);
+        kmedoids.setInitMedoids(init);
         System.out.println("---------- Two Instances, Two Clusters "
         		+ "(0 1 done) ----------");
         kmedoids.cluster();
@@ -236,7 +246,9 @@ public class KMedoidsTest {
         KMedoids kmedoids = new KMedoids(data, eucDist);
         kmedoids.setNumClusters(1);
         kmedoids.setNumIterations(100);
-        kmedoids.setChooseInitMedoids(true);
+        Set<Integer> init = new HashSet<Integer>();
+        init.add(0);
+        kmedoids.setInitMedoids(init);
         System.out.println("---------- Three Instances, One Cluster"
         		+ " (0 done) ----------");
         kmedoids.cluster();
@@ -272,7 +284,9 @@ public class KMedoidsTest {
         KMedoids kmedoids = new KMedoids(data, eucDist);
         kmedoids.setNumClusters(1);
         kmedoids.setNumIterations(100);
-        kmedoids.setChooseInitMedoids(true);
+        Set<Integer> init = new HashSet<Integer>();
+        init.add(1);
+        kmedoids.setInitMedoids(init);
         System.out.println("---------- Three Instances, One Cluster"
         		+ " (1 done) ----------");
         kmedoids.cluster();
@@ -308,7 +322,9 @@ public class KMedoidsTest {
         KMedoids kmedoids = new KMedoids(data, eucDist);
         kmedoids.setNumClusters(1);
         kmedoids.setNumIterations(100);
-        kmedoids.setChooseInitMedoids(true);
+        Set<Integer> init = new HashSet<Integer>();
+        init.add(2);
+        kmedoids.setInitMedoids(init);
         System.out.println("---------- Three Instances, One Cluster "
         		+ "(2 done) ----------");
         kmedoids.cluster();
@@ -344,7 +360,10 @@ public class KMedoidsTest {
         KMedoids kmedoids = new KMedoids(data, eucDist);
         kmedoids.setNumClusters(2);
         kmedoids.setNumIterations(100);
-        kmedoids.setChooseInitMedoids(true);
+        Set<Integer> init = new HashSet<Integer>();
+        init.add(0);
+        init.add(1);
+        kmedoids.setInitMedoids(init);
         System.out.println("---------- Three Instances, Two Clusters "
         		+ "(0 1 done) ----------");
         kmedoids.cluster();
@@ -388,7 +407,10 @@ public class KMedoidsTest {
         KMedoids kmedoids = new KMedoids(data, eucDist);
         kmedoids.setNumClusters(2);
         kmedoids.setNumIterations(100);
-        kmedoids.setChooseInitMedoids(true);
+        Set<Integer> init = new HashSet<Integer>();
+        init.add(1);
+        init.add(2);
+        kmedoids.setInitMedoids(init);
         System.out.println("---------- Three Instances, Two Clusters "
         		+ "(1 2 done) ----------");
         kmedoids.cluster();
@@ -432,7 +454,10 @@ public class KMedoidsTest {
         KMedoids kmedoids = new KMedoids(data, eucDist);
         kmedoids.setNumClusters(2);
         kmedoids.setNumIterations(100);
-        kmedoids.setChooseInitMedoids(true);
+        Set<Integer> init = new HashSet<Integer>();
+        init.add(0);
+        init.add(2);
+        kmedoids.setInitMedoids(init);
         System.out.println("---------- Three Instances, Two Clusters"
         		+ " (0 2 done) ----------");
         kmedoids.cluster();
@@ -475,8 +500,58 @@ public class KMedoidsTest {
         KMedoids kmedoids = new KMedoids(data, eucDist);
         kmedoids.setNumClusters(3);
         kmedoids.setNumIterations(100);
-        kmedoids.setChooseInitMedoids(true);
+        Set<Integer> init = new HashSet<Integer>();
+        init.add(0);
+        init.add(1);
+        init.add(2);
+        kmedoids.setInitMedoids(init);
         System.out.println("---------- Three Instances, three Clusters "
+        		+ "(0 1 2 done) ----------");
+        kmedoids.cluster();
+        
+        System.out.println(Arrays.toString(kmedoids.getClusters()));
+        System.out.println(determineClusters(kmedoids.getClusters()));
+        
+        //test number of clusters
+        assertEquals(3, getNumClusters(kmedoids.getClusters()));
+        
+        // build expected result [[10], [3], [8]]
+        ArrayList<ArrayList<String>> expResult = new ArrayList<ArrayList<String>>();
+        ArrayList<String> cluster0 = new ArrayList<String>();
+        ArrayList<String> cluster1 = new ArrayList<String>();
+        ArrayList<String> cluster2 = new ArrayList<String>();
+        cluster0.add(data.instance(0).toString());
+        cluster1.add(data.instance(1).toString());
+        cluster2.add(data.instance(2).toString());
+        Collections.sort(cluster0);
+        Collections.sort(cluster1);
+        Collections.sort(cluster2);
+        expResult.add(cluster0);
+        expResult.add(cluster1);
+        expResult.add(cluster2);
+    	Collections.sort(expResult, new Comparator<ArrayList<String>>() {
+    		public int compare(ArrayList<String> a, ArrayList<String> b) {
+    			return a.get(0).compareTo(b.get(0));
+    		}
+    	});
+        
+        assertEquals(expResult, determineClusters(kmedoids.getClusters()));
+    }
+    
+    /**
+     * Testing KMedoids for three instances, three clusters using EuclideanDistance
+     * with random initial clusters
+     */
+    @Test
+    //@Ignore
+    public void threeInstancesThreeClustersRandKMedoidsTest() throws Exception {
+        readInInstances("./data/testThreeTwoCloser.arff");
+        EuclideanDistance eucD = new EuclideanDistance();
+        DistanceFunction eucDist = eucD;
+        KMedoids kmedoids = new KMedoids(data, eucDist);
+        kmedoids.setNumClusters(3);
+        kmedoids.setNumIterations(100);
+        System.out.println("---------- Three Instances, Three Clusters Randomize"
         		+ "(0 1 2 done) ----------");
         kmedoids.cluster();
         
