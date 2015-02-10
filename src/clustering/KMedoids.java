@@ -195,7 +195,8 @@ public class KMedoids implements ClusterAlg {
 	public void cluster() {
 		// initialize clusters to have max values
 		clusters = new int[data.numInstances()];
-        
+		
+		// Randomization of initial medoids. Does this need to occur? Or since later, 
         if (!this.chooseInitMedoids && this.medoids == null) {
         	randomizeInitMedoids();
         } else if (this.chooseInitMedoids && this.medoids == null) {
@@ -238,8 +239,11 @@ public class KMedoids implements ClusterAlg {
 			// recalculate medoids
 			for (int m = 0; m < numClusters; m++) {
 				if (actClusters[m].numInstances() == 0) { // new random, empty medoid
-					medoids[m] = data.instance(rand.nextInt(data.numInstances()));
 					// should make sure not duplicate
+					int randInt = rand.nextInt(data.numInstances());
+					while (!Arrays.asList(medoids).contains(data.instance(randInt))) {
+						medoids[m] = data.instance(randInt);
+					}
 					//medoids.instance(i) = data.instance(rand.nextInt(data.numInstances()));
 					changed = true;
 				} else {
