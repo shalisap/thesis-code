@@ -57,6 +57,12 @@
 	  <fail if="junit.fail" message="TEST FAILURES!" />
   </target>
 
+  <target name="doc">
+      <javadoc sourcepath="${src}" destdir="${doc}" classpathref="class.path">
+          <link href="http://weka.sourceforge.net/doc.dev" />
+      </javadoc>
+  </target>
+
   <target name="dist" depends="compile"
         description="generate the distribution" >
     <!-- Create the distribution directory -->
