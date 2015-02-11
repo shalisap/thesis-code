@@ -10,17 +10,32 @@ import weka.core.Instances;
  */
 public class ManhattanDistance extends AbstractDistance {
 
+	/**
+	 * The first instance in order to calculate distance
+	 */
 	Instance x;
+	
+	/**
+	 * The second instance in order to calculate distance
+	 */
 	Instance y;
+	
+	/**
+	 * The data whose distance matrix is computed 
+	 */
 	Instances data;
 
 	/**
-	 * Calculates the distance between two instances.
+	 * Calculates the manhattan distance between two instances:
+	 * d = sum over i = 1 to n (|x{i} - y{i}|) where n is the 
+	 * number of instances, and x, y are instances, and 
+	 * each x{i}, y{i} are sums of the values of 
+	 * their attributes.
 	 *
-	 * @return    the manhattan distance between the two instances
+	 * @return the manhattan distance between the two instances
 	 */
 	@Override
-	public double calculateDistance(Instance x, Instance y) {
+	public double distance(Instance x, Instance y) {
 		if (x.numAttributes() != y.numAttributes()) {
 			throw new IllegalArgumentException("Both instances do not "
 					+ "contain the same number of attributes");
@@ -31,36 +46,33 @@ public class ManhattanDistance extends AbstractDistance {
 		}
 		return sum;
 	}
-	
-	/**
-	 * Calculates the dissimilarity matrix 
-	 *
-	 * @return    the dissimilarity matrix using the manhattan distance
-	 */
-	@Override
-	public double[][] calculateDistMatrix(Instances data) {
-		final double[][] disMatrix = new double[data.numInstances()][data.numInstances()];
-		// fill diagonal
-		for (int i = 0; i < disMatrix.length; i++) {
-			disMatrix[i][i] = 0.0;
-		}
-		// Assuming symmetric measure, complete half and mirror across diagonal
-		for (int i = 0; i < disMatrix.length; i++) {
-			for (int j = 0; j < i; j++) {
-				final double dist = calculateDistance(data.instance(i), data.instance(j));
-				disMatrix[i][j] = dist;
-				disMatrix[j][i] = dist;
-			}
-		}
-		return disMatrix;
-	}
 
+	/**
+	 * Constructor for ManhattanDistance that takes in two separate
+	 * instances, mainly for calculating the distance between the two.
+	 * 
+	 * @param a Instance
+	 * @param b Instance
+	 */
 	public ManhattanDistance(Instance a, Instance b) {
 		this.x = a;
 		this.y = b;
 	}
 	
+	/**
+	 * Constructor for ManhattanDistance that takes in Instances, 
+	 * mainly for constructing a distance matrix.
+	 * 
+	 * @param x Instances whose distance matrix will be computed
+	 */
 	public ManhattanDistance(Instances x) {
 		this.data = x;
+	}
+	
+	/**
+	 * Constructor for ManhattanDistance that allows it to 
+	 * be passed as a function.
+	 */
+	public ManhattanDistance() {
 	}
 }

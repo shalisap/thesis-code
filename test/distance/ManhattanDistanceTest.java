@@ -63,7 +63,7 @@ public class ManhattanDistanceTest {
         double [] attrs2 = {15.0};
         createInstances(attrs1, attrs2);
         ManhattanDistance manDist = new ManhattanDistance(instance1, instance2);
-        double result = manDist.calculateDistance(instance1, instance2);
+        double result = manDist.distance(instance1, instance2);
         assertEquals(5.00, result, 0.001);
     }
 
@@ -78,7 +78,7 @@ public class ManhattanDistanceTest {
         double [] attrs2 = {15.0};
         createInstances(attrs1, attrs2);
         ManhattanDistance manDist = new ManhattanDistance(instance1, instance2);
-        double result = manDist.calculateDistance(instance1, instance2);
+        double result = manDist.distance(instance1, instance2);
         assertEquals(25.00, result, 0.001);
     }
 
@@ -93,7 +93,7 @@ public class ManhattanDistanceTest {
         double [] attrs2 = {-15.0};
         createInstances(attrs1, attrs2);
         ManhattanDistance manDist = new ManhattanDistance(instance1, instance2);
-        double result = manDist.calculateDistance(instance1, instance2);
+        double result = manDist.distance(instance1, instance2);
         assertEquals(5.00, result, 0.001);
     }
 
@@ -109,7 +109,7 @@ public class ManhattanDistanceTest {
         double [] attrs2 = {15.0, -4.2, 2.0};
         createInstances(attrs1, attrs2);
         ManhattanDistance manDist = new ManhattanDistance(instance1, instance2);
-        double result = manDist.calculateDistance(instance1, instance2);
+        double result = manDist.distance(instance1, instance2);
         assertEquals(38.7, result, 0.001);
     }
 
@@ -125,7 +125,7 @@ public class ManhattanDistanceTest {
         double [] attrs2 = {15.0};
         createInstances(attrs1, attrs2);
         ManhattanDistance manDist = new ManhattanDistance(instance1, instance2);
-        double result = manDist.calculateDistance(instance1, instance2);
+        double result = manDist.distance(instance1, instance2);
         assertEquals("Both instances do not "
 					+ "contain the same number of attributes", result);
     }
@@ -139,7 +139,7 @@ public class ManhattanDistanceTest {
     	readInInstances("./data/testThreeTwoCloser.arff");
     	double[][] expResult = {{0.0, 5.0, 7.0},{5.0, 0.0, 2.0},{7.0, 2.0, 0.0}};
     	ManhattanDistance manDist = new ManhattanDistance(data);
-    	double[][] calc = manDist.calculateDistMatrix(data);
+    	double[][] calc = manDist.distMatrix(data);
     	assertEquals(expResult, calc);
     }
     

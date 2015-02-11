@@ -1,6 +1,5 @@
 package clustering;
 
-import java.util.Random;
 import java.util.Arrays;
 
 import weka.core.Instance;
@@ -8,37 +7,40 @@ import weka.core.Instances;
 import distance.DistanceFunction;
 
 /**
- * Implementation of Hierarchical Agglomerative Clustering
+ * Implementation of Hierarchical Agglomerative Clustering.
  *
  * @author Shalisa Pattarawuttiwong
  */
 public class HierAgglo implements ClusterAlg {
 
     /**
-     * Holds the similarity/distance function to be used
-     * single linkage: distance of 2 closest objects in diff clusters
-     * complete linkage: greatest distance between obj in diff clusters
-     * group average linkage: average dist between all pairs in obj in diff clusters
+     * The similarity/distance function to be used
      */
     protected DistanceFunction distFn;
 
     /**
-     * Holds the data to be processed
+     * The data to be clustered
      */
-    Instances data;
+    protected Instances data;
     
-    AgglomerationMethod agglomerationMethod;
-
-    int numClusters = 2; // default value of k; number of clusters to generate
+    /**
+     * The agglomeration method to be used
+     */
+    protected AgglomerationMethod agglomerationMethod;
 
     /**
-     * Holds the labels for each instance in the data
+     * The number of clusters to generate
+     */
+    protected int numClusters = 2; // default value of k
+
+    /**
+     * The labels for each instance in the data, where 
      */
     
     private int[][] allClusters;
     
     /**
-     * Set the number of clusters to find
+     * Set the number of clusters to generate
      * @param k Number of clusters
      */
     public void setNumClusters(int k) {
@@ -50,14 +52,39 @@ public class HierAgglo implements ClusterAlg {
      */
     @Override
     public void cluster() {
-    	final double[][] distMatrix = distFn.calculateDistMatrix(data);
+    	// distance matrix between data values.
+    	final double[][] distMatrix = distFn.distMatrix(data);
     	final int numInstances = distMatrix.length;
     	//Initialize: first all in own clusters. Last all in same cluster
-        allClusters = new int[numInstances][numInstances];
+    	// Initialize trianglar array
+    	allClusters = new int[numInstances][numInstances];
+        //allClusters = new int[numInstances][];
+        
+        /**
+        for (int i = 0; i < numInstances; i++) {
+    		allClusters[i] = new int[numInstances - i];
+        	for (int j = 0; j < numInstances - i; j++) {
+        		System.out.println(j);
+        		allClusters[i][j] = 0;	
+        	}
+        }
+        
+        // fill in largest array
+        for (int i = 0; i < numInstances; i++) {
+        	allClusters[0][i] = i;
+        }
+        
+        System.out.println("J");
+        for (int[] c: allClusters) {
+        	System.out.println(Arrays.toString(c));
+        }
+        */
+        
         for (int x = 0; x < numInstances; x++) {
         	allClusters[0][x] = x;
         	allClusters[numInstances - 1][x] = 0;
         }
+        
         
     	final boolean[] indexUsed = new boolean[numInstances];
     	final int[] numPerCluster = new int[numInstances];
@@ -69,9 +96,9 @@ public class HierAgglo implements ClusterAlg {
     	// perform numInstances - 2 agglomerations? Don't do first or last.
     	for (int a = 1; a < numInstances - 1; a++) {
     		// determine the 2 most similar clusters
-    		final Pair pair = findMostSimilarClusters(distMatrix, indexUsed);
-    		final int i = pair.getSmaller();
-    		final int j = pair.getLarger();
+    		final int[] pair = findMostSimilarClusters(distMatrix, indexUsed);
+    		final int i = Math.min(pair[0], pair[1]);
+    		final int j = Math.max(pair[0], pair[1]);
     		final double d = distMatrix[i][j]; // get distance between the two 
     	
     		// cluster i is the new cluster
@@ -95,6 +122,9 @@ public class HierAgglo implements ClusterAlg {
     		}
     	
     		// update clustering - first copy from previous row 
+    		//allClusters[a] = Arrays.copyOf(allClusters[a - 1], 
+    		//		allClusters[a - 1].length - 1);
+    		
     		allClusters[a] = Arrays.copyOf(allClusters[a - 1], numInstances);
     		allClusters[a][j] = allClusters[a][i];
     		
@@ -124,18 +154,18 @@ public class HierAgglo implements ClusterAlg {
      * @param indexUsed
      * @return
      */
-    private static Pair findMostSimilarClusters(final double [][] distMatrix, 
+    private static int[] findMostSimilarClusters(final double [][] distMatrix, 
     		final boolean[] indexUsed) {
-    	final Pair mostSimilarPair = new Pair();
+    	final int[] mostSimilarPair = new int[2];
     	double smallestDist = Double.POSITIVE_INFINITY;
     	for (int cluster = 0; cluster < distMatrix.length; cluster++) {
     		if (indexUsed[cluster]) {
-    			for (int neighbor = 0; neighbor < distMatrix.length; neighbor++) {
+    			for (int neighbor = 0; neighbor < cluster; neighbor++) {
     				if (indexUsed[neighbor] && 
-    						distMatrix[cluster][neighbor] < smallestDist && 
-    						cluster != neighbor) {
+    						distMatrix[cluster][neighbor] < smallestDist) {  
     					smallestDist = distMatrix[cluster][neighbor];
-    					mostSimilarPair.set(cluster, neighbor);
+    					mostSimilarPair[0] = cluster;
+    					mostSimilarPair[1] = neighbor;
     				}
     			}
     		}
@@ -174,27 +204,6 @@ public class HierAgglo implements ClusterAlg {
         this.distFn = s;
         this.data = d;
         this.agglomerationMethod = a;
-   }
-   
-   private static final class Pair {
-
-       private int cluster1;
-       private int cluster2;
-
-
-       public final void set(final int cluster1, final int cluster2) {
-           this.cluster1 = cluster1;
-           this.cluster2 = cluster2;
-       }
-
-       public final int getLarger() {
-           return Math.max(cluster1, cluster2);
-       }
-
-       public final int getSmaller() {
-           return Math.min(cluster1, cluster2);
-       }
-
    }
 }
 

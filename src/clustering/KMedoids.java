@@ -124,7 +124,7 @@ public class KMedoids implements ClusterAlg {
     	int closest = 0;
     	double min = Double.POSITIVE_INFINITY;
     	for (int i = 0; i < data.numInstances(); i++) {
-    		double d = distFn.calculateDistance(inst, data.instance(i));
+    		double d = distFn.distance(inst, data.instance(i));
     		if (d < min && !inst.equals(data.instance(i))) {
     			closest = i;
     			min = d; // if d < min, make min = d.
@@ -212,11 +212,11 @@ public class KMedoids implements ClusterAlg {
 			
 			// assign instances to medoids
 			for (int i = 0; i < data.numInstances(); i++) {
-				double bestDist = distFn.calculateDistance(data.instance(i), medoids[0]);
+				double bestDist = distFn.distance(data.instance(i), medoids[0]);
 				int bestIndex = 0;
 				for (int j = 1; j < medoids.length; j++) {
-					double dist = distFn.calculateDistance(data.instance(i), medoids[j]);
-						if (distFn.compare(dist, bestDist)) {
+					double dist = distFn.distance(data.instance(i), medoids[j]);
+						if (dist < bestDist) {
 							bestDist = dist;
 							bestIndex = j;
 						}

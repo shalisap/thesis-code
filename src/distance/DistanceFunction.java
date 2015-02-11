@@ -11,10 +11,22 @@ import weka.core.Instances;
  */
 public interface DistanceFunction extends Serializable {
 
-	public double calculateDistance(Instance x, Instance y);
+	/**
+	 * The distance (double) between x and y, where x and y are 
+	 * instances
+	 * 
+	 * @param x Instance 
+	 * @param y Instance
+	 * @return distance between x and y
+	 */
+	public double distance(Instance x, Instance y);
 	
-	public double[][] calculateDistMatrix(Instances data);
-
-	public boolean compare(double a, double b);
+	/**
+	 * The distance matrix of the data provided.
+	 * 
+	 * @param data
+	 * @return distance matrix of the data given
+	 */
+	public double[][] distMatrix(Instances data);
 
 }

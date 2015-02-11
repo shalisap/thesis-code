@@ -168,15 +168,15 @@ public class KMeans implements ClusterAlg {
 		// assign each object to the group with the closest centroid
 		for (int i = 0; i < this.data.numInstances(); i++) {
 			int tmpCluster = 0;
-			double minDistance = distFn.calculateDistance(
+			double minDistance = distFn.distance(
 					centroids[0], data.instance(i)); 
 					//this.centroids.instance(0), this.data.instance(i));
 			for (int j = 1; j < centroids.length; j++) {
-				double dist = distFn.calculateDistance(
+				double dist = distFn.distance(
 						centroids[j], data.instance(i));
 						//this.centroids.instance(j),
 						//this.data.instance(i));
-				if (distFn.compare(dist, minDistance)) {
+				if (dist < minDistance) {
 					minDistance = dist;
 					tmpCluster = j;
 				}
@@ -220,7 +220,7 @@ public class KMeans implements ClusterAlg {
         				newCentroid.setValue(j,
         						(float) sumPosition[i][j] / countPosition[i]);
         			}
-        			if (distFn.calculateDistance(newCentroid,
+        			if (distFn.distance(newCentroid,
         					centroids[i]) > 0.0001) {
         				centroidsChanged = true;
         				centroids[i] = newCentroid;
@@ -232,12 +232,12 @@ public class KMeans implements ClusterAlg {
         	clusters = new int[data.numInstances()];
         	for (int i = 0; i < data.numInstances(); i++) {
         		int tmpCluster = 0;
-        		double minDistance = distFn.calculateDistance(
+        		double minDistance = distFn.distance(
         				centroids[0], data.instance(i));
         		for (int j = 0; j < centroids.length; j++) {
-        			double dist = distFn.calculateDistance(
+        			double dist = distFn.distance(
         					centroids[j], data.instance(i));
-        			if (distFn.compare(dist, minDistance)) {
+        			if (dist < minDistance) {
         				minDistance = dist;
         				tmpCluster = j;
         			}
