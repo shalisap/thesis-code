@@ -1,29 +1,12 @@
 package distance;
 
 import weka.core.Instance;
-import weka.core.Instances;
-
 /**
  * Implementation of the Manhattan Distance.
  *
  * @author Shalisa Pattarawuttiwong
  */
 public class ManhattanDistance extends AbstractDistance {
-
-	/**
-	 * The first instance in order to calculate distance
-	 */
-	Instance x;
-	
-	/**
-	 * The second instance in order to calculate distance
-	 */
-	Instance y;
-	
-	/**
-	 * The data whose distance matrix is computed 
-	 */
-	Instances data;
 
 	/**
 	 * Calculates the manhattan distance between two instances:
@@ -46,32 +29,9 @@ public class ManhattanDistance extends AbstractDistance {
 		}
 		return sum;
 	}
-
-	/**
-	 * Constructor for ManhattanDistance that takes in two separate
-	 * instances, mainly for calculating the distance between the two.
-	 * 
-	 * @param a Instance
-	 * @param b Instance
-	 */
-	public ManhattanDistance(Instance a, Instance b) {
-		this.x = a;
-		this.y = b;
-	}
 	
 	/**
-	 * Constructor for ManhattanDistance that takes in Instances, 
-	 * mainly for constructing a distance matrix.
-	 * 
-	 * @param x Instances whose distance matrix will be computed
-	 */
-	public ManhattanDistance(Instances x) {
-		this.data = x;
-	}
-	
-	/**
-	 * Constructor for ManhattanDistance that allows it to 
-	 * be passed as a function.
+	 * Constructor for ManhattanDistance.
 	 */
 	public ManhattanDistance() {
 	}

@@ -63,7 +63,7 @@ public class EuclideanDistanceTest {
         double [] attrs1 = {10.0};
         double [] attrs2 = {15.0};
         createInstances(attrs1, attrs2);
-        EuclideanDistance eucDist = new EuclideanDistance(instance1, instance2);
+        EuclideanDistance eucDist = new EuclideanDistance();
         double result = eucDist.distance(instance1, instance2);
         assertEquals(5.00, result, 0.001);
     }
@@ -78,7 +78,7 @@ public class EuclideanDistanceTest {
         double [] attrs1 = {-10.0};
         double [] attrs2 = {15.0};
         createInstances(attrs1, attrs2);
-        EuclideanDistance eucDist = new EuclideanDistance(instance1, instance2);
+        EuclideanDistance eucDist = new EuclideanDistance();
         double result = eucDist.distance(instance1, instance2);
         assertEquals(25.00, result, 0.001);
     }
@@ -93,7 +93,7 @@ public class EuclideanDistanceTest {
         double [] attrs1 = {-10.0};
         double [] attrs2 = {-15.0};
         createInstances(attrs1, attrs2);
-        EuclideanDistance eucDist = new EuclideanDistance(instance1, instance2);
+        EuclideanDistance eucDist = new EuclideanDistance();
         double result = eucDist.distance(instance1, instance2);
         assertEquals(5.00, result, 0.001);
     }
@@ -109,7 +109,7 @@ public class EuclideanDistanceTest {
         double [] attrs1 = {-10.0, 8.5, 3.0};
         double [] attrs2 = {15.0, -4.2, 2.0};
         createInstances(attrs1, attrs2);
-        EuclideanDistance eucDist = new EuclideanDistance(instance1, instance2);
+        EuclideanDistance eucDist = new EuclideanDistance();
         double result = eucDist.distance(instance1, instance2);
         assertEquals(28.058688, result, 0.001);
     }
@@ -125,7 +125,7 @@ public class EuclideanDistanceTest {
         double [] attrs1 = {-10.0, 3.00};
         double [] attrs2 = {15.0};
         createInstances(attrs1, attrs2);
-        EuclideanDistance eucDist = new EuclideanDistance(instance1, instance2);
+        EuclideanDistance eucDist = new EuclideanDistance();
         double result = eucDist.distance(instance1, instance2);
         assertEquals("Both instances do not "
 				+ "contain the same number of attributes", result);
@@ -139,7 +139,7 @@ public class EuclideanDistanceTest {
     	// 3, 8, 10
     	readInInstances("./data/testThreeTwoCloser.arff");
     	double[][] expResult = {{0.0, 5.0, 7.0},{5.0, 0.0, 2.0},{7.0, 2.0, 0.0}};
-    	EuclideanDistance eucDist = new EuclideanDistance(data);
+    	EuclideanDistance eucDist = new EuclideanDistance();
     	double[][] calc = eucDist.distMatrix(data);
     	assertEquals(expResult, calc);
     }

@@ -1,7 +1,6 @@
 package distance;
 
 import weka.core.Instance;
-import weka.core.Instances;
 
 /**
  * Implementation of the Euclidean Distance.
@@ -9,21 +8,6 @@ import weka.core.Instances;
  * @author Shalisa Pattarawuttiwong
  */
 public class EuclideanDistance extends AbstractDistance {
-
-	/**
-	 * The first instance in order to calculate distance
-	 */
-	Instance x;
-	
-	/**
-	 * The second instance in order to calculate distance
-	 */
-	Instance y;
-	
-	/**
-	 * The data whose distance matrix is computed 
-	 */
-	Instances data;
 
 	/**
 	 * Calculates the euclidean distance between two instances:
@@ -42,38 +26,17 @@ public class EuclideanDistance extends AbstractDistance {
 		}
 		double sum = 0.0;
 		for (int i = 0; i < x.numAttributes(); i++){
-			if (!Double.isNaN(x.value(i)) && !Double.isNaN(y.value(i))) {
-				sum += Math.pow((y.value(i) - x.value(i)), 2);
+			if (Double.isNaN(x.value(i)) || Double.isNaN(y.value(i))) {
+				throw new IllegalArgumentException("One of the instances"
+						+ "contains a NaN-valued attribute.");
 			}
+			sum += Math.pow((y.value(i) - x.value(i)), 2);
 		}
 		return Math.sqrt(sum);
 	}
 
 	/**
-	 * Constructor for EuclideanDistance that takes in two separate
-	 * instances, mainly for calculating the distance between the two.
-	 * 
-	 * @param a Instance
-	 * @param b Instance
-	 */
-	public EuclideanDistance(Instance a, Instance b) {
-		this.x = a;
-		this.y = b;
-	}
-	
-	/**
-	 * Constructor for EuclideanDistance that takes in Instances, 
-	 * mainly for constructing a distance matrix.
-	 * 
-	 * @param x Instances
-	 */
-	public EuclideanDistance(Instances x) {
-		this.data = x;
-	}
-
-	/**
-	 * Constructor for EuclideanDistance that allows it to 
-	 * be passed as a function.
+	 * Constructor for EuclideanDistance.
 	 */
 	public EuclideanDistance(){
 	}
