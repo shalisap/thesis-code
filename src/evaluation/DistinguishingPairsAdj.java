@@ -5,11 +5,11 @@ import java.util.*;
 import weka.core.Instance;
 import weka.core.Instances;
 /**
- * An implementation of the Rand Index between two clusters.
+ * An implementation of the Adjusted Rand Index between two clusters.
  * 
  * @author Shalisa Pattarawuttiwong
  */
-public class DistinguishingPairs implements Evaluation {
+public class DistinguishingPairsAdj implements Evaluation {
 
 	/**
 	 * The data that was clustered.
@@ -46,6 +46,20 @@ public class DistinguishingPairs implements Evaluation {
 	 * i.e. cluster1[i] != cluster1[j] && cluster2[i] != cluster2[j]
 	 */
 	private int diff;
+	
+	/**
+	 * The number of pairs of elements that are in the same clusters 
+	 * in cluster1 and different clusters in cluster2.
+	 * i.e. cluster1[i] == cluster1[j] && cluster2[i] != cluster2[j]
+	 */
+	private int same1diff2;
+	
+	/**
+	 * The number of pairs of elements that are in different clusters 
+	 * in cluster1 and the same clusters in cluster2.
+	 * i.e. cluster1[i] != cluster1[j] && cluster2[i] == cluster2[j]
+	 */
+	private int diff1same2;
 	
 	/**
 	 * Returns the total number of clusters for an assignment
@@ -85,12 +99,16 @@ public class DistinguishingPairs implements Evaluation {
 	 * 
 	 * c = 0 when two clusterings have no similarities -> 1 where they're identical.
 	 * 
+	 * the Adjusted Rand Index = (n choose 2)(a + d) - [(a+b)(a+c) + (c+d)(b+d)] /
+	 * 							(n choose 2)^2 - [(a+b)(a+c) + (c+d)(b+d)]
 	 */
 	@Override
 	public double evaluate() {
 		// determine actual sorted clusters
     	same = 0;
     	diff = 0;
+    	same1diff2 = 0;
+    	diff1same2 = 0;
     	for (int i = 0; i < cluster1.length; i++) {
     		for (int j = 0; j < cluster1.length; j++) {
     			// if i and j in cluster 1 are in the same set and i and j in cluster 2 are in the same set 
@@ -98,16 +116,24 @@ public class DistinguishingPairs implements Evaluation {
     				same++;
     			} else if (cluster1[i] != cluster1[j] && cluster2[i] != cluster2[j]){
     				diff++;
+    			} else if(cluster1[i] == cluster1[j] && cluster2[i] != cluster2[j]) {
+    				same1diff2++;
+    			} else if (cluster1[i] != cluster1[j] && cluster2[i] == cluster2[j]) {
+    				diff1same2++;
     			}
     		}		
     	}
-		return (same + diff) / ((1/2) * (cluster1.length - 1) * cluster1.length);
+		double nchoose2 = (1/2) * (cluster1.length - 1) * cluster1.length;
+		double sum = ((same + same1diff2) * (same + diff1same2) +
+				(diff1same2 + diff) * (same1diff2 + diff));
+		return (nchoose2 * (same + diff) - sum) / 
+				(Math.pow(nchoose2, 2) - sum);
 	}
 	
 	/**
-	 * Constructor for DistinguishingPairs
+	 * Constructor for DistinguishingPairsAdj
 	 */
-	public DistinguishingPairs(int n, Instances d, int[] a, int[] b) {
+	public DistinguishingPairsAdj(int n, Instances d, int[] a, int[] b) {
 		this.data = d;
 		
 		if (getNumClusters(a) != getNumClusters(b)) {

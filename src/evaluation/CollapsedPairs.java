@@ -5,14 +5,33 @@ import java.util.ArrayList;
 import weka.core.Instances;
 
 /**
+ * Calculates the asymmetric distance between 
+ * a cluster and ground truth.
+ * 
  * @author Shalisa Pattarawuttiwong
- *
  */
-public class CollapsedPairs extends AbstractEvaluation implements Evaluation {
+public class CollapsedPairs implements Evaluation {
 
+	/**
+	 * The data that was clustered.
+	 */
 	protected Instances data;
+	
+	/**
+     * [i{0}, i{1}, ..., i{n-1}] where each i{j}, 0 <= j < n belongs 
+     * to a partition of the dataset. 
+     */
 	protected int[] clusterAlg;
+	
+	/**
+     * [k{0}, k{1}, ..., k{n-1}] where each k{j}, 0 <= j < n belongs 
+     * to a partition of the dataset and is ground truth. 
+     */
 	protected int[] groundTruth;
+	
+	/**
+	 * The number of iterations to evaluate.
+	 */
 	protected int numEvals;
 	
 	/**
