@@ -45,12 +45,6 @@ public class KMeans implements ClusterAlg {
      * to a partition, C{k}, 0 <= k <= numClusters, of the dataset. 
      */
     private int[] clusters;
-
-    /**
-     * If true, pick the initial centroids,
-     * if false, randomize the initial centroids.
-     */
-    private boolean chooseInitCentroids = false;
     
     /**
      * Constructor for KMeans that takes data and
@@ -129,8 +123,6 @@ public class KMeans implements ClusterAlg {
     				+ "the number of clusters wanted or "
     				+ "duplicates of centroids chosen");
     	}
-    	
-       this.chooseInitCentroids = true;
     }
     
 	/**
@@ -154,15 +146,10 @@ public class KMeans implements ClusterAlg {
 	public void cluster() {
         int instanceLength = this.data.instance(0).numAttributes();
 
-        if (!this.chooseInitCentroids && this.centroids == null) {
+        if (this.centroids == null) {
         	randomizeInitCentroids();
-        	
-        	// will never happen??
-        } else if (this.chooseInitCentroids && this.centroids == null) {
-        	throw new IllegalArgumentException("Must set initial "
-        			+ "centroids before running cluster()");
         }
-
+        
         int iterationCount = 0;
         this.clusters = new int[this.data.numInstances()];
 		// assign each object to the group with the closest centroid
@@ -246,6 +233,4 @@ public class KMeans implements ClusterAlg {
         	}
         }
 	}
-
-	
 }

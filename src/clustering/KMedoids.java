@@ -47,12 +47,6 @@ public class KMedoids implements ClusterAlg {
     private int[] clusters;
     
     /**
-     * If true, pick the initial medoids,
-     * if false, randomize the initial medoids.
-     */
-    private boolean chooseInitMedoids = false;
-    
-    /**
      * Random number generator 
      */
     private Random rand;
@@ -172,8 +166,6 @@ public class KMedoids implements ClusterAlg {
     				+ "the number of clusters wanted or "
     				+ "duplicates of centroids chosen");
     	}
-    	
-       this.chooseInitMedoids = true;
     
     }
     
@@ -195,15 +187,11 @@ public class KMedoids implements ClusterAlg {
 	public void cluster() {
 		// initialize clusters to have max values
 		clusters = new int[data.numInstances()];
-		
-		// Randomization of initial medoids. Does this need to occur? Or since later, 
-        if (!this.chooseInitMedoids && this.medoids == null) {
+
+        if (this.medoids == null) {
         	randomizeInitMedoids();
-        } else if (this.chooseInitMedoids && this.medoids == null) {
-        	throw new IllegalArgumentException("Must set initial "
-        			+ "centroids before running cluster()");
         }
-		
+        
 		boolean changed = true;
 		int count = 0;
 		while (changed && count < iterations) {
