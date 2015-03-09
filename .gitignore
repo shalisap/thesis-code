@@ -15,7 +15,6 @@
 .metadata/
 .project
 .DS_Store
-data/*
 bin/*
 .classpath
 
