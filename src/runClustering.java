@@ -39,7 +39,7 @@ public class runClustering {
 		JSONParser parser = new JSONParser();
 		
 		try {
-			// figure out how min_k and max_k from json file
+			// figure out min_k and max_k from json file
 			Object obj = parser.parse(new FileReader(
 					"./data/testing.json"));
 			JSONObject jsonObject = (JSONObject) obj;
@@ -55,7 +55,6 @@ public class runClustering {
 		        kmeans.setNumIterations(100);
 		        kmeans.cluster();
 		        clusters.put(k, kmeans.getClusters());
-		        System.out.println(Arrays.toString(kmeans.getClusters()));
 			}
 			
 			for (Map.Entry<Integer, int[]> entry : clusters.entrySet()) {
