@@ -1,3 +1,4 @@
+package clustering;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -12,7 +13,6 @@ import org.json.simple.parser.JSONParser;
 import com.google.gson.Gson;
 
 import weka.core.Instances;
-import clustering.KMeans;
 import distance.DistanceFunction;
 import distance.EuclideanDistance;
 
