@@ -12,4 +12,6 @@
 	"n_trials": 1
     "cluster_alg" : "hierarchical"
     "dist_measure" : "euclidean"
+    "arffpath" : "./data/seriesdata.arff"
+    "cluster_outpath" : "./data/clusters.json"
 }

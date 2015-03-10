@@ -1,4 +1,5 @@
 package clustering;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -13,8 +14,7 @@ import org.json.simple.parser.JSONParser;
 import com.google.gson.Gson;
 
 import weka.core.Instances;
-import distance.DistanceFunction;
-import distance.EuclideanDistance;
+import distance.*;
 
 /**
  * @author Shalisa Pattarawuttiwong
@@ -47,20 +47,29 @@ public class runClustering {
 			int max_k = Integer.parseInt(jsonObject.get("max_k").toString());
 		    String cluster_alg = jsonObject.get("cluster_alg").toString();
 			String dist_measure = jsonObject.get("dist_measure").toString();
-		    
+			String arffpath = jsonObject.get("arffpath").toString();
+			String cluster_outpath = jsonObject.get("cluster_outpath").toString();
+
+			
 			Map<Integer, int[]> clusters = new HashMap<Integer, int[]>();
 			//for (int k = min_k; k <= max_k; k++) {
 			int k = min_k;
 			while (k <= max_k) {
-		        readInInstances("./data/seriesdata.arff");
+		        readInInstances(arffpath);
 		        
 		        DistanceFunction distFn;
 		        if (dist_measure.equals("euclidean")) {
 		        	EuclideanDistance eucDist = new EuclideanDistance();
 		        	distFn = eucDist;
-		        } else {
-		        	EuclideanDistance eucDist = new EuclideanDistance();
-		        	distFn = eucDist;
+		        } else if (dist_measure.equals("manhattan")) {
+		        	ManhattanDistance manDist = new ManhattanDistance();
+		        	distFn = manDist;
+		        } else if (dist_measure.equals("edit distance")) {
+		        	EditDistance editDist = new EditDistance();
+		        	distFn = editDist;
+			    } else {
+		        	throw new IllegalArgumentException("No valid distance function "
+		        			+ "chosen in .json config file.");
 		        }
 
 		        if (cluster_alg.equals("kmeans")) {
@@ -96,6 +105,9 @@ public class runClustering {
 //	                	System.out.println("level " + j + Arrays.toString(cluster));
 //	                	j--;
 //	                }
+		        } else {
+		        	throw new IllegalArgumentException("No valid clustering algorithm "
+		        			+ "chosen in .json config file.");
 		        }
 		        
 			}
@@ -111,7 +123,7 @@ public class runClustering {
 			String json_out = gson_out.toJson(clusters);
 			
 			try {
-				FileWriter file = new FileWriter("./data/clusters.json");
+				FileWriter file = new FileWriter(cluster_outpath);
 				file.write(json_out);
 				file.flush();
 				file.close();
