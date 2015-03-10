@@ -131,9 +131,12 @@ public class HierAgglo implements ClusterAlg {
     		// make sure there are only 0 to level of tree are used in that particular cluster
     		// if the new cluster is smaller than the max value at that cluster
     		if (allClusters[a][j] != numInstances - 1 - a) {
+    			// existing clusters must merge
     			// everything larger must shift down 1.
     			for (int c = 0; c < numInstances; c++) {
-    				if (allClusters[a][c] > allClusters[a][j]) {
+    				if (allClusters[a][c] == allClusters[a - 1][j]) {
+    					allClusters[a][c] = allClusters[a][i];
+    				} else if (allClusters[a][c] > allClusters[a - 1][j]) {
     					allClusters[a][c] = allClusters[a][c] - 1;
     				}
     			}

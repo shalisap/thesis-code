@@ -45,23 +45,68 @@ public class runClustering {
 			JSONObject jsonObject = (JSONObject) obj;
 			int min_k = Integer.parseInt(jsonObject.get("min_k").toString());
 			int max_k = Integer.parseInt(jsonObject.get("max_k").toString());
-		    Map<Integer, int[]> clusters = new HashMap<Integer, int[]>();
-			for (int k = min_k; k <= max_k; k++) {
+		    String cluster_alg = jsonObject.get("cluster_alg").toString();
+			String dist_measure = jsonObject.get("dist_measure").toString();
+		    
+			Map<Integer, int[]> clusters = new HashMap<Integer, int[]>();
+			//for (int k = min_k; k <= max_k; k++) {
+			int k = min_k;
+			while (k <= max_k) {
 		        readInInstances("./data/seriesdata.arff");
-		        EuclideanDistance eucD = new EuclideanDistance();
-		        DistanceFunction eucDist = eucD;
-		        KMeans kmeans = new KMeans(data, eucDist);
-		        kmeans.setNumClusters(k);
-		        kmeans.setNumIterations(100);
-		        kmeans.cluster();
-		        clusters.put(k, kmeans.getClusters());
+		        
+		        DistanceFunction distFn;
+		        if (dist_measure.equals("euclidean")) {
+		        	EuclideanDistance eucDist = new EuclideanDistance();
+		        	distFn = eucDist;
+		        } else {
+		        	EuclideanDistance eucDist = new EuclideanDistance();
+		        	distFn = eucDist;
+		        }
+
+		        if (cluster_alg.equals("kmeans")) {
+		        	KMeans kmeans = new KMeans(data, distFn);
+			        kmeans.setNumClusters(k);
+			        kmeans.setNumIterations(100);
+			        kmeans.cluster();
+			        clusters.put(k, kmeans.getClusters());
+			        k++;
+			        
+		        } else if (cluster_alg.equals("kmedoids")) {
+		        	KMedoids kmedoids = new KMedoids(data, distFn);
+			        kmedoids.setNumClusters(k);
+			        kmedoids.setNumIterations(100);
+			        kmedoids.cluster();
+			        clusters.put(k, kmedoids.getClusters());
+			        k++;
+			        
+		        } else if (cluster_alg.equals("hierarchical")) {
+		        	// need to add all agglomeration method options
+		            AgglomerationMethod singleLink = new SingleLinkage();
+		            HierAgglo hierAgglo = new HierAgglo(data, distFn, singleLink);
+		            hierAgglo.cluster();
+		            
+		            for (int i = k; i <= max_k; i++) {
+		            	hierAgglo.setNumClusters(i);
+				        clusters.put(i, hierAgglo.getClusters());
+		            }			
+		            k = max_k + 1;
+		            
+//	            	int j = data.numInstances() - 1;
+//	                for (int[] cluster: hierAgglo.getAllClusters()) {
+//	                	System.out.println("level " + j + Arrays.toString(cluster));
+//	                	j--;
+//	                }
+		        }
+		        
 			}
 			
+			// print out clusters generated
 			for (Map.Entry<Integer, int[]> entry : clusters.entrySet()) {
 				System.out.println(entry.getKey());
 				System.out.println(Arrays.toString(entry.getValue()));
 			}
 				
+			// write out clusters in json format
 			Gson gson_out = new Gson();
 			String json_out = gson_out.toJson(clusters);
 			
