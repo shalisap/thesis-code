@@ -25,7 +25,7 @@ public class HMMDistance {
 			Hmm<Observation> hmm2) throws Exception {
 		KullbackLeiblerDistanceCalculator kld = 
 				new KullbackLeiblerDistanceCalculator();
-		return (kld.distance(hmm1, hmm2) / 2.0);
+		return (kld.distance(hmm1, hmm2) + kld.distance(hmm2, hmm1) / 2.0);
 	}
 	
 	/**
