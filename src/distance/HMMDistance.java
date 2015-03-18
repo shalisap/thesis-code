@@ -1,7 +1,7 @@
 package distance;
 
 import be.ac.ulg.montefiore.run.jahmm.Hmm;
-import be.ac.ulg.montefiore.run.jahmm.ObservationInteger;
+import be.ac.ulg.montefiore.run.jahmm.Observation;
 import be.ac.ulg.montefiore.run.jahmm.toolbox.KullbackLeiblerDistanceCalculator;
 
 /**
@@ -21,8 +21,8 @@ public class HMMDistance {
 	 * @param hmm2 
 	 * @return The distance between seq1 and seq2
 	 */
-	public double distance(Hmm<ObservationInteger> hmm1, 
-			Hmm<ObservationInteger> hmm2) throws Exception {
+	public double distance(Hmm<Observation> hmm1, 
+			Hmm<Observation> hmm2) throws Exception {
 		KullbackLeiblerDistanceCalculator kld = 
 				new KullbackLeiblerDistanceCalculator();
 		return (kld.distance(hmm1, hmm2) / 2.0);
