@@ -13,9 +13,9 @@ public interface DistanceFunction extends Serializable {
 
 	/**
 	 * The distance (double) between x and y, where x and y are 
-	 * instances
+	 *  Instances 
 	 * 
-	 * @param x Instance 
+	 * @param x Instance
 	 * @param y Instance
 	 * @return distance between x and y
 	 */

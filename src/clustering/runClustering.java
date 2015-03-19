@@ -17,6 +17,10 @@ import weka.core.Instances;
 import distance.*;
 
 /**
+ * Driver file for executing clustering code
+ * as a part of the pipeline for simulation
+ * creation.
+ * 
  * @author Shalisa Pattarawuttiwong
  */
 public class runClustering {
