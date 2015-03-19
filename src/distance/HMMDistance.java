@@ -1,21 +1,13 @@
 package distance;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.OutputStreamWriter;
-import java.io.Reader;
+import java.util.ArrayList;
 import java.util.List;
 
 import be.ac.ulg.montefiore.run.jahmm.Hmm;
 import be.ac.ulg.montefiore.run.jahmm.ObservationVector;
 import be.ac.ulg.montefiore.run.jahmm.OpdfMultiGaussian;
 import be.ac.ulg.montefiore.run.jahmm.OpdfMultiGaussianFactory;
-import be.ac.ulg.montefiore.run.jahmm.io.ObservationSequencesReader;
-import be.ac.ulg.montefiore.run.jahmm.io.ObservationVectorReader;
 import be.ac.ulg.montefiore.run.jahmm.toolbox.KullbackLeiblerDistanceCalculator;
-
 import weka.core.Instance;
 
 /**
@@ -24,8 +16,45 @@ import weka.core.Instance;
  * 
  * @author Shalisa Pattarawuttiwong
  */
-public class HMMDistance {
+public class HMMDistance extends AbstractDistance {
 	
+    /**
+     * The number of HMM states to generate.
+     */
+    protected int states;
+    
+    /**
+     * Instance 
+     */
+    protected Instance x;
+    
+    /**
+     * Instance
+     */
+    protected Instance y;
+    
+	/**
+	 * Constructor for HMMDistance.
+	 */
+	public HMMDistance(Instance a, Instance b, int m) {
+         this.states = m;
+         this.x = a;
+         this.y = b;
+    }
+    
+    /**
+     * Set the number of HMM states to generate
+     * @param m Number of states
+     */
+    public void setNumStates(int m)
+    		throws IllegalArgumentException{
+    	if (m <= 0) {
+    		throw new IllegalArgumentException("Cannot set the number "
+    				+ "of states to fewer than 1");
+    	} else this.states = m;
+    }
+    
+    
 	/**
 	 * Convert an instance to an ObservationVector list.
 	 * 
@@ -33,33 +62,19 @@ public class HMMDistance {
 	 * @return An List<ObservationVector>
 	 * @throws Exception
 	 */
-	public List<ObservationVector> instanceToObservation(Instance inst) throws Exception{
-		// convert instance to string: [1, 2, 3] -> "[1 2 3]"
-		// String instString = Arrays.toString(inst.toDoubleArray()).replace(",","");
+	public List<ObservationVector> instanceToObservation(Instance inst) {
+		List<ObservationVector> obs = new ArrayList<ObservationVector>();
+		// get values of instance
 		double[] instArray = inst.toDoubleArray();
 		
-		// write out to a .seq file
-		File f_out = new File("./data/instance1.seq");
-		FileOutputStream fos = new FileOutputStream(f_out);
-		BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos));
-		
+		double[] o_arr = new double[2]; 
 		for (int i = 0; i < instArray.length; i = i + 2) {
-			bw.write("[");
-			bw.write(Double.toString(instArray[i]));
-			bw.write(" ");
-			bw.write(Double.toString(instArray[i+1]));
-			bw.write("] ; ");
+			o_arr[0] = instArray[i];
+			o_arr[1] = instArray[i+1];
+			// convert each pair to observation
+			obs.add(new ObservationVector(o_arr));
 		}
-		bw.write("\n");
-		bw.close();
-		
-		// read in file to convert to observations
-		Reader reader = new FileReader("./data/instance1.seq");
-		List<List<ObservationVector>> obs =
-				ObservationSequencesReader.readSequences(
-						new ObservationVectorReader(), reader);
-		reader.close();
-		return obs.get(0);
+		return obs;
 	}
 	
 	/**
@@ -138,7 +153,7 @@ public class HMMDistance {
 	 * @param states number of states of the generated HMM
 	 * @return HMM<ObservationVector>
 	 */
-	public Hmm<ObservationVector> initMultiHMM(Instance x, int states) throws Exception{
+	public Hmm<ObservationVector> initMultiHMM(Instance x, int states) {
 		List<ObservationVector> obs = instanceToObservation(x);
 		// generates a new gaussian distribution with 
 		// mean and covariance matrices
@@ -180,8 +195,8 @@ public class HMMDistance {
 	 * @param y Instance
 	 * @return The distance between x and y
 	 */
-	public double distance(Instance x, 
-			Instance y, int states) throws Exception {
+	//@Override 
+	public double distance(Instance x, Instance y) {
 		// initializes HMMs for x and y
 		Hmm<ObservationVector> xHmm = initMultiHMM(x, states);
 		Hmm<ObservationVector> yHmm = initMultiHMM(y, states);
@@ -189,12 +204,6 @@ public class HMMDistance {
 		KullbackLeiblerDistanceCalculator kld = 
 				new KullbackLeiblerDistanceCalculator();
 		return (kld.distance(xHmm, yHmm) + kld.distance(yHmm, xHmm) / 2.0);
-	}
-	
-	/**
-	 * Constructor for HMMDistance.
-	 */
-	public HMMDistance() {
 	}
 
 }

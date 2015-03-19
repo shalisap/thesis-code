@@ -28,7 +28,7 @@ public class HMMDistanceTest {
         BufferedReader reader = new BufferedReader(new FileReader(filename));
         data = new Instances(reader);
     }
-
+    
     /**
      * Testing HMMDist 
      */
@@ -37,7 +37,7 @@ public class HMMDistanceTest {
     public void twoInstancesHMMDistTest() throws Exception {
         System.out.println("---------- Two Instances ----------");
         readInInstances("./data/testMultiD.arff");
-        HMMDistance hmmD = new HMMDistance();
+        HMMDistance hmmD = new HMMDistance(data.instance(0), data.instance(1), 2);
         List<ObservationVector> obs1 = hmmD.instanceToObservation(data.instance(0));
         System.out.println("---------- ObservationSeq 1 ----------");
         System.out.println(obs1);
@@ -102,7 +102,7 @@ public class HMMDistanceTest {
         System.out.println(hmmD.initMultiHMM(data.instance(1), 2).toString());
         
         System.out.println("HMM Distance");
-        double dist = hmmD.distance(data.instance(0), data.instance(1), 2);
+        double dist = hmmD.distance(data.instance(0), data.instance(1));
         System.out.println(dist);
     }
 
