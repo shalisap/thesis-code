@@ -6,7 +6,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 
 import org.junit.Test;
-import org.junit.Ignore;
+//import org.junit.Ignore;
 //import org.junit.BeforeClass;
 
 //import static org.mockito.Mockito.mock;
@@ -140,6 +140,6 @@ public class EuclideanDistanceTest {
     	double[][] expResult = {{0.0, 5.0, 7.0},{5.0, 0.0, 2.0},{7.0, 2.0, 0.0}};
     	EuclideanDistance eucDist = new EuclideanDistance();
     	double[][] calc = eucDist.distMatrix(data);
-    	assertEquals(expResult, calc);
+    	assertArrayEquals(expResult, calc);
     }
 }

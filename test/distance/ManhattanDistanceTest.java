@@ -140,7 +140,7 @@ public class ManhattanDistanceTest {
     	double[][] expResult = {{0.0, 5.0, 7.0},{5.0, 0.0, 2.0},{7.0, 2.0, 0.0}};
     	ManhattanDistance manDist = new ManhattanDistance();
     	double[][] calc = manDist.distMatrix(data);
-    	assertEquals(expResult, calc);
+    	assertArrayEquals(expResult, calc);
     }
     
 }

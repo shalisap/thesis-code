@@ -9,9 +9,9 @@
 	"min_m": 3,
 	"max_m": 10,
 	"beta": 0.5,
-	"n_trials": 1
-    "cluster_alg" : "hierarchical"
-    "dist_measure" : "euclidean"
-    "arffpath" : "./data/seriesdata.arff"
+	"n_trials": 1,
+    "cluster_alg" : "hierarchical",
+    "dist_measure" : "euclidean",
+    "arffpath" : "./data/seriesdata.arff",
     "cluster_outpath" : "./data/clusters.json"
 }

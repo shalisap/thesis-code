@@ -6,7 +6,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 
 import org.junit.Test;
-import org.junit.Ignore;
+//import org.junit.Ignore;
 //import org.junit.BeforeClass;
 
 //import static org.mockito.Mockito.mock;
@@ -93,6 +93,6 @@ public class EditDistanceTest {
     	double[][] expResult = {{0, 5, 7},{5, 0, 2},{7, 2, 0}};
     	EditDistance eucDist = new EditDistance();
     	double[][] calc = eucDist.distMatrix(data);
-    	assertEquals(expResult, calc);
+    	assertArrayEquals(expResult, calc);
     }
 }
