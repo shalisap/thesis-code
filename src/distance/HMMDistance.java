@@ -1,14 +1,24 @@
 package distance;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
+import clustering.KMeans;
 import be.ac.ulg.montefiore.run.jahmm.Hmm;
 import be.ac.ulg.montefiore.run.jahmm.ObservationVector;
 import be.ac.ulg.montefiore.run.jahmm.OpdfMultiGaussian;
 import be.ac.ulg.montefiore.run.jahmm.OpdfMultiGaussianFactory;
 import be.ac.ulg.montefiore.run.jahmm.toolbox.KullbackLeiblerDistanceCalculator;
+import weka.core.Attribute;
+import weka.core.FastVector;
 import weka.core.Instance;
+import weka.core.Instances;
 
 /**
  * Implementation of Rabiner's symmetrized Hidden Markov Model
@@ -34,12 +44,25 @@ public class HMMDistance extends AbstractDistance {
     protected Instance y;
     
 	/**
+	 * Minimum standard deviation for a state in the clustering
+	 * phase. Anything less than this leaves log likelihood
+	 * prone to underflow errors.
+	 */
+	private static final double EPSILON = 0.47; 
+    
+	/**
 	 * Constructor for HMMDistance.
 	 */
 	public HMMDistance(Instance a, Instance b, int m) {
          this.states = m;
          this.x = a;
          this.y = b;
+    }
+	
+	/**
+	 * Constructor for HMMDistance.
+	 */
+	public HMMDistance() {
     }
     
     /**
@@ -89,15 +112,21 @@ public class HMMDistance extends AbstractDistance {
 	 */
 	public double[] calcVectorMean(List<ObservationVector> obs) {
 		double[] mean = new double[2];
+		double num = obs.size()*2;
 		
 		for (int i = 0; i < obs.size(); i++) {
 			ObservationVector tup = obs.get(i);
 			for (int idx = 0; idx < 2; idx++) {
-				mean[idx] += tup.value(idx);
+				double val = tup.value(idx);
+				if (val == -1.0) {
+					num -= 1.0;
+				} else {
+					mean[idx] += tup.value(idx);
+				}
 			}
 		}
 		for (int i = 0; i < 2; i++) {
-			mean[i] = mean[i]/obs.size();
+			mean[i] = mean[i]/(num/2);
 		}
 		
 		return mean;
@@ -118,10 +147,11 @@ public class HMMDistance extends AbstractDistance {
 	 */
 	public double calcCovariance(List<ObservationVector> obs, double[] mean, int x, int y) {
 		double cov = 0;
+		double num = obs.size()*2;
 		for (int i = 0; i < obs.size(); i++) {
 			cov += (obs.get(i).value(x) - mean[x]) * (obs.get(i).value(y) - mean[y]);
 		}
-		return cov / (obs.size());		
+		return cov / (num/2);		
 	}
 	
 	/**
@@ -133,16 +163,97 @@ public class HMMDistance extends AbstractDistance {
 	 * @return covariance matrix of obs
 	 */
 	public double[][] calcCovarianceMatrix(List<ObservationVector> obs, double[] mean) {
+		
+		// remove -1's
+		List<ObservationVector> filtObs = new ArrayList<ObservationVector>();
+		for (int i = 0; i < obs.size(); i++) {
+			if (obs.get(i).values()[0] != -1.0 &&
+					obs.get(i).values()[1] != -1.0) {
+				filtObs.add(obs.get(i));
+			}
+		}
+		
 		double[][] covMat = new double[2][2];
 		for (int i = 0; i < 2; i++) {
 			for (int j = 0; j < 2; j++) {
-				double cov = calcCovariance(obs, mean, i, j);
+				double cov = Math.max(calcCovariance(filtObs, mean, i, j), EPSILON);
 				covMat[i][j] = cov;
 				covMat[j][i] = cov;
 			}
 		}
 		return covMat;
 	}
+	
+	/**
+	 * Given a set of cluster labels, partitions x into k clusters.
+	 * @param x Instances
+	 * @param labels cluster labels for x
+	 * @param k number of clusters
+	 * @return An array of Instances, each of which contains the
+	 * 		series from one cluster, where the series within 
+	 * 		clusters are concatenated.
+	 */
+	private ArrayList<Instance> partition(Instances x, int[] labels, int k) {
+		ArrayList<Instance> part = new ArrayList<Instance>();
+		
+		double[][] vals = new double[k][];
+		Map<Integer,Integer> occur = new HashMap<Integer,Integer>();
+		// figure out occurrences of each label
+		for (int l: labels){
+			if (occur.containsKey(l)) {
+				occur.put(l, occur.get(l) + 2);
+			} else {
+				occur.put(l, 2);
+			}
+		}
+		
+		// initialize arrays
+		for (int i = 0; i < k; i++) {
+			part.add(new Instance(occur.get(i)));
+			vals[i] = new double[occur.get(i)];
+		}
+		
+		// partition according to labels
+		for (int i = labels.length - 1; i >= 0; i--) {
+			for (int j = x.instance(i).numAttributes() - 1; j >= 0; j--) {
+				vals[labels[i]][occur.get(labels[i]) - 1] = x.instance(i).value(j);
+				occur.put(labels[i], occur.get(labels[i]) - 1);
+			}
+		}
+		
+		// add to instances
+		for (int i = 0; i < part.size(); i++) {
+			part.get(i).replaceMissingValues(vals[i]);
+		}
+		return part;
+	}
+	
+	/**
+	 * Generates a multivariate gaussian distribution function
+	 * from an instance
+	 * 
+	 * @param cluster Instance
+	 * @return A multivariate gaussian distribution
+	 */
+    private OpdfMultiGaussian calcGaussian(Instance cluster) {
+		
+		List<ObservationVector> obs = instanceToObservation(cluster);
+		// generates a new gaussian distribution with 
+		// mean and covariance matrices
+		double[] mean = calcVectorMean(obs);
+		double[][] covariance = calcCovarianceMatrix(obs, mean);
+
+		OpdfMultiGaussian omg = new OpdfMultiGaussian(mean, covariance);
+		// generates 10,000 observation vectors according to
+		// distribution
+		ObservationVector[] obsNew = new ObservationVector[10000];
+		for (int i = 0; i < obsNew.length; i++)
+			obsNew[i] = omg.generate();
+		
+		// find gaussian distribution that fits observations
+		omg.fit(obsNew);
+		return omg;
+    }
 	
 	/**
 	 * Given an Instance, initializes an HMM with 
@@ -154,34 +265,69 @@ public class HMMDistance extends AbstractDistance {
 	 * @return HMM<ObservationVector>
 	 */
 	public Hmm<ObservationVector> initMultiHMM(Instance x, int states) {
-		List<ObservationVector> obs = instanceToObservation(x);
-		// generates a new gaussian distribution with 
-		// mean and covariance matrices
-		double[] mean = calcVectorMean(obs);
-		double[][] covariance = calcCovarianceMatrix(obs, mean);
+		// change instance x to to instances of (IN, OUT)
+		FastVector attInfo = new FastVector();
+		attInfo.addElement(new Attribute("IN", 0));
+		attInfo.addElement(new Attribute("OUT", 0));
 		
+		Instances xInsts = new Instances("cellCount",attInfo, x.numAttributes());
+		for (int a = 0; a < x.numAttributes(); a = a + 2) {
+			Instance i = new Instance(2);
+			i.setValue(0, x.value(a));
+			i.setValue(1, x.value(a + 1));
+			xInsts.add(i);
+		}
+		//System.out.println(xInsts.toString());
+		
+		// cluster x into m clusters with kmeans
+        ManhattanDistance manD = new ManhattanDistance();
+        DistanceFunction manDist = manD;
+        KMeans kmeans = new KMeans(xInsts, manDist);
+        kmeans.setNumClusters(states-1);
+        kmeans.setNumIterations(100);
+        kmeans.cluster();        
+        int[] labels = kmeans.getClusters();
+        //System.out.println(Arrays.toString(labels));
+        
+        ArrayList<Instance> part = partition(xInsts, labels, states-1); 
+        
 		Hmm<ObservationVector> hmm = new Hmm<ObservationVector>(
-				states, new OpdfMultiGaussianFactory(states));
-		
-		OpdfMultiGaussian omg = new OpdfMultiGaussian(mean, covariance);
+				states, new OpdfMultiGaussianFactory(2));
+        
+        // for each cluster, calculate gaussian emission distributions
+        List<OpdfMultiGaussian> Bs = new ArrayList<OpdfMultiGaussian>();
+        for (Instance c: part) {
+            OpdfMultiGaussian opdf = calcGaussian(c);
+            Bs.add(opdf);
+        }
+        
+        // gaussian for (-1, -1) destroy state
+        double[] desMean = new double[]{-1.0, -1.0};
+        double[][] desCov = new double[][]{{EPSILON, EPSILON}, {EPSILON, EPSILON}};
+		OpdfMultiGaussian desOpdf = new OpdfMultiGaussian(desMean, desCov);
 		// generates 10,000 observation vectors according to
 		// distribution
 		ObservationVector[] obsNew = new ObservationVector[10000];
 		for (int i = 0; i < obsNew.length; i++)
-			obsNew[i] = omg.generate();
-		
-		// find gaussian distribution that fits observations
-		omg.fit(obsNew);
-		
-		for (int s = 0; s < states; s++) {
+			obsNew[i] = desOpdf.generate();
+		desOpdf.fit(obsNew);
+        
+		for (int s = 0; s < states-1; s++) {
 			// prob state is initial
-			hmm.setPi(s, 1.0/states * states);
-			hmm.setOpdf(s, omg);
+			hmm.setPi(s, (1.0/(states-1)) * (states-1));
+			hmm.setOpdf(s, Bs.get(s));
 			// uniform matrix
 			for (int s_prime = 0; s_prime < states; s_prime++) {
 				hmm.setAij(s, s_prime, 1.0/states);
 			}
 		}
+		// destroy state
+		hmm.setPi(states-1, 0);
+		hmm.setOpdf(states-1, desOpdf);
+		for (int s_prime = 0; s_prime < states-1; s_prime++) {
+			hmm.setAij(states-1, s_prime, 0);
+		}
+		hmm.setAij(states-1, states-1, 1);
 		
 		return hmm;
 	}

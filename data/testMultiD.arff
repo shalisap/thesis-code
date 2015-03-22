@@ -10,7 +10,12 @@
 @attribute Out4 numeric
 @attribute In5 numeric
 @attribute Out5 numeric
+@attribute In6 numeric
+@attribute Out6 numeric
+@attribute In7 numeric
+@attribute Out7 numeric
+
 
 @data
-1, 2, 1, 4, 7, 3, 1, 3, 2, 1
-5, 2, 1, 4, 2, 1, 3, 2, 1, 2
+1, 2, 1, 4, 7, 3, 1, 3, 2, 1, -1, -1, -1, -1
+5, 2, 1, 4, 2, 1, 3, 2, 1, 2, 3, 10, -1, -1

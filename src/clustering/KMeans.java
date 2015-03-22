@@ -56,6 +56,10 @@ public class KMeans implements ClusterAlg {
          if (d.numInstances() <= 0) {
      		throw new IllegalArgumentException("The dataset"
      				+ " cannot be empty");
+//         } else if (d.numAttributes() % 2 != 0) {
+//      		throw new IllegalArgumentException("The dataset"
+//      				+ " has an odd number of attributes. It must"
+//      				+ " have pairs of (IN, OUT).");
          } else this.data = d;
     }
     

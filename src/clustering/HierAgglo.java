@@ -203,11 +203,20 @@ public class HierAgglo implements ClusterAlg {
     * Constructor for HierAgglo that takes data and
     * a similarity function.
     */
-   public HierAgglo(Instances d, DistanceFunction s, AgglomerationMethod a) {
+   public HierAgglo(Instances d, DistanceFunction s, AgglomerationMethod a) 
+		   throws IllegalArgumentException {
         this.distFn = s;
-        this.data = d;
+        if (d.numInstances() <= 0) {
+     		throw new IllegalArgumentException("The dataset"
+     				+ " cannot be empty");
+//        } else if (d.numAttributes() % 2 != 0) {
+//     		throw new IllegalArgumentException("The dataset"
+//     				+ " has an odd number of attributes. It must"
+//     				+ " have pairs of (IN, OUT).");
+        } else this.data = d;
         this.agglomerationMethod = a;
    }
+
 }
 
 

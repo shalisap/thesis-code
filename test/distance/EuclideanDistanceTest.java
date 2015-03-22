@@ -123,11 +123,11 @@ public class EuclideanDistanceTest {
     //@Ignore
     public final void testCalculateUnevenInstancesDistance() throws Exception{
         double [] attrs1 = {-10.0, 3.00};
-        double [] attrs2 = {15.0, '?'};
+        double [] attrs2 = {15.0, -1.0};
         createInstances(attrs1, attrs2);
         EuclideanDistance eucDist = new EuclideanDistance();
         double result = eucDist.distance(instance1, instance2);
-        assertEquals(27.730849, result, 0.001);
+        assertEquals(25.0798, result, 0.001);
     }
     
     /**

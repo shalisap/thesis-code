@@ -122,12 +122,11 @@ public class ManhattanDistanceTest {
     @Ignore
     public final void testCalculateUnevenInstancesDistance() throws Exception{
         double [] attrs1 = {-10.0, 3.00};
-        double [] attrs2 = {15.0};
+        double [] attrs2 = {15.0, -1.00};
         createInstances(attrs1, attrs2);
         ManhattanDistance manDist = new ManhattanDistance();
         double result = manDist.distance(instance1, instance2);
-        assertEquals("Both instances do not "
-					+ "contain the same number of attributes", result);
+        assertEquals(29, result, 0.001);
     }
 
     /**

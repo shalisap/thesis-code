@@ -62,21 +62,24 @@ public class runClustering {
 		        readInInstances(arffpath);
 		        
 		        DistanceFunction distFn;
-		        if (dist_measure.equals("euclidean")) {
+		        if (dist_measure.equalsIgnoreCase("euclidean")) {
 		        	EuclideanDistance eucDist = new EuclideanDistance();
 		        	distFn = eucDist;
-		        } else if (dist_measure.equals("manhattan")) {
+		        } else if (dist_measure.equalsIgnoreCase("manhattan")) {
 		        	ManhattanDistance manDist = new ManhattanDistance();
 		        	distFn = manDist;
-		        } else if (dist_measure.equals("edit distance")) {
+		        } else if (dist_measure.equalsIgnoreCase("edit distance")) {
 		        	EditDistance editDist = new EditDistance();
 		        	distFn = editDist;
+		        } else if (dist_measure.equalsIgnoreCase("hmm")) {
+		        	HMMDistance hmmDist = new HMMDistance();
+		        	distFn = hmmDist;
 			    } else {
 		        	throw new IllegalArgumentException("No valid distance function "
 		        			+ "chosen in .json config file.");
 		        }
 
-		        if (cluster_alg.equals("kmeans")) {
+		        if (cluster_alg.equalsIgnoreCase("kmeans")) {
 		        	KMeans kmeans = new KMeans(data, distFn);
 			        kmeans.setNumClusters(k);
 			        kmeans.setNumIterations(100);
@@ -84,7 +87,7 @@ public class runClustering {
 			        clusters.put(k, kmeans.getClusters());
 			        k++;
 			        
-		        } else if (cluster_alg.equals("kmedoids")) {
+		        } else if (cluster_alg.equalsIgnoreCase("kmedoids")) {
 		        	KMedoids kmedoids = new KMedoids(data, distFn);
 			        kmedoids.setNumClusters(k);
 			        kmedoids.setNumIterations(100);
@@ -92,7 +95,7 @@ public class runClustering {
 			        clusters.put(k, kmedoids.getClusters());
 			        k++;
 			        
-		        } else if (cluster_alg.equals("hierarchical")) {
+		        } else if (cluster_alg.equalsIgnoreCase("hierarchical")) {
 		        	// need to add all agglomeration method options
 		            AgglomerationMethod singleLink = new SingleLinkage();
 		            HierAgglo hierAgglo = new HierAgglo(data, distFn, singleLink);
