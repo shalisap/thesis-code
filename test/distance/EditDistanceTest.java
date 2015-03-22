@@ -4,6 +4,7 @@ import static org.junit.Assert.*;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.util.Arrays;
 
 import org.junit.Test;
 //import org.junit.Ignore;
@@ -11,6 +12,7 @@ import org.junit.Test;
 
 //import static org.mockito.Mockito.mock;
 //import static org.mockito.Mockito.when;
+
 
 import weka.core.Instance;
 import weka.core.Instances;
@@ -60,13 +62,13 @@ public class EditDistanceTest {
      */
     @Test
     public final void testCalculateSingleAttributePositiveDistance() throws Exception{
-        double [] attrs1 = {10.0};
-        double [] attrs2 = {15.0};
+        double [] attrs1 = {-1.0, -1.0, -1.0, -1.0};
+        double [] attrs2 = {-1.0, -1.0, -1.0, -1.0};
         createInstances(attrs1, attrs2);
         EditDistance editDist = new EditDistance();
         System.out.println("Single Attribute");
         double result = editDist.distance(instance1, instance2);
-        assertEquals(5, result, 0.001);
+        assertEquals(0.0, result, 0.001);
     }
     
     /**
@@ -75,12 +77,26 @@ public class EditDistanceTest {
      */
     @Test
     public final void testCalculateMultipleAttributeDistance() throws Exception{
-        double [] attrs1 = {10.0, 8.5, 5.0};
-        double [] attrs2 = {15.0, 4.2, 40.0};
+        double [] attrs1 = {10.0, 8.5, 5.0, 0.0, -1.0, -1.0};
+        double [] attrs2 = {15.0, 4.2, 40.0, 0.0, -1.0, -1.0};
         createInstances(attrs1, attrs2);
         EditDistance editDist = new EditDistance();
         double result = editDist.distance(instance1, instance2);
-        assertEquals(44.3, result, 0.001);
+        assertEquals(45.3, result, 0.001);
+    }
+    
+    /**
+     * Testing the edit distance function when there are instances each with
+     * multiple attributes.
+     */
+    @Test
+    public final void testCalculateNegDistance() throws Exception{
+        double [] attrs1 = {10.0, 8.5, -1.0, -1.0, -1.0, -1.0};
+        double [] attrs2 = {15.0, 4.2, 3.0, 0.8, -1.0, -1.0};
+        createInstances(attrs1, attrs2);
+        EditDistance editDist = new EditDistance();
+        double result = editDist.distance(instance1, instance2);
+        assertEquals(11.3, result, 0.001);
     }
     
     /**
@@ -89,10 +105,13 @@ public class EditDistanceTest {
     @Test
     public final void testCalculateDistMatrix() throws Exception{
     	// 3, 8, 10
-    	readInInstances("./data/testThreeTwoCloser.arff");
-    	double[][] expResult = {{0, 5, 7},{5, 0, 2},{7, 2, 0}};
-    	EditDistance eucDist = new EditDistance();
-    	double[][] calc = eucDist.distMatrix(data);
+    	readInInstances("./data/testMultiD.arff");
+    	double[][] expResult = {{0, 18},{18, 0}};
+    	EditDistance editDist = new EditDistance();
+    	double[][] calc = editDist.distMatrix(data);
+    	for (double[] c: calc) {
+    		System.out.println(Arrays.toString(c));
+    	}
     	assertArrayEquals(expResult, calc);
     }
 }

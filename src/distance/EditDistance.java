@@ -32,6 +32,10 @@ public class EditDistance extends AbstractDistance implements DistanceFunction {
 	@Override
 	public double distance(Instance x, Instance y) {
 		
+		if (x.numAttributes() % 2 != 0 || y.numAttributes() % 2 != 0) {
+			throw new IllegalArgumentException("Number of attributes are not even");
+		}
+		
 	    int lengthX = x.numAttributes()/2;
 	    int lengthY = y.numAttributes()/2;
 		
@@ -53,7 +57,7 @@ public class EditDistance extends AbstractDistance implements DistanceFunction {
 			yTup[ys] = tup;
 			numY = numY + 2;
 		}
-
+		
 	    // build a distance matrix 
 	    double[][] disMatrix = new double[lengthX + 1][lengthY + 1];
 	    
@@ -63,29 +67,62 @@ public class EditDistance extends AbstractDistance implements DistanceFunction {
 	    // + previous attributes of x
 	    for (int i = 1; i <= lengthX; i++) {
 	    	//disMatrix[i][0] = x.value(i - 1) + disMatrix[i-1][0];
-	    	disMatrix[i][0] = xTup[i-1][0] + xTup[i-1][1] + disMatrix[i-1][0];
+	    	disMatrix[i][0] = Math.abs(xTup[i-1][0]) + Math.abs(xTup[i-1][1]) + disMatrix[i-1][0];
 	    }
 
 	    // fill in 0th col with the value of each attribute of y
 	    // + previous attributes of y
 	    for (int j = 1; j <= lengthY; j++) {
 	    	//disMatrix[0][j] = y.value(j - 1) + disMatrix[0][j-1];
-	    	disMatrix[0][j] = yTup[j-1][0] + yTup[j-1][1] + disMatrix[0][j-1];
+	    	disMatrix[0][j] = Math.abs(yTup[j-1][0]) + Math.abs(yTup[j-1][1]) + disMatrix[0][j-1];
 	    }
 
-	    for (int i = 1; i <= lengthX; i++) {
-	    	for (int j = 1; j <= lengthY; j++) {
+		boolean destroy = false;
+		int i = 1;
+		while (i <= lengthX) {
+			int j = 1;
+			while (j <= lengthY) {
+	    //for (int i = 1; i <= lengthX; i++) {
+	    	//for (int j = 1; j <= lengthY; j++) {
 	    		// -1 because 0th row/col filled 
-	    		if (Arrays.equals(xTup[i - 1], yTup[j - 1])) {  
+				if (destroy == true) {
+					disMatrix[i][j] = 1 + disMatrix[i - 1][j - 1];
+				} else if (Arrays.equals(xTup[i - 1], yTup[j - 1])) {  
 	    			disMatrix[i][j] = disMatrix[i - 1][j - 1];
 	    		} else {
-	    			disMatrix[i][j] = Math.min((Math.abs(xTup[i-1][0] - yTup[j-1][0]) + 
-	        		  					Math.abs(xTup[i-1][1] - yTup[j-1][1])
-	    								+ disMatrix[i-1][j-1]),
-	        		  					Math.min((xTup[i-1][0] + xTup[i-1][1] + disMatrix[i-1][j]),
-	        		  							(yTup[j-1][0] + yTup[j-1][1] + disMatrix[i][j-1])));
+	    			double min = Double.POSITIVE_INFINITY;
+	    			double sub = Math.abs(Math.abs(xTup[i-1][0]) - Math.abs(yTup[j-1][0])) + 
+		  					Math.abs(Math.abs(xTup[i-1][1]) - Math.abs(yTup[j-1][1]))
+							+ disMatrix[i-1][j-1];
+	    			double insert = Math.abs(xTup[i-1][0]) + Math.abs(xTup[i-1][1]) + disMatrix[i-1][j];
+	    			double del = Math.abs(yTup[j-1][0]) + Math.abs(yTup[j-1][1]) + disMatrix[i][j-1];
+	    			if (sub < min) {
+	    				min = sub;
+	    				if (xTup[i-1][0] == -1 || yTup[i-1][0] == -1) {
+	    					destroy = true;
+	    				}
+	    			} else if (insert < min) {
+	    				min = insert;
+	    				if (xTup[i-1][0] == -1 || xTup[i-1][1] == -1) {
+	    					destroy = true;
+	    				}
+	    			} else if (del < min) {
+	    				min = del;
+	    				if (yTup[i-1][0] == -1 || yTup[i-1][1] == -1) {
+	    					destroy = true;
+	    				}
+	    			}
+//	    			double min = Math.min((Math.abs(xTup[i-1][0] - yTup[j-1][0]) + 
+//	        		  					Math.abs(xTup[i-1][1] - yTup[j-1][1])
+//	    								+ disMatrix[i-1][j-1]),
+//	        		  					Math.min((xTup[i-1][0] + xTup[i-1][1] + disMatrix[i-1][j]),
+//	        		  							(yTup[j-1][0] + yTup[j-1][1] + disMatrix[i][j-1])));
+	    			disMatrix[i][j] = min;
+	    			
 		  	    }
+	    		j++;
 	    	}
+			i++;
 	    }
 	    return disMatrix[lengthX][lengthY];
 	}
