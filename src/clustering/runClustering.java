@@ -104,7 +104,7 @@ public class runClustering {
 		            for (int i = k; i <= max_k; i++) {
 		            	hierAgglo.setNumClusters(i);
 				        clusters.put(i, hierAgglo.getClusters());
-		            	System.out.println("Cluster " + k + 
+		            	System.out.println("Cluster " + i + ":\n " +
 		            			Arrays.toString(hierAgglo.getClusters()));
 		            }			
 		            k = max_k + 1;
@@ -119,15 +119,18 @@ public class runClustering {
 		        			+ "chosen in .json config file.");
 		        }
 		        
-            	System.out.println("Cluster " + k + 
-            			Arrays.toString(clusters.get(k)));
+		        if (clusters.get(k) != null) {
+		        	System.out.println("Cluster " + k + ":\n " +
+		        			Arrays.toString(clusters.get(k)));
+		        }
 			}
 			
+			/*
 			// print out clusters generated
 			for (Map.Entry<Integer, int[]> entry : clusters.entrySet()) {
 				System.out.println(entry.getKey());
 				System.out.println(Arrays.toString(entry.getValue()));
-			}
+			} */
 				
 			// write out clusters in json format
 			Gson gson_out = new Gson();
