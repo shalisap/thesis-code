@@ -57,9 +57,10 @@ public class runClustering {
 			
 			Map<Integer, int[]> clusters = new HashMap<Integer, int[]>();
 			//for (int k = min_k; k <= max_k; k++) {
+	        readInInstances(arffpath);
+	        System.out.println("NUM INSTANCES: " + data.numInstances());
 			int k = min_k;
 			while (k <= max_k) {
-		        readInInstances(arffpath);
 		        
 		        DistanceFunction distFn;
 		        if (dist_measure.equalsIgnoreCase("euclidean")) {
@@ -68,7 +69,7 @@ public class runClustering {
 		        } else if (dist_measure.equalsIgnoreCase("manhattan")) {
 		        	ManhattanDistance manDist = new ManhattanDistance();
 		        	distFn = manDist;
-		        } else if (dist_measure.equalsIgnoreCase("edit distance")) {
+		        } else if (dist_measure.equalsIgnoreCase("edit")) {
 		        	EditDistance editDist = new EditDistance();
 		        	distFn = editDist;
 		        } else if (dist_measure.equalsIgnoreCase("hmm")) {
@@ -84,8 +85,8 @@ public class runClustering {
 			        kmeans.setNumClusters(k);
 			        kmeans.setNumIterations(100);
 			        kmeans.cluster();
+			        System.out.println(k);
 			        clusters.put(k, kmeans.getClusters());
-			        k++;
 			        
 		        } else if (cluster_alg.equalsIgnoreCase("kmedoids")) {
 		        	KMedoids kmedoids = new KMedoids(data, distFn);
@@ -93,7 +94,6 @@ public class runClustering {
 			        kmedoids.setNumIterations(100);
 			        kmedoids.cluster();
 			        clusters.put(k, kmedoids.getClusters());
-			        k++;
 			        
 		        } else if (cluster_alg.equalsIgnoreCase("hierarchical")) {
 		        	// need to add all agglomeration method options
@@ -119,10 +119,19 @@ public class runClustering {
 		        			+ "chosen in .json config file.");
 		        }
 		        
+	        	System.out.println("Cluster " + k + ":\n " +
+	        			Arrays.toString(clusters.get(k)));
 		        if (clusters.get(k) != null) {
+		        	System.out.println("HELLO");
+		        	/*
 		        	System.out.println("Cluster " + k + ":\n " +
 		        			Arrays.toString(clusters.get(k)));
+		        			*/
+		        } else{
+		        	System.out.println("Cluster " + k + ":\n " +
+		        			"null");
 		        }
+		        k++;
 			}
 			
 			/*

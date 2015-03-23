@@ -261,7 +261,7 @@ public class KMeans implements ClusterAlg {
         if (this.centroids == null) {
         	//randomizeInitCentroids();
         	kMeansPlusPlusInit();
-        	System.out.println(Arrays.toString(this.centroids));
+        	//System.out.println(Arrays.toString(this.centroids));
         }
         
         int iterationCount = 0;
