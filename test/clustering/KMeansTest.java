@@ -583,4 +583,50 @@ public class KMeansTest {
         
         assertEquals(expResult, determineClusters(kmeans.getClusters()));
     }
+    
+    /**
+     * Testing KMeans for three instances, three clusters using EuclideanDistance
+     * with k++ initial clusters
+     */
+    @Test
+    //@Ignore
+    public void kPlusPlusInitKMeansTest() throws Exception {
+        readInInstances("./data/testThreeTwoCloser.arff");
+        EuclideanDistance eucD = new EuclideanDistance();
+        DistanceFunction eucDist = eucD;
+        KMeans kmeans = new KMeans(data, eucDist);
+        kmeans.setNumClusters(3);
+        kmeans.setNumIterations(100);
+        System.out.println("---------- Three Instances, Three Clusters Randomize"
+        		+ "(0 1 2 done) ----------");
+        kmeans.cluster();
+        
+        System.out.println(Arrays.toString(kmeans.getClusters()));
+        System.out.println(determineClusters(kmeans.getClusters()));
+        
+        //test number of clusters
+        assertEquals(3, getNumClusters(kmeans.getClusters()));
+        
+        // build expected result [[10], [3], [8]]
+        ArrayList<ArrayList<String>> expResult = new ArrayList<ArrayList<String>>();
+        ArrayList<String> cluster0 = new ArrayList<String>();
+        ArrayList<String> cluster1 = new ArrayList<String>();
+        ArrayList<String> cluster2 = new ArrayList<String>();
+        cluster0.add(data.instance(0).toString());
+        cluster1.add(data.instance(1).toString());
+        cluster2.add(data.instance(2).toString());
+        Collections.sort(cluster0);
+        Collections.sort(cluster1);
+        Collections.sort(cluster2);
+        expResult.add(cluster0);
+        expResult.add(cluster1);
+        expResult.add(cluster2);
+    	Collections.sort(expResult, new Comparator<ArrayList<String>>() {
+    		public int compare(ArrayList<String> a, ArrayList<String> b) {
+    			return a.get(0).compareTo(b.get(0));
+    		}
+    	});
+        
+        assertEquals(expResult, determineClusters(kmeans.getClusters()));
+    }
 }

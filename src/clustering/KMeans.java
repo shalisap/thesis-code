@@ -109,6 +109,69 @@ public class KMeans implements ClusterAlg {
     }
     
     /**
+     * 
+     * @param d
+     * @param inst
+     * @return
+     */
+    private Map<Instance, Double> getNearestCent(Instances d, Instance inst) {
+    	Map<Instance, Double> nearDist = new HashMap<Instance, Double>();
+    	double minDistance = Double.MAX_VALUE;
+    	Instance minCenter = null;
+    	for (int i = 0; i < d.numInstances(); i++) {
+    		double dist = distFn.distance(inst, d.instance(i));
+    		if (dist < minDistance) {
+    			minDistance = dist;
+    			minCenter = d.instance(i);
+    		}
+    	}
+    	nearDist.put(minCenter, minDistance);
+    	return nearDist;
+    }
+    
+    /**
+     * k-means++ to choose initial centroids.
+     */
+    private void kMeansPlusPlusInit(){
+    	centroids = new Instance[this.numClusters];
+    	Instances data_copy = new Instances(this.data);
+    	
+    	// choose one center at random
+    	Random rand = new Random();
+    	int idx = rand.nextInt(data_copy.numInstances());
+    	Instance center = data_copy.instance(idx);
+    	this.centroids[0] = center;
+    	data_copy.delete(idx);
+    	
+    	int chosen = 1;
+    	while(chosen < this.numClusters) {
+	    	// for each data point, compute distance
+	    	// between x and nearest center already chosen
+	    	double[] distToCenter = new double[data_copy.numInstances()];
+	    	int sum = 0;
+	    	for (int i = 0; i < data_copy.numInstances(); i++) {
+	    		Instance inst = data_copy.instance(i);
+	    		Map<Instance, Double> nearest = getNearestCent(data_copy, inst); 
+	    		sum += Math.pow(nearest.get(inst), 2);
+	    		distToCenter[i] = sum;
+	    	}
+	    	
+	    	// add random point chosen with probability
+	    	// proportional to D(x)^2
+	    	double r = rand.nextDouble() * sum;
+	    	for (int i = 0; i < distToCenter.length; i++) {
+	    		if (distToCenter[i] >= r) {
+	    			this.centroids[chosen] = data_copy.instance(i);
+	    			data_copy.delete(i);
+	    			break;
+	    		}
+	    	}
+	    	chosen++;
+    	}
+    	
+    }
+    
+    /**
      * Allows the user to choose the initial centroids.
      * @param pickedCent Set of integers representing indices of the data
      */
@@ -151,7 +214,9 @@ public class KMeans implements ClusterAlg {
         int instanceLength = this.data.instance(0).numAttributes();
 
         if (this.centroids == null) {
-        	randomizeInitCentroids();
+        	//randomizeInitCentroids();
+        	kMeansPlusPlusInit();
+        	System.out.println(Arrays.toString(this.centroids));
         }
         
         int iterationCount = 0;
