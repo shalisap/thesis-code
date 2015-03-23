@@ -104,6 +104,8 @@ public class runClustering {
 		            for (int i = k; i <= max_k; i++) {
 		            	hierAgglo.setNumClusters(i);
 				        clusters.put(i, hierAgglo.getClusters());
+		            	System.out.println("Cluster " + k + 
+		            			Arrays.toString(hierAgglo.getClusters()));
 		            }			
 		            k = max_k + 1;
 		            
@@ -117,6 +119,8 @@ public class runClustering {
 		        			+ "chosen in .json config file.");
 		        }
 		        
+            	System.out.println("Cluster " + k + 
+            			Arrays.toString(clusters.get(k)));
 			}
 			
 			// print out clusters generated
