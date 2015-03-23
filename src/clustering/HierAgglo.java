@@ -2,7 +2,6 @@ package clustering;
 
 import java.util.Arrays;
 
-import weka.core.Instance;
 import weka.core.Instances;
 import distance.DistanceFunction;
 

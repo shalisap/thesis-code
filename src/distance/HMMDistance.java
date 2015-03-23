@@ -2,12 +2,9 @@ package distance;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import clustering.KMeans;
 import be.ac.ulg.montefiore.run.jahmm.Hmm;
@@ -77,6 +74,13 @@ public class HMMDistance extends AbstractDistance {
     	} else this.states = m;
     }
     
+    /**
+     * Get the number of HMM states to generate
+     * @return m Number of states
+     */
+    public int getNumStates() {
+    	return this.states;
+    }
     
 	/**
 	 * Convert an instance to an ObservationVector list.
@@ -277,7 +281,7 @@ public class HMMDistance extends AbstractDistance {
 			i.setValue(1, x.value(a + 1));
 			xInsts.add(i);
 		}
-		//System.out.println(xInsts.toString());
+		System.out.println("Instances: " + xInsts.toString());
 		
 		// cluster x into m clusters with kmeans
         ManhattanDistance manD = new ManhattanDistance();
@@ -287,7 +291,7 @@ public class HMMDistance extends AbstractDistance {
         kmeans.setNumIterations(100);
         kmeans.cluster();        
         int[] labels = kmeans.getClusters();
-        //System.out.println(Arrays.toString(labels));
+        System.out.println(Arrays.toString(labels));
         
         ArrayList<Instance> part = partition(xInsts, labels, states-1); 
         
@@ -329,6 +333,7 @@ public class HMMDistance extends AbstractDistance {
 		}
 		hmm.setAij(states-1, states-1, 1);
 		
+		System.out.println(hmm.toString());
 		return hmm;
 	}
 	

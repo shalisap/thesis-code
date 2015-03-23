@@ -5,8 +5,10 @@ import java.util.*;
 
 import static org.junit.Assert.*;
 
+import org.junit.Ignore;
 import org.junit.Test;
 //import org.junit.Ignore;
+
 
 import be.ac.ulg.montefiore.run.jahmm.ObservationVector;
 import weka.core.Instances;
@@ -28,13 +30,28 @@ public class HMMDistanceTest {
     public static void readInInstances(String filename)  throws Exception{
         BufferedReader reader = new BufferedReader(new FileReader(filename));
         data = new Instances(reader);
+        
+    }
+    
+    /**
+     * 
+     */
+    @Test
+    public void HMMDistTest() throws Exception {
+        readInInstances("./data/testMultiD.arff");
+        HMMDistance hmmD = new HMMDistance(data.instance(0), data.instance(1), 3);
+        System.out.println("Num HMM states: " + hmmD.states);
+        System.out.print("HMM Distance: ");
+        double dist = hmmD.distance(data.instance(0), data.instance(1));
+        System.out.println(dist);
+        
     }
     
     /**
      * Testing HMMDist 
      */
     @Test
-    //@Ignore
+    @Ignore
     public void twoInstancesHMMDistTest() throws Exception {
         System.out.println("---------- Two Instances ----------");
         readInInstances("./data/testMultiD.arff");

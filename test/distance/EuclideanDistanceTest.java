@@ -113,6 +113,23 @@ public class EuclideanDistanceTest {
         double result = eucDist.distance(instance1, instance2);
         assertEquals(28.058688, result, 0.001);
     }
+    
+    /**
+     * Testing the euclidean distance function when there are instances each with
+     * multiple attributes.
+     * The answer should be
+     * sqrt((-10.0-15.0)^2 + (8.5-(-4.2))^2 + (3.0-2.0)^2) = 28.058688
+     */
+    @Test
+    public final void testInOutDistance() throws Exception{
+        double [] attrs1 = {0.1, 0.2, 0.15, 0.5, 0.7, 0.3, -1, -1};
+        double [] attrs2 = {0.3, 0.1, 0.15, 0.3, -1, -1, -1, -1};
+        createInstances(attrs1, attrs2);
+        EuclideanDistance eucDist = new EuclideanDistance();
+        double result = eucDist.distance(instance1, instance2);
+        assertEquals(0.818, result, 0.001);
+    }
+    
 
     /**
      * Testing the euclidean distance function when there are instances with

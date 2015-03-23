@@ -109,10 +109,10 @@ public class KMeans implements ClusterAlg {
     }
     
     /**
-     * 
-     * @param d
-     * @param inst
-     * @return
+     * Return the nearest instance in the dataset from a given instance.
+     * @param d Instances dataset
+     * @param inst Instance to find the closest other instance
+     * @return Nearest instance to inst
      */
     private Map<Instance, Double> getNearestCent(Instances d, Instance inst) {
     	Map<Instance, Double> nearDist = new HashMap<Instance, Double>();
@@ -134,41 +134,86 @@ public class KMeans implements ClusterAlg {
      */
     private void kMeansPlusPlusInit(){
     	centroids = new Instance[this.numClusters];
-    	Instances data_copy = new Instances(this.data);
+    	boolean[] taken = new boolean[data.numInstances()];
     	
     	// choose one center at random
     	Random rand = new Random();
-    	int idx = rand.nextInt(data_copy.numInstances());
-    	Instance center = data_copy.instance(idx);
+    	int idx = rand.nextInt(data.numInstances());
+    	Instance center = data.instance(idx);
     	this.centroids[0] = center;
-    	data_copy.delete(idx);
+    	// mark index as taken
+    	taken[idx] = true;
+    	
+    	// keep track of min distance squared of elements of data
+    	// to elements of centroids
+    	double[] minDistSquared = new double[data.numInstances()];
+    	for (int i = 0; i < data.numInstances(); i++) {
+    		if (i != idx) {
+    			// distance from first center to all others
+    			double d = distFn.distance(center, data.instance(i));
+    			minDistSquared[i] = d*d; 
+    		}
+    	}
     	
     	int chosen = 1;
     	while(chosen < this.numClusters) {
-	    	// for each data point, compute distance
-	    	// between x and nearest center already chosen
-	    	double[] distToCenter = new double[data_copy.numInstances()];
-	    	int sum = 0;
-	    	for (int i = 0; i < data_copy.numInstances(); i++) {
-	    		Instance inst = data_copy.instance(i);
-	    		Map<Instance, Double> nearest = getNearestCent(data_copy, inst); 
-	    		sum += Math.pow(nearest.get(inst), 2);
-	    		distToCenter[i] = sum;
-	    	}
-	    	
+    		// Sum up distances for points not already taken.
+    		double sqSum = 0.0;
+    		for (int i = 0; i < data.numInstances(); i++) {
+    			if (!taken[i]) {
+    				sqSum += minDistSquared[i];
+    			}
+    		}
 	    	// add random point chosen with probability
 	    	// proportional to D(x)^2
-	    	double r = rand.nextDouble() * sum;
-	    	for (int i = 0; i < distToCenter.length; i++) {
-	    		if (distToCenter[i] >= r) {
-	    			this.centroids[chosen] = data_copy.instance(i);
-	    			data_copy.delete(i);
-	    			break;
-	    		}
-	    	}
-	    	chosen++;
+    		// sum through minDistSquared until sum >= r
+    		double r = rand.nextDouble() * sqSum;
+    		int nextIdx = -1;
+    		double sum = 0.0;
+    		for (int i = 0; i < data.numInstances(); i++) {
+    			if (!taken[i]) {
+    				sum += minDistSquared[i];
+    				if (sum >= r) {
+    					nextIdx = i;
+    					break;
+    				}
+    			}
+    		}
+    		
+    		// check to make sure point was chosen
+    		if (nextIdx == -1) {
+    			for (int i = data.numInstances() - 1; i >= 0; i--) {
+    				if (!taken[i]) {
+    					nextIdx = i;
+    					break;
+    				}
+    			}
+    		}
+    		
+    		if (nextIdx >= 0) {
+    			Instance nextCenter = data.instance(nextIdx);
+    			this.centroids[chosen] = nextCenter;
+    			taken[nextIdx] = true;
+    			
+    			// update minDistSquared
+    			if (chosen + 1 < this.numClusters) {
+    				for (int j = 0; j < data.numInstances(); j++) {
+    					if (!taken[j]) {
+    						double dist = distFn.distance(nextCenter, data.instance(j));
+    						double distSq = dist*dist;
+    						if (distSq < minDistSquared[j]) {
+    							minDistSquared[j] = distSq;
+    						}
+    					}
+    				}
+    			} 
+    		} else {
+				// No next idx - exit
+				break;
+			}
+			chosen++;
     	}
-    	
+
     }
     
     /**

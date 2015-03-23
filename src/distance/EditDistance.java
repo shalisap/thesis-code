@@ -17,11 +17,11 @@ public class EditDistance extends AbstractDistance implements DistanceFunction {
 	 * deletions, insertions, or substitutions required
 	 * to transform one instance into another.
 	 * 
-	 * ed(m::ms, n::ns) =
+	 * ed((m_in, m_out)::ms, (n_in, n_out)::ns) =
 	 * 	min(
-	 * 		|m - n| + ed(ms, ns),
-	 * 		m + ed(ms, n::ns),
-	 * 		n + ed(m::ms, ns)
+	 * 		(|m_in - n_in| + |m_out - n_out|) + ed(ms, ns),
+	 * 		(m_in + m_out) + ed(ms, n::ns),
+	 * 		(n_in + m_out) + ed(m::ms, ns)
 	 * 		)
 	 *
 	 *		where m, n are the attributes of each of the instances,

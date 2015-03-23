@@ -12,6 +12,7 @@ import org.junit.Ignore;
 //import static org.mockito.Mockito.mock;
 //import static org.mockito.Mockito.when;
 
+
 import weka.core.Instance;
 import weka.core.Instances;
 
@@ -129,6 +130,20 @@ public class ManhattanDistanceTest {
         assertEquals(29, result, 0.001);
     }
 
+    /**
+     * Testing the manhattan distance function when there are instances each with
+     * multiple attributes.
+     */
+    @Test
+    public final void testInOutDistance() throws Exception{
+        double [] attrs1 = {0.1, 0.2, 0.15, 0.5, 0.7, 0.3, -1, -1};
+        double [] attrs2 = {0.3, 0.1, 0.15, 0.3, -1, -1, -1, -1};
+        createInstances(attrs1, attrs2);
+        ManhattanDistance manDist = new ManhattanDistance();
+        double result = manDist.distance(instance1, instance2);
+        assertEquals(1.5, result, 0.001);
+    }
+    
     /**
      * Testing the calculate matrix function.
      */
