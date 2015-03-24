@@ -2,6 +2,7 @@ package clustering;
 
 import java.util.*;
 
+import weka.core.Attribute;
 import weka.core.Instances;
 import distance.DistanceFunction;
 import weka.core.Instance;
@@ -47,6 +48,11 @@ public class KMeans implements ClusterAlg {
     private int[] clusters;
     
     /**
+     * Random number generator
+     */
+    private Random rand;
+    
+    /**
      * Constructor for KMeans that takes data and
      * a similarity function.
      */
@@ -61,6 +67,7 @@ public class KMeans implements ClusterAlg {
 //      				+ " has an odd number of attributes. It must"
 //      				+ " have pairs of (IN, OUT).");
          } else this.data = d;
+         rand = new Random();
     }
     
     /**
@@ -109,27 +116,6 @@ public class KMeans implements ClusterAlg {
     }
     
     /**
-     * Return the nearest instance in the dataset from a given instance.
-     * @param d Instances dataset
-     * @param inst Instance to find the closest other instance
-     * @return Nearest instance to inst
-     */
-    private Map<Instance, Double> getNearestCent(Instances d, Instance inst) {
-    	Map<Instance, Double> nearDist = new HashMap<Instance, Double>();
-    	double minDistance = Double.MAX_VALUE;
-    	Instance minCenter = null;
-    	for (int i = 0; i < d.numInstances(); i++) {
-    		double dist = distFn.distance(inst, d.instance(i));
-    		if (dist < minDistance) {
-    			minDistance = dist;
-    			minCenter = d.instance(i);
-    		}
-    	}
-    	nearDist.put(minCenter, minDistance);
-    	return nearDist;
-    }
-    
-    /**
      * k-means++ to choose initial centroids.
      */
     private void kMeansPlusPlusInit(){
@@ -137,7 +123,6 @@ public class KMeans implements ClusterAlg {
     	boolean[] taken = new boolean[data.numInstances()];
     	
     	// choose one center at random
-    	Random rand = new Random();
     	int idx = rand.nextInt(data.numInstances());
     	Instance center = data.instance(idx);
     	this.centroids[0] = center;
@@ -237,6 +222,27 @@ public class KMeans implements ClusterAlg {
     	}
     }
     
+    /**
+     * Checks to see if there are any clusters where
+     * there are no data points assigned.
+     * 
+     * @return True if there is an empty cluster.
+     * 		False otherwise.
+     */
+    private boolean checkEmptyCluster() {
+    	List<Integer> cs = new ArrayList<Integer>();
+    	for (int c: this.clusters) {
+    		if (!cs.contains(c)) {
+    			cs.add(c);
+    		}
+    	}
+    	if (cs.size() != this.numClusters) {
+    		return true;
+    	} else {
+    		return false;
+    	}
+    }
+    
 	/**
 	 * Returns the clusters from KMeans clustering of the data, 
      * [i{0}, i{1}, ..., i{n-1}] where each i{j}, 0 <= j < n belongs 
@@ -251,17 +257,40 @@ public class KMeans implements ClusterAlg {
 		return this.clusters;
 	}
 	
+	
     /**
      * Runs the kmeans clustering algorithm on the data given.
      */
 	@Override
-	public void cluster() {
+	public void cluster() {		
         int instanceLength = this.data.instance(0).numAttributes();
 
         if (this.centroids == null) {
         	//randomizeInitCentroids();
         	kMeansPlusPlusInit();
-        	//System.out.println(Arrays.toString(this.centroids));
+        }
+        
+     // Create instances that contain the min/max values for the attributes 
+        Instance min = new Instance(instanceLength);
+        Instance max = new Instance(instanceLength);
+        // for each instance
+        for (int i = 0; i < this.data.numInstances(); i++) {
+        	Instance inst = this.data.instance(i);
+        	// for each attribute
+           	for (int j = 0; j < inst.numAttributes(); j++) {
+           		Attribute att = inst.attribute(j);
+        		double val = inst.value(j);
+        		if (max.isMissing(att)) {
+        			max.setValue(j, val);
+           	    } else if (max.value(j) < val) {
+                	max.setValue(j, val);
+           	    }
+        		if (min.isMissing(att)) {
+                	min.setValue(j, val);
+                } else if (min.value(j) > val) {
+                	min.setValue(j, val);
+                }
+            }
         }
         
         int iterationCount = 0;
@@ -271,12 +300,9 @@ public class KMeans implements ClusterAlg {
 			int tmpCluster = 0;
 			double minDistance = distFn.distance(
 					centroids[0], data.instance(i)); 
-					//this.centroids.instance(0), this.data.instance(i));
 			for (int j = 1; j < centroids.length; j++) {
 				double dist = distFn.distance(
 						centroids[j], data.instance(i));
-						//this.centroids.instance(j),
-						//this.data.instance(i));
 				if (dist < minDistance) {
 					minDistance = dist;
 					tmpCluster = j;
@@ -287,12 +313,14 @@ public class KMeans implements ClusterAlg {
 		iterationCount++;
         
         boolean centroidsChanged = true;
+        boolean randomCentroids = false;
         
         /* While the number of iterations ran is fewer than 
-         * the maximum set number of iterations, and 
+         * the maximum set number of iterations or there is an empty cluster and 
          * while the centroids are still changing, recalculate centroids and clusters
          */
-        while (iterationCount < iterations && centroidsChanged) {
+        while ((randomCentroids || iterationCount < iterations 
+        		&& centroidsChanged) || checkEmptyCluster()) {
         	iterationCount++;
 
             /* When all objects assigned, recalculate positions of the
@@ -312,6 +340,7 @@ public class KMeans implements ClusterAlg {
         		countPosition[clusters[i]]++;
         	}
         	centroidsChanged = false;
+        	randomCentroids = false;
         	
         	// Recalculate the centroids
         	for (int i = 0; i < numClusters; i++) {
@@ -325,7 +354,16 @@ public class KMeans implements ClusterAlg {
         					centroids[i]) > 0.0001) {
         				centroidsChanged = true;
         				centroids[i] = newCentroid;
-        			}
+        			} 
+        		} else { // if there is an empty cluster
+    				Instance randomInstance = new Instance(instanceLength);
+    				for (int j = 0; j < instanceLength; j++) {
+    					double dist = Math.abs(max.value(j) - min.value(j));
+    					randomInstance.setValue(j, (float)
+    							(min.value(j) + rand.nextDouble() * dist));
+    				}
+    				randomCentroids = true;
+    				centroids[i] = randomInstance;
         		}
         	}
 

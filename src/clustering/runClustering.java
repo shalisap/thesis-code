@@ -85,7 +85,6 @@ public class runClustering {
 			        kmeans.setNumClusters(k);
 			        kmeans.setNumIterations(100);
 			        kmeans.cluster();
-			        System.out.println(k);
 			        clusters.put(k, kmeans.getClusters());
 			        
 		        } else if (cluster_alg.equalsIgnoreCase("kmedoids")) {
@@ -119,14 +118,9 @@ public class runClustering {
 		        			+ "chosen in .json config file.");
 		        }
 		        
-	        	System.out.println("Cluster " + k + ":\n " +
-	        			Arrays.toString(clusters.get(k)));
 		        if (clusters.get(k) != null) {
-		        	System.out.println("HELLO");
-		        	/*
 		        	System.out.println("Cluster " + k + ":\n " +
 		        			Arrays.toString(clusters.get(k)));
-		        			*/
 		        } else{
 		        	System.out.println("Cluster " + k + ":\n " +
 		        			"null");
