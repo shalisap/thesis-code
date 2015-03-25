@@ -103,7 +103,7 @@ public class DistinguishingPairsAdj implements Evaluation {
 	 * 							(n choose 2)^2 - [(a+b)(a+c) + (c+d)(b+d)]
 	 */
 	@Override
-	public double evaluate() {
+	public double evaluate(int[] cluster1, int[] cluster2) {
 		// determine actual sorted clusters
     	same = 0;
     	diff = 0;
@@ -150,4 +150,9 @@ public class DistinguishingPairsAdj implements Evaluation {
 		this.numEvals = n;
 	}
 
+	/**
+	 * Constructor for DistinguishingPairsAdj
+	 */
+	public DistinguishingPairsAdj() {
+	}
 }

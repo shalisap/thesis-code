@@ -4,8 +4,10 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.json.simple.JSONObject;
@@ -123,8 +125,23 @@ public class runClustering {
 		        if (clusters.get(k) != null) {
 		        	System.out.println("Cluster " + k + ":\n " +
 		        			Arrays.toString(clusters.get(k)));
+		        	List<Integer> n = new ArrayList<Integer>();
+		        	for (int l: clusters.get(k)) {
+		        		if (!n.contains(l)) {
+		        			n.add(l);
+		        		}
+		        	}
+		        	if (n.size() != k) {
+		        		System.out.println("Number of clusters: " + n.size() + " < k");
+		        	}
 			        if (beta >= 1) {
 			        	// for all pairs of clusterAlg, distFn: calc distances?
+			        	DistinguishingPairs dp = new DistinguishingPairs();
+			        	DistinguishingPairsAdj dpAdj = new DistinguishingPairsAdj();
+			        	CollapsedPairs cp = new CollapsedPairs();
+			        	
+			        	
+				        
 			        }
 		        } else{
 		        	System.out.println("Cluster " + k + ":\n " +

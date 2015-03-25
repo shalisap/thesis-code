@@ -61,7 +61,7 @@ public class CollapsedPairs implements Evaluation {
 	 * An asymmetric distance.
 	 */
 	@Override
-	public double evaluate() {
+	public double evaluate(int[] clusterAlg, int[] groundTruth) {
 		int numCollapsed = 0;
     	for (int i = 0; i < groundTruth.length; i++) {
     		for (int j = 0; j < groundTruth.length; j++) {
@@ -92,5 +92,11 @@ public class CollapsedPairs implements Evaluation {
     				+ "cannot be fewer than 1.");
 		}
 		this.numEvals = n;
+	}
+	
+	/**
+	 * Constructor for CollapsedPairs
+	 */
+	public CollapsedPairs() {
 	}
 }

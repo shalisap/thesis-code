@@ -87,7 +87,7 @@ public class DistinguishingPairs implements Evaluation {
 	 * 
 	 */
 	@Override
-	public double evaluate() {
+	public double evaluate(int[] cluster1, int[] cluster2) {
 		// determine actual sorted clusters
     	same = 0;
     	diff = 0;
@@ -123,5 +123,10 @@ public class DistinguishingPairs implements Evaluation {
 		}
 		this.numEvals = n;
 	}
-
+	
+	/**
+	 * Constructor for DistinguishingPairs
+	 */
+	public DistinguishingPairs() {
+	}
 }

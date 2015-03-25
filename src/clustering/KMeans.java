@@ -234,27 +234,17 @@ public class KMeans implements ClusterAlg {
 		double max = 0;
 		int largestRadius = 0;
 		// find cluster with largest radius/variance
-		for (int j = 0; j < numClusters; j++) {
-			// if cluster is not empty
-			if (counts[j] > 0) {
-				// determine the max_dist of each cluster
-				for (int c = 0; c < clusters.length; c++) {
-					// if instance in cluster
-					if (clusters[c] == j) {
-						// distance from centroid and inst in cluster
-						double dist = distFn.distance(
-								centroids[j], data.instance(c));
-						if (dist > max) {
-							max = dist;
-							largestRadius = j;
-						}
-					}
-				}
-			} 
+		for (int i = 0; i < clusters.length; i++) {
+			double dist = distFn.distance(
+					centroids[clusters[i]], data.instance(i));
+			if (dist > max) {
+				max = dist;
+				largestRadius = clusters[i];
+			}
 		}
+		
 		// split cluster into two -- first find 2 farthest points
 		// which become 2 "centroids"
-		
 		double maxDist = 0;
 		Instance inst1 = new Instance(data.instance(0));
 		Instance inst2 = new Instance(data.instance(1));
@@ -369,6 +359,7 @@ public class KMeans implements ClusterAlg {
         				centroids[i] = newCentroid;
         			} 
         		} else { // if empty cluster, split largest variance cluster into 2
+        			//System.out.println(Arrays.toString(countPosition));
         			HashMap<Integer, Instance[]> splitCentroid = 
         					splitCluster(countPosition);
         			int oldCent = Integer.parseInt(splitCentroid.keySet().
@@ -396,5 +387,42 @@ public class KMeans implements ClusterAlg {
         		clusters[i] = tmpCluster;
         	}
         }
+        
+        // check for emptiness one last time
+    	int[] countPosition2 = new int[numClusters];
+    	for (int i = 0; i < data.numInstances(); i++) {
+    		countPosition2[clusters[i]]++;
+    	}
+    	boolean empty = false;
+    	for (int i = 0; i < countPosition2.length; i++) {
+    		if (countPosition2[i] <= 0) {
+    			empty = true;
+    			HashMap<Integer, Instance[]> splitCentroid = 
+    					splitCluster(countPosition2);
+    			int oldCent = Integer.parseInt(splitCentroid.keySet().
+    					toArray()[0].toString());
+    			Instance[] newCent = splitCentroid.get(oldCent);
+    			centroids[oldCent] = newCent[0];
+    			centroids[i] = newCent[1];	
+    		}
+    	}
+    	if (empty) {
+        	// recalculate labels of the data
+        	clusters = new int[data.numInstances()];
+        	for (int i = 0; i < data.numInstances(); i++) {
+        		int tmpCluster = 0;
+        		double minDistance = distFn.distance(
+        				centroids[0], data.instance(i));
+        		for (int j = 0; j < centroids.length; j++) {
+        			double dist = distFn.distance(
+        					centroids[j], data.instance(i));
+        			if (dist < minDistance) {
+        				minDistance = dist;
+        				tmpCluster = j;
+        			}
+        		}
+        		clusters[i] = tmpCluster;
+        	}
+    	}
 	}
 }
