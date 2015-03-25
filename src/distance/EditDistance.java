@@ -1,7 +1,9 @@
 package distance;
 
 import java.lang.Math;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import weka.core.Instance;
 
@@ -36,27 +38,32 @@ public class EditDistance extends AbstractDistance implements DistanceFunction {
 			throw new IllegalArgumentException("Number of attributes are not even");
 		}
 		
-	    int lengthX = x.numAttributes()/2;
-	    int lengthY = y.numAttributes()/2;
-		
 		// convert to tuples of (in, out)
 		double[] xAttrs = x.toDoubleArray();
 		double[] yAttrs = y.toDoubleArray();
 		
-		double[][] xTup = new double[lengthX][2];
-		double[][] yTup = new double[lengthY][2];
+		List<double[]> xTup = new ArrayList<double[]>();
+		List<double[]> yTup = new ArrayList<double[]>();
+		
 		int numX = 0;
 		int numY = 0;
-		for (int xs = 0; xs < lengthX; xs++) {
-			double[] tup = new double[]{xAttrs[numX], xAttrs[numX + 1]};
-			xTup[xs] = tup;
-			numX = numX + 2;
+		for (int xs = 0; xs < x.numAttributes()/2; xs++) {
+			// Ignore all destroy states
+			if (xAttrs[numX] >= 0 && xAttrs[numX + 1] >= 0) {
+				double[] tup = new double[]{xAttrs[numX], xAttrs[numX + 1]};
+				xTup.add(tup);
+				numX = numX + 2;
+			}
 		}
-		for (int ys = 0; ys < lengthY; ys++) {
-			double[] tup = new double[]{yAttrs[numY], yAttrs[numY + 1]};
-			yTup[ys] = tup;
-			numY = numY + 2;
+		for (int ys = 0; ys < y.numAttributes()/2; ys++) {
+			if (xAttrs[numY] >= 0 && xAttrs[numY + 1] >= 0) {
+				double[] tup = new double[]{yAttrs[numY], yAttrs[numY + 1]};
+				yTup.add(tup);
+				numY = numY + 2;
+			}
 		}
+		int lengthX = xTup.size();
+		int lengthY = yTup.size();
 		
 	    // build a distance matrix 
 	    double[][] disMatrix = new double[lengthX + 1][lengthY + 1];
@@ -67,62 +74,36 @@ public class EditDistance extends AbstractDistance implements DistanceFunction {
 	    // + previous attributes of x
 	    for (int i = 1; i <= lengthX; i++) {
 	    	//disMatrix[i][0] = x.value(i - 1) + disMatrix[i-1][0];
-	    	disMatrix[i][0] = Math.abs(xTup[i-1][0]) + Math.abs(xTup[i-1][1]) + disMatrix[i-1][0];
+	    	disMatrix[i][0] = xTup.get(i-1)[0] + xTup.get(i-1)[1] + disMatrix[i-1][0];
 	    }
 
 	    // fill in 0th col with the value of each attribute of y
 	    // + previous attributes of y
 	    for (int j = 1; j <= lengthY; j++) {
-	    	//disMatrix[0][j] = y.value(j - 1) + disMatrix[0][j-1];
-	    	disMatrix[0][j] = Math.abs(yTup[j-1][0]) + Math.abs(yTup[j-1][1]) + disMatrix[0][j-1];
+	    	disMatrix[0][j] = yTup.get(j-1)[0] + yTup.get(j-1)[1] + disMatrix[0][j-1];
 	    }
 
-		boolean destroy = false;
-		int i = 1;
-		while (i <= lengthX) {
-			int j = 1;
-			while (j <= lengthY) {
-	    //for (int i = 1; i <= lengthX; i++) {
-	    	//for (int j = 1; j <= lengthY; j++) {
+	    for (int i = 1; i <= lengthX; i++) {
+	    	for (int j = 1; j <= lengthY; j++) {
 	    		// -1 because 0th row/col filled 
-				if (destroy == true) {
-					disMatrix[i][j] = 1 + disMatrix[i - 1][j - 1];
-				} else if (Arrays.equals(xTup[i - 1], yTup[j - 1])) {  
+				if (Arrays.equals(xTup.get(i - 1), yTup.get(j - 1))) {  
 	    			disMatrix[i][j] = disMatrix[i - 1][j - 1];
 	    		} else {
-	    			double min = Double.POSITIVE_INFINITY;
-	    			double sub = Math.abs(Math.abs(xTup[i-1][0]) - Math.abs(yTup[j-1][0])) + 
-		  					Math.abs(Math.abs(xTup[i-1][1]) - Math.abs(yTup[j-1][1]))
-							+ disMatrix[i-1][j-1];
-	    			double insert = Math.abs(xTup[i-1][0]) + Math.abs(xTup[i-1][1]) + disMatrix[i-1][j];
-	    			double del = Math.abs(yTup[j-1][0]) + Math.abs(yTup[j-1][1]) + disMatrix[i][j-1];
-	    			if (sub < min) {
-	    				min = sub;
-	    				if (xTup[i-1][0] == -1 || yTup[i-1][0] == -1) {
-	    					destroy = true;
-	    				}
-	    			} else if (insert < min) {
-	    				min = insert;
-	    				if (xTup[i-1][0] == -1 || xTup[i-1][1] == -1) {
-	    					destroy = true;
-	    				}
-	    			} else if (del < min) {
-	    				min = del;
-	    				if (yTup[i-1][0] == -1 || yTup[i-1][1] == -1) {
-	    					destroy = true;
-	    				}
-	    			}
-//	    			double min = Math.min((Math.abs(xTup[i-1][0] - yTup[j-1][0]) + 
-//	        		  					Math.abs(xTup[i-1][1] - yTup[j-1][1])
-//	    								+ disMatrix[i-1][j-1]),
-//	        		  					Math.min((xTup[i-1][0] + xTup[i-1][1] + disMatrix[i-1][j]),
-//	        		  							(yTup[j-1][0] + yTup[j-1][1] + disMatrix[i][j-1])));
+	    			double min = Math.min((Math.abs(xTup.get(i-1)[0] - yTup.get(j-1)[0]) 
+	        		  					+ Math.abs(xTup.get(i-1)[1] - yTup.get(j-1)[1])
+	    								+ disMatrix[i-1][j-1]),
+	        		  					Math.min((xTup.get(i-1)[0] + xTup.get(i-1)[1] 
+	        		  							+ disMatrix[i-1][j]),
+	        		  							(yTup.get(j-1)[0] + yTup.get(j-1)[1] 
+	        		  									+ disMatrix[i][j-1])));
 	    			disMatrix[i][j] = min;
 	    			
 		  	    }
-	    		j++;
 	    	}
-			i++;
+	    }
+	    System.out.println("Distance Matrix");
+	    for (double[] c: disMatrix) {
+	    	System.out.println(Arrays.toString(c));
 	    }
 	    return disMatrix[lengthX][lengthY];
 	}
