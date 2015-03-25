@@ -8,7 +8,7 @@
 	"max_k": 10,
 	"min_m": 3,
 	"max_m": 10,
-	"beta": 0.5,
+	"beta": 1,
 	"n_trials": 1,
     "cluster_alg" : "kmeans",
     "dist_measure" : "euclidean",

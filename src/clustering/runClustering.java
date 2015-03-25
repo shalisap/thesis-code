@@ -15,6 +15,7 @@ import com.google.gson.Gson;
 
 import weka.core.Instances;
 import distance.*;
+import evaluation.*;
 
 /**
  * Driver file for executing clustering code
@@ -43,12 +44,13 @@ public class runClustering {
 		JSONParser parser = new JSONParser();
 		
 		try {
-			// figure out min_k and max_k from json file
+			// Read in options from the .json file
 			Object obj = parser.parse(new FileReader(
 					"./data/testing.json"));
 			JSONObject jsonObject = (JSONObject) obj;
 			int min_k = Integer.parseInt(jsonObject.get("min_k").toString());
 			int max_k = Integer.parseInt(jsonObject.get("max_k").toString());
+			int beta = Integer.parseInt(jsonObject.get("beta").toString());
 		    String cluster_alg = jsonObject.get("cluster_alg").toString();
 			String dist_measure = jsonObject.get("dist_measure").toString();
 			String arffpath = jsonObject.get("arffpath").toString();
@@ -121,6 +123,9 @@ public class runClustering {
 		        if (clusters.get(k) != null) {
 		        	System.out.println("Cluster " + k + ":\n " +
 		        			Arrays.toString(clusters.get(k)));
+			        if (beta >= 1) {
+			        	// for all pairs of clusterAlg, distFn: calc distances?
+			        }
 		        } else{
 		        	System.out.println("Cluster " + k + ":\n " +
 		        			"null");

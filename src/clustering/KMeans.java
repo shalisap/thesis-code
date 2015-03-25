@@ -223,25 +223,64 @@ public class KMeans implements ClusterAlg {
     }
     
     /**
-     * Checks to see if there are any clusters where
-     * there are no data points assigned.
      * 
-     * @return True if there is an empty cluster.
-     * 		False otherwise.
+     * @param counts Number of instances in each cluster
+     * @return Returns the index of the largest variance cluster along with
+     * 		the two instances that are the farthest apart within the cluster.
      */
-    private boolean checkEmptyCluster() {
-    	List<Integer> cs = new ArrayList<Integer>();
-    	for (int c: this.clusters) {
-    		if (!cs.contains(c)) {
-    			cs.add(c);
-    		}
-    	}
-    	if (cs.size() != this.numClusters) {
-    		return true;
-    	} else {
-    		return false;
-    	}
-    }
+    public HashMap<Integer, Instance[]> splitCluster(int[] counts) {
+
+		// if there is an empty cluster
+		double max = 0;
+		int largestRadius = 0;
+		// find cluster with largest radius/variance
+		for (int j = 0; j < numClusters; j++) {
+			// if cluster is not empty
+			if (counts[j] > 0) {
+				// determine the max_dist of each cluster
+				for (int c = 0; c < clusters.length; c++) {
+					// if instance in cluster
+					if (clusters[c] == j) {
+						// distance from centroid and inst in cluster
+						double dist = distFn.distance(
+								centroids[j], data.instance(c));
+						if (dist > max) {
+							max = dist;
+							largestRadius = j;
+						}
+					}
+				}
+			} 
+		}
+		// split cluster into two -- first find 2 farthest points
+		// which become 2 "centroids"
+		
+		double maxDist = 0;
+		Instance inst1 = new Instance(data.instance(0));
+		Instance inst2 = new Instance(data.instance(1));
+		// for each data instance
+		for (int i = 0; i < clusters.length; i++) {
+			for (int j = 0; j < clusters.length; j++) {
+				if (clusters[i] == largestRadius &&
+						clusters[j] == largestRadius) {
+					// determine max distance between 2 instances in the cluster
+					double dist = distFn.distance(data.instance(i), 
+							data.instance(j));
+					if (dist > maxDist) {
+						maxDist = dist;
+						inst1 = new Instance(data.instance(i).numAttributes());
+						inst2 = new Instance(data.instance(j).numAttributes());
+						inst1 = data.instance(i);
+						inst2 = data.instance(j);
+					}
+				}
+			}
+		}
+		HashMap<Integer, Instance[]> newCentroid = new 
+				HashMap<Integer, Instance[]>();
+		newCentroid.put(largestRadius, new Instance[]{inst1,inst2});
+		return newCentroid;
+	}
     
 	/**
 	 * Returns the clusters from KMeans clustering of the data, 
@@ -263,34 +302,11 @@ public class KMeans implements ClusterAlg {
      */
 	@Override
 	public void cluster() {		
-        int instanceLength = this.data.instance(0).numAttributes();
+        int instanceLength = this.data.numAttributes();
 
         if (this.centroids == null) {
         	//randomizeInitCentroids();
         	kMeansPlusPlusInit();
-        }
-        
-     // Create instances that contain the min/max values for the attributes 
-        Instance min = new Instance(instanceLength);
-        Instance max = new Instance(instanceLength);
-        // for each instance
-        for (int i = 0; i < this.data.numInstances(); i++) {
-        	Instance inst = this.data.instance(i);
-        	// for each attribute
-           	for (int j = 0; j < inst.numAttributes(); j++) {
-           		Attribute att = inst.attribute(j);
-        		double val = inst.value(j);
-        		if (max.isMissing(att)) {
-        			max.setValue(j, val);
-           	    } else if (max.value(j) < val) {
-                	max.setValue(j, val);
-           	    }
-        		if (min.isMissing(att)) {
-                	min.setValue(j, val);
-                } else if (min.value(j) > val) {
-                	min.setValue(j, val);
-                }
-            }
         }
         
         int iterationCount = 0;
@@ -313,14 +329,12 @@ public class KMeans implements ClusterAlg {
 		iterationCount++;
         
         boolean centroidsChanged = true;
-        boolean randomCentroids = false;
         
         /* While the number of iterations ran is fewer than 
-         * the maximum set number of iterations or there is an empty cluster and 
+         * the maximum set number of iterations and 
          * while the centroids are still changing, recalculate centroids and clusters
          */
-        while ((randomCentroids || iterationCount < iterations 
-        		&& centroidsChanged) || checkEmptyCluster()) {
+        while (iterationCount < iterations && centroidsChanged) {
         	iterationCount++;
 
             /* When all objects assigned, recalculate positions of the
@@ -340,7 +354,6 @@ public class KMeans implements ClusterAlg {
         		countPosition[clusters[i]]++;
         	}
         	centroidsChanged = false;
-        	randomCentroids = false;
         	
         	// Recalculate the centroids
         	for (int i = 0; i < numClusters; i++) {
@@ -355,15 +368,14 @@ public class KMeans implements ClusterAlg {
         				centroidsChanged = true;
         				centroids[i] = newCentroid;
         			} 
-        		} else { // if there is an empty cluster
-    				Instance randomInstance = new Instance(instanceLength);
-    				for (int j = 0; j < instanceLength; j++) {
-    					double dist = Math.abs(max.value(j) - min.value(j));
-    					randomInstance.setValue(j, (float)
-    							(min.value(j) + rand.nextDouble() * dist));
-    				}
-    				randomCentroids = true;
-    				centroids[i] = randomInstance;
+        		} else { // if empty cluster, split largest variance cluster into 2
+        			HashMap<Integer, Instance[]> splitCentroid = 
+        					splitCluster(countPosition);
+        			int oldCent = Integer.parseInt(splitCentroid.keySet().
+        					toArray()[0].toString());
+        			Instance[] newCent = splitCentroid.get(oldCent);
+        			centroids[oldCent] = newCent[0];
+        			centroids[i] = newCent[1];	
         		}
         	}
 
