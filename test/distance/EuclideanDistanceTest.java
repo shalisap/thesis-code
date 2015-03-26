@@ -127,7 +127,7 @@ public class EuclideanDistanceTest {
         createInstances(attrs1, attrs2);
         EuclideanDistance eucDist = new EuclideanDistance();
         double result = eucDist.distance(instance1, instance2);
-        assertEquals(0.818, result, 0.001);
+        assertEquals(2.161, result, 0.001);
     }
     
 
@@ -144,7 +144,7 @@ public class EuclideanDistanceTest {
         createInstances(attrs1, attrs2);
         EuclideanDistance eucDist = new EuclideanDistance();
         double result = eucDist.distance(instance1, instance2);
-        assertEquals(25.0798, result, 0.001);
+        assertEquals(25.317, result, 0.001);
     }
     
     /**

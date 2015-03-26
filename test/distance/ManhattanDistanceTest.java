@@ -141,7 +141,7 @@ public class ManhattanDistanceTest {
         createInstances(attrs1, attrs2);
         ManhattanDistance manDist = new ManhattanDistance();
         double result = manDist.distance(instance1, instance2);
-        assertEquals(1.5, result, 0.001);
+        assertEquals(3.5, result, 0.001);
     }
     
     /**

@@ -26,20 +26,20 @@ public class ManhattanDistance extends AbstractDistance {
 		double sum = 0.0;
 		for (int i = 0; i < x.numAttributes(); i++) {
 			// charge 1 for -1
-			double xval;
-			double yval;
-			if (y.value(i) == -1.0) {
-				yval = 1.0;
-			} else {
-				yval = y.value(i);
-			}
-			if (x.value(i) == -1.0) {
-				xval = 1.0;
-			} else {
-				xval = x.value(i);
-			}
+//			double xval;
+//			double yval;
+//			if (y.value(i) == -1.0) {
+//				yval = 1.0;
+//			} else {
+//				yval = y.value(i);
+//			}
+//			if (x.value(i) == -1.0) {
+//				xval = 1.0;
+//			} else {
+//				xval = x.value(i);
+//			}
 			
-			sum += Math.abs(xval- yval);
+			sum += Math.abs(x.value(i) - y.value(i));
 		}
 		return sum;
 	}

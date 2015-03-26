@@ -30,21 +30,8 @@ public class EuclideanDistance extends AbstractDistance {
 				throw new IllegalArgumentException("One of the instances"
 						+ "contains a NaN-valued attribute.");
 			}
-			// charge 1 for -1
-			double xval;
-			double yval;
-			if (y.value(i) == -1.0) {
-				yval = 1.0;
-			} else {
-				yval = y.value(i);
-			}
-			if (x.value(i) == -1.0) {
-				xval = 1.0;
-			} else {
-				xval = x.value(i);
-			}
 			
-			sum += Math.pow(yval - xval, 2);
+			sum += (y.value(i) - x.value(i)) * (y.value(i) - x.value(i)) ;
 		}
 		return Math.sqrt(sum);
 	}
