@@ -38,28 +38,28 @@ public class DistinguishingPairsAdj implements Evaluation {
 	 * same cluster in cluster1 and cluster2.
 	 * i.e. cluster1[i] == cluster1[j] && cluster2[i] == cluster2[j]
 	 */
-	private int same;
+	private double same;
 	
 	/**
 	 * The number of pairs of elements that are in different clusters 
 	 * in cluster1 and different clusters in cluster2.
 	 * i.e. cluster1[i] != cluster1[j] && cluster2[i] != cluster2[j]
 	 */
-	private int diff;
+	private double diff;
 	
 	/**
 	 * The number of pairs of elements that are in the same clusters 
 	 * in cluster1 and different clusters in cluster2.
 	 * i.e. cluster1[i] == cluster1[j] && cluster2[i] != cluster2[j]
 	 */
-	private int same1diff2;
+	private double same1diff2;
 	
 	/**
 	 * The number of pairs of elements that are in different clusters 
 	 * in cluster1 and the same clusters in cluster2.
 	 * i.e. cluster1[i] != cluster1[j] && cluster2[i] == cluster2[j]
 	 */
-	private int diff1same2;
+	private double diff1same2;
 	
 	/**
 	 * Returns the total number of clusters for an assignment
@@ -105,12 +105,12 @@ public class DistinguishingPairsAdj implements Evaluation {
 	@Override
 	public double evaluate(int[] cluster1, int[] cluster2) {
 		// determine actual sorted clusters
-    	same = 0;
-    	diff = 0;
-    	same1diff2 = 0;
-    	diff1same2 = 0;
+    	same = 0.0;
+    	diff = 0.0;
+    	same1diff2 = 0.0;
+    	diff1same2 = 0.0;
     	for (int i = 0; i < cluster1.length; i++) {
-    		for (int j = 0; j < cluster1.length; j++) {
+    		for (int j = i + 1; j < cluster1.length; j++) {
     			// if i and j in cluster 1 are in the same set and i and j in cluster 2 are in the same set 
     			if (cluster1[i] == cluster1[j] && cluster2[i] == cluster2[j]) {
     				same++;
@@ -123,11 +123,11 @@ public class DistinguishingPairsAdj implements Evaluation {
     			}
     		}		
     	}
-		double nchoose2 = (1/2) * (cluster1.length - 1) * cluster1.length;
+		double nchoose2 = (1.0/2.0) * (cluster1.length - 1) * cluster1.length;
 		double sum = ((same + same1diff2) * (same + diff1same2) +
 				(diff1same2 + diff) * (same1diff2 + diff));
 		return (nchoose2 * (same + diff) - sum) / 
-				(Math.pow(nchoose2, 2) - sum);
+				((nchoose2 * nchoose2) - sum);
 	}
 	
 	/**

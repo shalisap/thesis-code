@@ -38,14 +38,28 @@ public class DistinguishingPairs implements Evaluation {
 	 * same cluster in cluster1 and cluster2.
 	 * i.e. cluster1[i] == cluster1[j] && cluster2[i] == cluster2[j]
 	 */
-	private int same;
+	private double same;
 	
 	/**
 	 * The number of pairs of elements that are in different clusters 
 	 * in cluster1 and different clusters in cluster2.
 	 * i.e. cluster1[i] != cluster1[j] && cluster2[i] != cluster2[j]
 	 */
-	private int diff;
+	private double diff;
+	
+	/**
+	 * The number of pairs of elements that are in the same clusters 
+	 * in cluster1 and different clusters in cluster2.
+	 * i.e. cluster1[i] == cluster1[j] && cluster2[i] != cluster2[j]
+	 */
+	private double same1diff2;
+	
+	/**
+	 * The number of pairs of elements that are in different clusters 
+	 * in cluster1 and the same clusters in cluster2.
+	 * i.e. cluster1[i] != cluster1[j] && cluster2[i] == cluster2[j]
+	 */
+	private double diff1same2;
 	
 	/**
 	 * Returns the total number of clusters for an assignment
@@ -89,19 +103,28 @@ public class DistinguishingPairs implements Evaluation {
 	@Override
 	public double evaluate(int[] cluster1, int[] cluster2) {
 		// determine actual sorted clusters
-    	same = 0;
-    	diff = 0;
+    	same = 0.0;
+    	diff = 0.0;
+    	same1diff2 = 0.0;
+    	diff1same2 = 0.0;
     	for (int i = 0; i < cluster1.length; i++) {
-    		for (int j = 0; j < cluster1.length; j++) {
+    		for (int j = i + 1; j < cluster1.length; j++) {
     			// if i and j in cluster 1 are in the same set and i and j in cluster 2 are in the same set 
-    			if (cluster1[i] == cluster1[j] && cluster2[i] == cluster2[j]) {
-    				same++;
-    			} else if (cluster1[i] != cluster1[j] && cluster2[i] != cluster2[j]){
-    				diff++;
+    			if (i != j) {
+        			if (cluster1[i] == cluster1[j] && cluster2[i] == cluster2[j]) {
+        				same++;
+        			} else if (cluster1[i] != cluster1[j] && cluster2[i] != cluster2[j]){
+        				diff++;
+        			} else if(cluster1[i] == cluster1[j] && cluster2[i] != cluster2[j]) {
+        				same1diff2++;
+        			} else if (cluster1[i] != cluster1[j] && cluster2[i] == cluster2[j]) {
+        				diff1same2++;
+        			}
     			}
     		}		
     	}
-		return (same + diff) / ((1/2) * (cluster1.length - 1) * cluster1.length);
+    	
+		return ((same + diff) / ((1.0/2.0) * (cluster1.length - 1) * cluster1.length));
 	}
 	
 	/**

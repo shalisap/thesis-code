@@ -13,6 +13,7 @@ import org.junit.Test;
 
 import distance.DistanceFunction;
 import distance.EuclideanDistance;
+import weka.core.Instance;
 import weka.core.Instances;
 
 /**
@@ -377,5 +378,25 @@ public class HierAggloTest {
         assertEquals(expResult3, determineClusters(hierAgglo.getClusters()));
     	hierAgglo.setNumClusters(1);
         assertEquals(expResult4, determineClusters(hierAgglo.getClusters()));
+	}
+	
+	/**
+	 * Testing HierAgglo for all clusters with 4 instances 
+	 */
+	@Test
+	public final void testCloseClusters() throws Exception {
+
+		readInInstances("./data/testMultiD.arff");
+	    EuclideanDistance eucD = new EuclideanDistance();
+        DistanceFunction eucDist = eucD;
+        AgglomerationMethod singleLink = new SingleLinkage();
+        HierAgglo hierAgglo = new HierAgglo(data, eucDist, singleLink);
+        System.out.println("---------- HAND ATTRS ----------");
+        hierAgglo.cluster();
+        
+        for (int[] cluster: hierAgglo.getAllClusters()) {
+        	System.out.println("level " + Arrays.toString(cluster));
+        }
+
 	}
 }

@@ -1,6 +1,7 @@
 package evaluation;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import weka.core.Instances;
 
@@ -70,7 +71,12 @@ public class CollapsedPairs implements Evaluation {
     			}
     		}
     	}
-		return numCollapsed / ((1/2) * (groundTruth.length - 1) * groundTruth.length);
+    	if (groundTruth.length < 1) {
+    		throw new IllegalArgumentException("To calculate this, each cluster"
+    				+ "must have more than 1 member.");
+    	} else {
+    		return numCollapsed / ((1.0/2.0) * (groundTruth.length - 1) * groundTruth.length);
+    	}
 	}
 
 	/**

@@ -101,10 +101,6 @@ public class EditDistance extends AbstractDistance implements DistanceFunction {
 		  	    }
 	    	}
 	    }
-	    System.out.println("Distance Matrix");
-	    for (double[] c: disMatrix) {
-	    	System.out.println(Arrays.toString(c));
-	    }
 	    return disMatrix[lengthX][lengthY];
 	}
 	

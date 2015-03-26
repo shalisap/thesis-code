@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
@@ -57,11 +58,26 @@ public class runClustering {
 			String dist_measure = jsonObject.get("dist_measure").toString();
 			String arffpath = jsonObject.get("arffpath").toString();
 			String cluster_outpath = jsonObject.get("cluster_outpath").toString();
-
+			String gt_outpath = jsonObject.get("gt_outpath").toString();
 			
+	        readInInstances(arffpath);
+			JSONParser subparser = new JSONParser();
+			
+			// grab ground truth from ground truth .json 
+			int[] ground_truth = new int[data.numInstances()];
+			try {
+				Object subobj = subparser.parse(new FileReader(gt_outpath));
+				JSONObject subjsonObject = (JSONObject) subobj;
+				String gt_list = subjsonObject.get("ground truth").toString();
+				
+				Gson gson = new Gson();
+				ground_truth = gson.fromJson(gt_list, int[].class);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
 			Map<Integer, int[]> clusters = new HashMap<Integer, int[]>();
 			//for (int k = min_k; k <= max_k; k++) {
-	        readInInstances(arffpath);
 	        System.out.println("NUM INSTANCES: " + data.numInstances());
 			int k = min_k;
 			while (k <= max_k) {
@@ -107,23 +123,43 @@ public class runClustering {
 		            for (int i = k; i <= max_k; i++) {
 		            	hierAgglo.setNumClusters(i);
 				        clusters.put(i, hierAgglo.getClusters());
-		            	System.out.println("Cluster " + i + ":\n " +
+		            	System.out.println("\nCluster " + i + ":\n " +
 		            			Arrays.toString(hierAgglo.getClusters()));
+		            	
+		            	// check for k number of clusters
+			        	List<Integer> n = new ArrayList<Integer>();
+			        	for (int l: clusters.get(k)) {
+			        		if (!n.contains(l)) {
+			        			n.add(l);
+			        		}
+			        	}
+			        	if (n.size() != k) {
+			        		System.out.println("Number of clusters: " + n.size() + " < k");
+			        	}
+			        	
+				        if (beta >= 1) {
+				        	DistinguishingPairs dp = new DistinguishingPairs();
+				        	DistinguishingPairsAdj dpAdj = new DistinguishingPairsAdj();
+				        	CollapsedPairs cp = new CollapsedPairs();
+				        	
+				        	double dp_eval = dp.evaluate(clusters.get(k), ground_truth);
+				        	double dpAdj_eval = dpAdj.evaluate(clusters.get(k), ground_truth);
+				        	double cp_eval = cp.evaluate(clusters.get(k), ground_truth);
+				        	
+				        	System.out.println("Distinguishing Pairs (Rand Index): " + dp_eval);
+				        	System.out.println("Distinguishing Pairs Adjusted (Adjusted Rand Index): " + dpAdj_eval);
+				        	System.out.println("Collapsed Pairs: " + cp_eval);
+				        }
 		            }			
 		            k = max_k + 1;
 		            
-//	            	int j = data.numInstances() - 1;
-//	                for (int[] cluster: hierAgglo.getAllClusters()) {
-//	                	System.out.println("level " + j + Arrays.toString(cluster));
-//	                	j--;
-//	                }
 		        } else {
 		        	throw new IllegalArgumentException("No valid clustering algorithm "
 		        			+ "chosen in .json config file.");
 		        }
 		        
 		        if (clusters.get(k) != null) {
-		        	System.out.println("Cluster " + k + ":\n " +
+		        	System.out.println("\nCluster " + k + ":\n " +
 		        			Arrays.toString(clusters.get(k)));
 		        	List<Integer> n = new ArrayList<Integer>();
 		        	for (int l: clusters.get(k)) {
@@ -140,22 +176,17 @@ public class runClustering {
 			        	DistinguishingPairsAdj dpAdj = new DistinguishingPairsAdj();
 			        	CollapsedPairs cp = new CollapsedPairs();
 			        	
+			        	double dp_eval = dp.evaluate(clusters.get(k), ground_truth);
+			        	double dpAdj_eval = dpAdj.evaluate(clusters.get(k), ground_truth);
+			        	double cp_eval = cp.evaluate(clusters.get(k), ground_truth);
 			        	
-				        
+			        	System.out.println("Distinguishing Pairs (Rand Index): " + dp_eval);
+			        	System.out.println("Distinguishing Pairs Adjusted (Adjusted Rand Index): " + dpAdj_eval);
+			        	System.out.println("Collapsed Pairs: " + cp_eval);
 			        }
-		        } else{
-		        	System.out.println("Cluster " + k + ":\n " +
-		        			"null");
-		        }
+		        } 
 		        k++;
 			}
-			
-			/*
-			// print out clusters generated
-			for (Map.Entry<Integer, int[]> entry : clusters.entrySet()) {
-				System.out.println(entry.getKey());
-				System.out.println(Arrays.toString(entry.getValue()));
-			} */
 				
 			// write out clusters in json format
 			Gson gson_out = new Gson();
