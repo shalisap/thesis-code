@@ -46,21 +46,17 @@ public class EditDistance extends AbstractDistance implements DistanceFunction {
 		List<double[]> xTup = new ArrayList<double[]>();
 		List<double[]> yTup = new ArrayList<double[]>();
 		
-		int numX = 0;
-		int numY = 0;
-		for (int xs = 0; xs < x.numAttributes()/2; xs++) {
+		for (int numX = 0; numX < xAttrs.length; numX += 2) {
 			// Ignore all destroy states
 			if (xAttrs[numX] >= 0 && xAttrs[numX + 1] >= 0) {
 				double[] tup = new double[]{xAttrs[numX], xAttrs[numX + 1]};
 				xTup.add(tup);
-				numX = numX + 2;
 			}
 		}
-		for (int ys = 0; ys < y.numAttributes()/2; ys++) {
+		for (int numY = 0; numY < yAttrs.length; numY += 2) {
 			if (xAttrs[numY] >= 0 && xAttrs[numY + 1] >= 0) {
 				double[] tup = new double[]{yAttrs[numY], yAttrs[numY + 1]};
 				yTup.add(tup);
-				numY = numY + 2;
 			}
 		}
 		int lengthX = xTup.size();
