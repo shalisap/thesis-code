@@ -6,12 +6,14 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.Arrays;
 
+import org.junit.Ignore;
 import org.junit.Test;
-//import org.junit.Ignore;
+
 //import org.junit.BeforeClass;
 
 //import static org.mockito.Mockito.mock;
 //import static org.mockito.Mockito.when;
+
 
 
 import weka.core.Instance;
@@ -107,6 +109,7 @@ public class EditDistanceTest {
      * Testing the calculate matrix function.
      */
     @Test
+    @Ignore
     public final void testCalculateDistMatrix() throws Exception{
     	readInInstances("./data/testMultiD.arff");
     	double[][] expResult = {{0, 21},{21, 0}};

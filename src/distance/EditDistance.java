@@ -35,7 +35,8 @@ public class EditDistance extends AbstractDistance implements DistanceFunction {
 	public double distance(Instance x, Instance y) {
 		
 		if (x.numAttributes() % 2 != 0 || y.numAttributes() % 2 != 0) {
-			throw new IllegalArgumentException("Number of attributes are not even");
+			throw new IllegalArgumentException(
+					"Number of attributes are not even");
 		}
 		
 		// convert to tuples of (in, out)
@@ -74,13 +75,15 @@ public class EditDistance extends AbstractDistance implements DistanceFunction {
 	    // + previous attributes of x
 	    for (int i = 1; i <= lengthX; i++) {
 	    	//disMatrix[i][0] = x.value(i - 1) + disMatrix[i-1][0];
-	    	disMatrix[i][0] = xTup.get(i-1)[0] + xTup.get(i-1)[1] + disMatrix[i-1][0];
+	    	disMatrix[i][0] = xTup.get(i-1)[0] + xTup.get(i-1)[1] 
+	    			+ disMatrix[i-1][0];
 	    }
 
 	    // fill in 0th col with the value of each attribute of y
 	    // + previous attributes of y
 	    for (int j = 1; j <= lengthY; j++) {
-	    	disMatrix[0][j] = yTup.get(j-1)[0] + yTup.get(j-1)[1] + disMatrix[0][j-1];
+	    	disMatrix[0][j] = yTup.get(j-1)[0] + yTup.get(j-1)[1] 
+	    			+ disMatrix[0][j-1];
 	    }
 
 	    for (int i = 1; i <= lengthX; i++) {
@@ -89,13 +92,14 @@ public class EditDistance extends AbstractDistance implements DistanceFunction {
 				if (Arrays.equals(xTup.get(i - 1), yTup.get(j - 1))) {  
 	    			disMatrix[i][j] = disMatrix[i - 1][j - 1];
 	    		} else {
-	    			double min = Math.min((Math.abs(xTup.get(i-1)[0] - yTup.get(j-1)[0]) 
-	        		  					+ Math.abs(xTup.get(i-1)[1] - yTup.get(j-1)[1])
-	    								+ disMatrix[i-1][j-1]),
-	        		  					Math.min((xTup.get(i-1)[0] + xTup.get(i-1)[1] 
-	        		  							+ disMatrix[i-1][j]),
-	        		  							(yTup.get(j-1)[0] + yTup.get(j-1)[1] 
-	        		  									+ disMatrix[i][j-1])));
+	    			double min = Math.min((
+	    					Math.abs(xTup.get(i-1)[0] - yTup.get(j-1)[0]) 
+	        		  		+ Math.abs(xTup.get(i-1)[1] - yTup.get(j-1)[1])
+	    					+ disMatrix[i-1][j-1]),
+	        		  		Math.min((xTup.get(i-1)[0] + xTup.get(i-1)[1] 
+	        		  				+ disMatrix[i-1][j]),
+	        		  				(yTup.get(j-1)[0] + yTup.get(j-1)[1] 
+	        		  						+ disMatrix[i][j-1])));
 	    			disMatrix[i][j] = min;
 	    			
 		  	    }
