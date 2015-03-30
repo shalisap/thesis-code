@@ -53,7 +53,7 @@ public class runClustering {
 			JSONObject jsonObject = (JSONObject) obj;
 			int min_k = Integer.parseInt(jsonObject.get("min_k").toString());
 			int max_k = Integer.parseInt(jsonObject.get("max_k").toString());
-			int beta = Integer.parseInt(jsonObject.get("beta").toString());
+			double beta = Double.parseDouble(jsonObject.get("beta").toString());
 		    String cluster_alg = jsonObject.get("cluster_alg").toString();
 			String dist_measure = jsonObject.get("dist_measure").toString();
 			String arffpath = jsonObject.get("arffpath").toString();
@@ -137,14 +137,14 @@ public class runClustering {
 			        		System.out.println("Number of clusters: " + n.size() + " < k");
 			        	}
 			        	
-				        if (beta >= 1) {
+				        if (beta >= 1.0) {
 				        	DistinguishingPairs dp = new DistinguishingPairs();
 				        	DistinguishingPairsAdj dpAdj = new DistinguishingPairsAdj();
 				        	CollapsedPairs cp = new CollapsedPairs();
 				        	
-				        	double dp_eval = dp.evaluate(clusters.get(k), ground_truth);
-				        	double dpAdj_eval = dpAdj.evaluate(clusters.get(k), ground_truth);
-				        	double cp_eval = cp.evaluate(clusters.get(k), ground_truth);
+				        	double dp_eval = dp.evaluate(clusters.get(i), ground_truth);
+				        	double dpAdj_eval = dpAdj.evaluate(clusters.get(i), ground_truth);
+				        	double cp_eval = cp.evaluate(clusters.get(i), ground_truth);
 				        	
 				        	System.out.println("Distinguishing Pairs (Rand Index): " + dp_eval);
 				        	System.out.println("Distinguishing Pairs Adjusted (Adjusted Rand Index): " + dpAdj_eval);
@@ -170,7 +170,7 @@ public class runClustering {
 		        	if (n.size() != k) {
 		        		System.out.println("Number of clusters: " + n.size() + " < k");
 		        	}
-			        if (beta >= 1) {
+			        if (beta >= 1.0) {
 			        	// for all pairs of clusterAlg, distFn: calc distances?
 			        	DistinguishingPairs dp = new DistinguishingPairs();
 			        	DistinguishingPairsAdj dpAdj = new DistinguishingPairsAdj();
