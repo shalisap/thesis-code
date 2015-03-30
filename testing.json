@@ -16,5 +16,5 @@
    	"cluster_alg" : "kmeans",
     	"dist_measure" : "euclidean",
     	"arffpath" : "./data/shadow-200r-750c/seriesdata.arff",
-    	"cluster_outpath" : "./data/shadow-200r-750c/clusters.json"
+    	"cluster_outpath" : "./data/shadow-200r-750c/kmeans_euc_clusters.json"
 }

@@ -49,7 +49,7 @@ public class runClustering {
 		try {
 			// Read in options from the .json file
 			Object obj = parser.parse(new FileReader(
-					"./thesis-code/data/testing.json"));
+					"./thesis-code/testing.json"));
 			JSONObject jsonObject = (JSONObject) obj;
 			int min_k = Integer.parseInt(jsonObject.get("min_k").toString());
 			int max_k = Integer.parseInt(jsonObject.get("max_k").toString());
@@ -78,6 +78,8 @@ public class runClustering {
 
 			Map<Integer, int[]> clusters = new HashMap<Integer, int[]>();
 			//for (int k = min_k; k <= max_k; k++) {
+			System.out.println("Clustering Algorithm: " + cluster_alg);
+			System.out.println("Distance Measure: " + dist_measure);
 	        System.out.println("NUM INSTANCES: " + data.numInstances());
 			int k = min_k;
 			while (k <= max_k) {
