@@ -118,7 +118,8 @@ public class runClustering {
 			        clusters.put(k, kmedoids.getClusters());
 			        
 		        } else if (cluster_alg.equalsIgnoreCase("hierarchical")) {
-		        	// need to add all agglomeration method option
+		        	System.out.println("Agglomeration Method: " + agglo_method);	
+				// need to add all agglomeration method option
 		        	AgglomerationMethod aggloMethod;
 				if (agglo_method.equalsIgnoreCase("single")) {
 					SingleLinkage singleLink = new SingleLinkage();
