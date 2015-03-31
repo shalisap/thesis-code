@@ -13,8 +13,9 @@
 	"max_m": 10,
 	"beta": 1.0,
 	"n_trials": 1,
-   	"cluster_alg" : "kmeans",
+   	"cluster_alg" : "hierarchical",
     	"dist_measure" : "euclidean",
+	"agglo_method" : "single",
     	"arffpath" : "./data/shadow-200r-750c/seriesdata.arff",
-    	"cluster_outpath" : "./data/shadow-200r-750c/kmeans_euc_clusters.json"
+    	"cluster_outpath" : "./data/shadow-200r-750c/hier_euc_clusters.json"
 }

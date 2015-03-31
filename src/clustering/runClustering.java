@@ -56,6 +56,7 @@ public class runClustering {
 			double beta = Double.parseDouble(jsonObject.get("beta").toString());
 		    String cluster_alg = jsonObject.get("cluster_alg").toString();
 			String dist_measure = jsonObject.get("dist_measure").toString();
+			String agglo_method = jsonObject.get("agglo_method").toString();
 			String arffpath = jsonObject.get("arffpath").toString();
 			String cluster_outpath = jsonObject.get("cluster_outpath").toString();
 			String gt_outpath = jsonObject.get("gt_outpath").toString();
@@ -117,10 +118,36 @@ public class runClustering {
 			        clusters.put(k, kmedoids.getClusters());
 			        
 		        } else if (cluster_alg.equalsIgnoreCase("hierarchical")) {
-		        	// need to add all agglomeration method options
-		            AgglomerationMethod singleLink = new SingleLinkage();
-		            HierAgglo hierAgglo = new HierAgglo(data, distFn, singleLink);
-		            hierAgglo.cluster();
+		        	// need to add all agglomeration method option
+		        	AgglomerationMethod aggloMethod;
+				if (agglo_method.equalsIgnoreCase("single")) {
+					SingleLinkage singleLink = new SingleLinkage();
+					aggloMethod = singleLink;
+				} else if (agglo_method.equalsIgnoreCase("complete")) {
+					CompleteLinkage completeLink = new CompleteLinkage();
+					aggloMethod = completeLink;
+				} else if (agglo_method.equalsIgnoreCase("average")) {
+					AverageLinkage avgLink = new AverageLinkage();
+					aggloMethod = avgLink;
+				} else if (agglo_method.equalsIgnoreCase("centroid")) {
+					CentroidLinkage centroidLink = new CentroidLinkage();
+					aggloMethod = centroidLink;
+				} else if (agglo_method.equalsIgnoreCase("median")) {
+					MedianLinkage medianLink = new MedianLinkage();
+					aggloMethod = medianLink;
+				} else if (agglo_method.equalsIgnoreCase("ward")) {
+					WardLinkage wardLink = new WardLinkage();
+					aggloMethod = wardLink;
+				} else if (agglo_method.equalsIgnoreCase("weighted average")) {
+					WeightedAverageLinkage weightedAvg = new WeightedAverageLinkage();
+					aggloMethod = weightedAvg;
+				} else {
+					throw new IllegalArgumentException("No valid agglomeration method " 
+						+ "chosen in .json config file.");
+				}
+		            	
+				HierAgglo hierAgglo = new HierAgglo(data, distFn, aggloMethod);
+		            	hierAgglo.cluster();
 		            
 		            for (int i = k; i <= max_k; i++) {
 		            	hierAgglo.setNumClusters(i);
