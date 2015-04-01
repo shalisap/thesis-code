@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -218,7 +219,7 @@ public class runClustering {
 		        } 
 		        long endTime = System.nanoTime();
 		        System.out.print("Time elapsed: ");
-		        System.out.println(endTime - startTime);
+		        System.out.println(TimeUnit.NANOSECONDS.toSeconds(endTime - startTime));
 		        k++;
 			}
 				
