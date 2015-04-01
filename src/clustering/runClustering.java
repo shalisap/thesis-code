@@ -45,11 +45,11 @@ public class runClustering {
 	
 	public static void main(String[] args) throws Exception{
 		JSONParser parser = new JSONParser();
-		
+		String jsonInput = args[0];
+		//"./thesis-code/testing.json"
 		try {
 			// Read in options from the .json file
-			Object obj = parser.parse(new FileReader(
-					"./thesis-code/testing.json"));
+			Object obj = parser.parse(new FileReader(jsonInput));
 			JSONObject jsonObject = (JSONObject) obj;
 			int min_k = Integer.parseInt(jsonObject.get("min_k").toString());
 			int max_k = Integer.parseInt(jsonObject.get("max_k").toString());
