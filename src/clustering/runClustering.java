@@ -85,7 +85,7 @@ public class runClustering {
 	        System.out.println("NUM INSTANCES: " + data.numInstances());
 			int k = min_k;
 			while (k <= max_k) {
-		        
+		        long startTime = System.nanoTime();
 		        DistanceFunction distFn;
 		        if (dist_measure.equalsIgnoreCase("euclidean")) {
 		        	EuclideanDistance eucDist = new EuclideanDistance();
@@ -216,6 +216,9 @@ public class runClustering {
 			        	System.out.println("Collapsed Pairs: " + cp_eval);
 			        }
 		        } 
+		        long endTime = System.nanoTime();
+		        System.out.print("Time elapsed: ");
+		        System.out.println(endTime - startTime);
 		        k++;
 			}
 				
