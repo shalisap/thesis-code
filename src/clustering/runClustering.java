@@ -48,6 +48,7 @@ public class runClustering {
 		String jsonInput = args[0];
 		//"./thesis-code/testing.json"
 		try {
+			// ./thesis-code/testing.json
 			// Read in options from the .json file
 			Object obj = parser.parse(new FileReader(jsonInput));
 			JSONObject jsonObject = (JSONObject) obj;
