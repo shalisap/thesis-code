@@ -218,7 +218,7 @@ public class runClustering {
 			        }
 		        } 
 		        long endTime = System.nanoTime();
-		        System.out.print("Time elapsed: ");
+		        System.out.print("Time elapsed (seconds): ");
 		        System.out.println(TimeUnit.NANOSECONDS.toSeconds(endTime - startTime));
 		        k++;
 			}
