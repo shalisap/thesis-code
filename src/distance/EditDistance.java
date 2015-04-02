@@ -4,6 +4,7 @@ import java.lang.Math;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import weka.core.Instance;
 
@@ -33,6 +34,7 @@ public class EditDistance extends AbstractDistance implements DistanceFunction {
 	 */
 	@Override
 	public double distance(Instance x, Instance y) {
+        long startTime = System.nanoTime();
 		
 		if (x.numAttributes() % 2 != 0 || y.numAttributes() % 2 != 0) {
 			throw new IllegalArgumentException(
@@ -59,6 +61,11 @@ public class EditDistance extends AbstractDistance implements DistanceFunction {
 				yTup.add(tup);
 			}
 		}
+		
+        long midTime = System.nanoTime();
+        System.out.print("Time elapsed for conversion (seconds): ");
+        System.out.println(TimeUnit.NANOSECONDS.toSeconds(midTime - startTime));
+        
 		int lengthX = xTup.size();
 		int lengthY = yTup.size();
 		
@@ -101,6 +108,9 @@ public class EditDistance extends AbstractDistance implements DistanceFunction {
 		  	    }
 	    	}
 	    }
+        long endTime = System.nanoTime();
+        System.out.print("Time elapsed for edit (seconds): ");
+        System.out.println(TimeUnit.NANOSECONDS.toSeconds(endTime - startTime));
 	    return disMatrix[lengthX][lengthY];
 	}
 	
