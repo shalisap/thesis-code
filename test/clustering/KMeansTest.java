@@ -2,13 +2,18 @@ package clustering;
 
 import distance.DistanceFunction;
 import distance.EuclideanDistance;
+import distance.EditDistance;
 
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.*;
+
 import org.junit.Test;
 //import org.junit.Ignore;
+
+
 
 import weka.core.Instances;
 //import weka.core.Instance;
@@ -671,5 +676,35 @@ public class KMeansTest {
     	});
         
         assertEquals(expResult, determineClusters(kmeans.getClusters()));
+    }
+    
+    /**
+     * Testing KMeans for three instances, two clusters using EuclideanDistance
+     * Last 2 as initial centroids
+     */
+    @Test
+    //@Ignore
+    public void EditDistKMeansTest() throws Exception {
+        long startTime = System.nanoTime();
+        readInInstances("./data/seriesdata500.arff");
+        EditDistance edD = new EditDistance();
+        DistanceFunction editDist = edD;
+        KMeans kmeans = new KMeans(data, editDist);
+        kmeans.setNumClusters(2);
+        kmeans.setNumIterations(100);
+        System.out.println("---------- seriesdata500 ----------");
+        kmeans.cluster();
+        
+        System.out.println(Arrays.toString(kmeans.getClusters()));
+        //System.out.println(determineClusters(kmeans.getClusters()));
+        long endTime = System.nanoTime();
+        System.out.print("Time elapsed for conversion (seconds): ");
+        System.out.println(TimeUnit.NANOSECONDS.toSeconds(endTime - startTime));
+        
+        
+        //test number of clusters
+        assertEquals(2, getNumClusters(kmeans.getClusters()));
+        
+
     }
 }

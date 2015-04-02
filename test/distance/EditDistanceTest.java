@@ -109,6 +109,19 @@ public class EditDistanceTest {
      * Testing the calculate matrix function.
      */
     @Test
+    public final void EditBig() throws Exception{
+    	System.out.println("Begin Reading...");
+    	readInInstances("./data/seriesdata.arff");
+    	System.out.println("Finishing Reading...");
+    	EditDistance editDist = new EditDistance();
+        double result = editDist.distance(data.instance(0), data.instance(1));
+        System.out.println(result);
+    }
+    
+    /**
+     * Testing the calculate matrix function.
+     */
+    @Test
     @Ignore
     public final void testCalculateDistMatrix() throws Exception{
     	readInInstances("./data/testMultiD.arff");

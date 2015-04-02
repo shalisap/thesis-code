@@ -583,4 +583,47 @@ public class KMedoidsTest {
         
         assertEquals(expResult, determineClusters(kmedoids.getClusters()));
     }
+    
+    /**
+     * Testing KMedoids for three instances, two clusters using EuclideanDistance
+     * First and Last as initial medoids
+     */
+    @Test
+    //@Ignore
+    public void randthreeInstancesTwoClusters3KMedoidsTest() throws Exception {
+        readInInstances("./data/testThreeTwoCloser.arff");
+        EuclideanDistance eucD = new EuclideanDistance();
+        DistanceFunction eucDist = eucD;
+        KMedoids kmedoids = new KMedoids(data, eucDist);
+        kmedoids.setNumClusters(2);
+        kmedoids.setNumIterations(100);
+        System.out.println("---------- Three Instances, Two Clusters"
+        		+ " Randomize ----------");
+        kmedoids.cluster();
+        
+        System.out.println(Arrays.toString(kmedoids.getClusters()));
+        System.out.println(determineClusters(kmedoids.getClusters()));
+        
+        //test number of clusters
+        assertEquals(2, getNumClusters(kmedoids.getClusters()));
+        
+        // build expected result [[10, 8], [3]]
+        ArrayList<ArrayList<String>> expResult = new ArrayList<ArrayList<String>>();
+        ArrayList<String> cluster0 = new ArrayList<String>();
+        ArrayList<String> cluster1 = new ArrayList<String>();
+        cluster0.add(data.instance(0).toString());
+        cluster1.add(data.instance(1).toString());
+        cluster1.add(data.instance(2).toString());
+        Collections.sort(cluster0);
+        Collections.sort(cluster1);
+        expResult.add(cluster0);
+        expResult.add(cluster1);
+    	Collections.sort(expResult, new Comparator<ArrayList<String>>() {
+    		public int compare(ArrayList<String> a, ArrayList<String> b) {
+    			return a.get(0).compareTo(b.get(0));
+    		}
+    	});
+        
+        assertEquals(expResult, determineClusters(kmedoids.getClusters()));
+    }
 }

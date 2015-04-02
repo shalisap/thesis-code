@@ -93,6 +93,7 @@ public class HMMDistance extends AbstractDistance {
 		List<ObservationVector> obs = new ArrayList<ObservationVector>();
 		// get values of instance
 		double[] instArray = inst.toDoubleArray();
+	
 		
 		double[] o_arr = new double[2]; 
 		for (int i = 0; i < instArray.length; i = i + 2) {
@@ -232,6 +233,7 @@ public class HMMDistance extends AbstractDistance {
 		return part;
 	}
 	
+	
 	/**
 	 * Generates a multivariate gaussian distribution function
 	 * from an instance
@@ -240,8 +242,7 @@ public class HMMDistance extends AbstractDistance {
 	 * @return A multivariate gaussian distribution
 	 */
     private OpdfMultiGaussian calcGaussian(Instance cluster) {
-		
-		List<ObservationVector> obs = instanceToObservation(cluster);
+    	List<ObservationVector> obs = instanceToObservation(cluster);
 		// generates a new gaussian distribution with 
 		// mean and covariance matrices
 		double[] mean = calcVectorMean(obs);
@@ -258,7 +259,7 @@ public class HMMDistance extends AbstractDistance {
 		omg.fit(obsNew);
 		return omg;
     }
-	
+    
 	/**
 	 * Given an Instance, initializes an HMM with 
 	 * uniform Pi and A parameters and calculates

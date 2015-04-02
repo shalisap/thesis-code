@@ -169,6 +169,92 @@ public class KMedoids implements ClusterAlg {
     
     }
     
+    /**
+     * k-means++ to choose initial medoids.
+     */
+    private void kMeansPlusPlusInit(){
+    	medoids = new Instance[this.numClusters];
+    	boolean[] taken = new boolean[data.numInstances()];
+    	
+    	// choose one center at random
+    	int idx = rand.nextInt(data.numInstances());
+    	Instance center = data.instance(idx);
+    	this.medoids[0] = center;
+    	// mark index as taken
+    	taken[idx] = true;
+    	
+    	// keep track of min distance squared of elements of data
+    	// to elements of medoids
+    	double[] minDistSquared = new double[data.numInstances()];
+    	for (int i = 0; i < data.numInstances(); i++) {
+    		if (i != idx) {
+    			// distance from first center to all others
+    			double d = distFn.distance(center, data.instance(i));
+    			minDistSquared[i] = d*d; 
+    		}
+    	}
+    	
+    	int chosen = 1;
+    	while(chosen < this.numClusters) {
+    		// Sum up distances for points not already taken.
+    		double sqSum = 0.0;
+    		for (int i = 0; i < data.numInstances(); i++) {
+    			if (!taken[i]) {
+    				sqSum += minDistSquared[i];
+    			}
+    		}
+	    	// add random point chosen with probability
+	    	// proportional to D(x)^2
+    		// sum through minDistSquared until sum >= r
+    		double r = rand.nextDouble() * sqSum;
+    		int nextIdx = -1;
+    		double sum = 0.0;
+    		for (int i = 0; i < data.numInstances(); i++) {
+    			if (!taken[i]) {
+    				sum += minDistSquared[i];
+    				if (sum >= r) {
+    					nextIdx = i;
+    					break;
+    				}
+    			}
+    		}
+    		
+    		// check to make sure point was chosen
+    		if (nextIdx == -1) {
+    			for (int i = data.numInstances() - 1; i >= 0; i--) {
+    				if (!taken[i]) {
+    					nextIdx = i;
+    					break;
+    				}
+    			}
+    		}
+    		
+    		if (nextIdx >= 0) {
+    			Instance nextCenter = data.instance(nextIdx);
+    			this.medoids[chosen] = nextCenter;
+    			taken[nextIdx] = true;
+    			
+    			// update minDistSquared
+    			if (chosen + 1 < this.numClusters) {
+    				for (int j = 0; j < data.numInstances(); j++) {
+    					if (!taken[j]) {
+    						double dist = distFn.distance(nextCenter, data.instance(j));
+    						double distSq = dist*dist;
+    						if (distSq < minDistSquared[j]) {
+    							minDistSquared[j] = distSq;
+    						}
+    					}
+    				}
+    			} 
+    		} else {
+				// No next idx - exit
+				break;
+			}
+			chosen++;
+    	}
+
+    }
+    
 	/** 
 	 * Returns the labels from KMedoids clustering of the data
 	 */
@@ -189,7 +275,8 @@ public class KMedoids implements ClusterAlg {
 		clusters = new int[data.numInstances()];
 
         if (this.medoids == null) {
-        	randomizeInitMedoids();
+        	//randomizeInitMedoids();
+        	kMeansPlusPlusInit();
         }
         
 		boolean changed = true;

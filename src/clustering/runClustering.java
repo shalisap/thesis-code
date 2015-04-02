@@ -46,8 +46,8 @@ public class runClustering {
 	
 	public static void main(String[] args) throws Exception{
 		JSONParser parser = new JSONParser();
-		String jsonInput = args[0];
-		//"./thesis-code/testing.json"
+		//String jsonInput = args[0];
+		String jsonInput = "./testing.json";
 		try {
 			// ./thesis-code/testing.json
 			// Read in options from the .json file
@@ -98,7 +98,8 @@ public class runClustering {
 		        	EditDistance editDist = new EditDistance();
 		        	distFn = editDist;
 		        } else if (dist_measure.equalsIgnoreCase("hmm")) {
-		        	HMMDistance hmmDist = new HMMDistance();
+		        	DiscreteHMMDistance hmmDist = new DiscreteHMMDistance();
+		        	hmmDist.setNumStates(k);
 		        	distFn = hmmDist;
 			    } else {
 		        	throw new IllegalArgumentException("No valid distance function "
