@@ -45,8 +45,8 @@ public class runClustering {
 	
 	public static void main(String[] args) throws Exception{
 		JSONParser parser = new JSONParser();
-		//String jsonInput = args[0];
-		String jsonInput = "./testing.json";
+		String jsonInput = args[0];
+		//String jsonInput = "./testing.json";
 		try {
 			// ./thesis-code/testing.json
 			// Read in options from the .json file
