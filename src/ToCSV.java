@@ -39,7 +39,7 @@ public class ToCSV {
 		}
 
 		// Find .log files in directory
-		String path = "."; 
+		String path = "./data"; 
 
 		String filesString;
 		File folder = new File(path);
@@ -81,7 +81,11 @@ public class ToCSV {
 				} else if (alg.equalsIgnoreCase("hierarchical") && 
 						line.contains("Agglomeration")) {
 					String[] split = line.split(" ");
-					alg = alg + " " + split[split.length-1];
+					if (line.contains("weighted average")) {
+						alg = alg + " " + split[split.length-2] + " " + split[split.length-1];
+					} else {
+						alg = alg + " " + split[split.length-1];
+					}
 				} else if (line.contains("Rand Index") || line.contains("Collapsed")) {
 					String[] split = line.split(" ");
 					indices = indices + "," + split[split.length-1];
