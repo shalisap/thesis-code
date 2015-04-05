@@ -12,7 +12,7 @@
   <property name="doc" location="doc" />
 
   <path id="class.path">
-	  <fileset dir="../extras">
+	  <fileset dir="./extras">
 		  <include name="*.jar" />
 	  </fileset>
   </path>
