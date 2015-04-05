@@ -39,7 +39,7 @@ public class ToCSV {
 		}
 
 		// Find .log files in directory
-		String path = "./data"; 
+		String path = "."; 
 
 		String filesString;
 		File folder = new File(path);
