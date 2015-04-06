@@ -19,7 +19,7 @@ import weka.core.FastVector;
 import weka.core.Instance;
 import weka.core.Instances;
 
-public class DiscreteHMMDistance extends AbstractDistance {
+public class DiscreteSmythHMMDistance extends AbstractDistance {
 	
     /**
      * The number of HMM states to generate.
@@ -39,7 +39,7 @@ public class DiscreteHMMDistance extends AbstractDistance {
 	/**
 	 * Constructor for HMMDistance.
 	 */
-	public DiscreteHMMDistance(Instance a, Instance b, int m) {
+	public DiscreteSmythHMMDistance(Instance a, Instance b, int m) {
          this.states = m;
          this.x = a;
          this.y = b;
@@ -48,7 +48,7 @@ public class DiscreteHMMDistance extends AbstractDistance {
 	/**
 	 * Constructor for HMMDistance.
 	 */
-	public DiscreteHMMDistance() {
+	public DiscreteSmythHMMDistance() {
     }
     
     /**
@@ -70,6 +70,50 @@ public class DiscreteHMMDistance extends AbstractDistance {
     public int getNumStates() {
     	return this.states;
     }
+
+	/**
+	 * Given a set of cluster labels, partitions x into k clusters.
+	 * @param x Instances
+	 * @param labels cluster labels for x
+	 * @param k number of clusters
+	 * @param multiToDiscrete mapping of symbol to integer key
+	 * @return An array of Instances, each of which contains the
+	 * 		series from one cluster, where the series within 
+	 * 		clusters are concatenated.
+	 */
+	private int[][] partition(Instances x, int[] labels, int k, 
+			HashMap<String, Integer> multiToDiscrete) {
+		
+		ArrayList<Instance> part = new ArrayList<Instance>();
+		
+		int[][] vals = new int[k][];
+		Map<Integer,Integer> occur = new HashMap<Integer,Integer>();
+		// figure out occurrences of each label
+		for (int l: labels){
+			if (occur.containsKey(l)) {
+				occur.put(l, occur.get(l) + 1);
+			} else {
+				occur.put(l, 1);
+			}
+		}
+		
+		// initialize arrays
+		for (int i = 0; i < k; i++) {
+			part.add(new Instance(occur.get(i)));
+			vals[i] = new int[occur.get(i)];
+		}
+		
+		// partition according to labels
+		for (int i = labels.length - 1; i >= 0; i--) {
+			double in = x.instance(i).value(0);
+			double out = x.instance(i).value(1);
+			String key = Arrays.toString(new double[]{in, out});
+			vals[labels[i]][occur.get(labels[i]) - 1] = 
+					multiToDiscrete.get(key);
+			occur.put(labels[i], occur.get(labels[i]) - 1);
+		}
+		return vals;
+	}
     
 	/**
 	 * Maps symbols (pairs of (in,out) cell counts) to integers.
@@ -91,7 +135,6 @@ public class DiscreteHMMDistance extends AbstractDistance {
 	    
 		double[][] pairsArray = new double[arrayBoth.length/2][2];
 	    for (int i = 0; i < arrayBoth.length; i += 2) {
-	    	// pairs of (in,out)
 	    	pairsArray[i/2][0] = arrayBoth[i];
 	    	pairsArray[i/2][1] = arrayBoth[i+1];
 	    }
@@ -113,6 +156,47 @@ public class DiscreteHMMDistance extends AbstractDistance {
         	} 
         }	
         return multiToDiscrete;
+	}
+	
+	/**
+	 * Clusters the symbols (excluding destroy states) with k-means
+	 * and manhattan distance
+	 * @param x Instance
+	 * @param states Number of clusters/states (k)
+	 * @param multiToDiscrete HashMap from strings (symbols) to integers 
+	 * @return k clusters 
+	 */
+	private int[][] smythInitClusters(Instance x, int states, 
+			HashMap<String,Integer> multiToDiscrete) {
+		// change instance x to to instances of (IN, OUT)
+		FastVector attInfo = new FastVector();
+		attInfo.addElement(new Attribute("IN", 0));
+		attInfo.addElement(new Attribute("OUT", 0));
+		
+		Instances xInsts = new Instances("cellCount",attInfo, 
+				x.numAttributes());
+		for (int a = 0; a < x.numAttributes(); a = a + 2) {
+			Instance i = new Instance(2);
+			if (x.value(a) != -1 && x.value(a+1) != -1) {
+				i.setValue(0, x.value(a));
+				i.setValue(1, x.value(a + 1));
+				xInsts.add(i);
+			}
+		}
+		//System.out.println("Instances: " + xInsts.toString());
+	
+		// cluster x into m clusters with kmeans
+        ManhattanDistance manD = new ManhattanDistance();
+        DistanceFunction manDist = manD;
+        KMeans kmeans = new KMeans(xInsts, manDist);
+        kmeans.setNumClusters(states-1);
+        kmeans.setNumIterations(100);
+        kmeans.cluster();        
+        int[] labels = kmeans.getClusters();
+        //System.out.println(Arrays.toString(labels));
+        
+        // labels from clusters -> values in mapping
+        return partition(xInsts, labels, states-1, multiToDiscrete); 
 	}
 	
 	/* Generate several observation sequences using a HMM */
@@ -142,31 +226,29 @@ public class DiscreteHMMDistance extends AbstractDistance {
 		// map unique symbols to integers
 		//HashMap<String, Integer> multiToDiscrete = symbolsToIntegers(x, y); 
         int disVal = multiToDiscrete.size();
+	
+        // labels from clustering with values in mapping
+        int[][] part = smythInitClusters(x, states, multiToDiscrete); 
          
-        double[] xInst = x.toDoubleArray();
-        // convert to discrete integers
-        int[] instInteger = new int[xInst.length/2];
-        double[] bs = new double[disVal];
-        // make distribution uniform among symbols that exist in x.
-        int idx = 0;
-        int sum = 0;
-        for (int i = 0; i < xInst.length; i += 2) {
-        	String pair = Arrays.toString(new double[]{xInst[i],xInst[i+1]});
-        	int symbol = multiToDiscrete.get(pair);
-        	instInteger[idx] = symbol;
-        	// don't take destroy state into distribution calculations
-        	if (symbol != 0) {
-            	bs[symbol] += 1;
-            	sum += 1;
+        // for each cluster, calculate distribution of symbols
+        double[][] bs = new double[states-1][disVal];
+
+        for (int i = 0; i < part.length; i++) {
+
+        	// calculates the number of times each value is seen
+        	double[] b = new double[disVal];
+        	int clustLen = part[i].length;
+        	for (int j = 0; j < clustLen; j++) {
+        		b[part[i][j]] += 1;
         	}
-        	idx += 1;
+        
+        	// calc average
+        	for (int j = 0; j < disVal; j++) {
+        		b[j] /= clustLen;
+        	}
+        	bs[i] = b;
         }
-                
-        // divide number of occurences of specific symbol
-        // by total num (omitting destroy)
-        for (int i = 0; i < bs.length; i++) {
-        	bs[i] /= sum;
-        }
+        
         
         // alphabet
         OpdfIntegerFactory factory = new OpdfIntegerFactory(disVal);
@@ -192,7 +274,7 @@ public class DiscreteHMMDistance extends AbstractDistance {
 		for (int s = 1; s < states; s++) {
 			// prob state is initial is uniform
 			hmm.setPi(s, (1.0/(states-1)));
-			hmm.setOpdf(s, new OpdfInteger(bs));
+			hmm.setOpdf(s, new OpdfInteger(bs[s-1]));
 			// uniform matrix
 			for (int s_prime = 0; s_prime < states; s_prime++) {
 				hmm.setAij(s, s_prime, 1.0/states);
@@ -222,7 +304,7 @@ public class DiscreteHMMDistance extends AbstractDistance {
 	
     private <O extends Observation> double 
     kldistance(Hmm<O> hmm1, Hmm<? super O> hmm2) {                      
-        int sequencesLength = 500;
+        int sequencesLength = 1000;
         int nbSequences = 10;
         double distance = 0.;
             

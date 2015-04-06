@@ -1,20 +1,14 @@
 package distance;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
 
 import org.junit.Test;
-import org.junit.Ignore;
 
 import weka.core.Instances;
 
-/**
- * Tests HMMDistance
- * 
- * @author Shalisa Pattarawuttiwong
- */
-public class DiscreteHMMDistanceTest {
-	
-	
+public class DiscreteSmythHMMDistanceTest {
+
 	private static Instances data;
 	
     /**
@@ -49,4 +43,5 @@ public class DiscreteHMMDistanceTest {
         double dist = distFn.distance(data.instance(0), data.instance(9));
         System.out.println(dist);
     }
+
 }
