@@ -75,7 +75,7 @@ public class CollapsedPairs implements Evaluation {
     		throw new IllegalArgumentException("To calculate this, each cluster"
     				+ "must have more than 1 member.");
     	} else {
-    		return numCollapsed / ((1.0/2.0) * (groundTruth.length - 1) * groundTruth.length);
+    		return 1/(numCollapsed / ((1.0/2.0) * (groundTruth.length - 1) * groundTruth.length));
     	}
 	}
 
