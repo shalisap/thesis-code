@@ -3,7 +3,6 @@ package distance;
 import java.io.*;
 
 import org.junit.Test;
-import org.junit.Ignore;
 
 import weka.core.Instances;
 

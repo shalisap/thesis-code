@@ -80,7 +80,7 @@ extends ForwardBackwardCalculator
                 this(oseq, hmm, EnumSet.of(Computation.ALPHA));
         }
         
-        // to avoid underflows: 
+        // to avoid underflows and 
         public double NaN_check(double value) { 
         	if (value < 0.001) {
             	return 4.9E-324; 

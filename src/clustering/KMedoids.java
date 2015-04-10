@@ -238,7 +238,8 @@ public class KMedoids implements ClusterAlg {
     			if (chosen + 1 < this.numClusters) {
     				for (int j = 0; j < data.numInstances(); j++) {
     					if (!taken[j]) {
-    						double dist = distFn.distance(nextCenter, data.instance(j));
+    						double dist = distFn.distance(nextCenter, 
+    								data.instance(j));
     						double distSq = dist*dist;
     						if (distSq < minDistSquared[j]) {
     							minDistSquared[j] = distSq;
@@ -319,7 +320,6 @@ public class KMedoids implements ClusterAlg {
 					while (!Arrays.asList(medoids).contains(data.instance(randInt))) {
 						medoids[m] = data.instance(randInt);
 					}
-					//medoids.instance(i) = data.instance(rand.nextInt(data.numInstances()));
 					changed = true;
 				} else {
 					Instance centroid = averageInstance(actClusters[m]);

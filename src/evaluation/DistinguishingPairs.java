@@ -2,7 +2,6 @@ package evaluation;
 
 import java.util.*;
 
-import weka.core.Instance;
 import weka.core.Instances;
 /**
  * An implementation of the Rand Index between two clusters.
@@ -48,20 +47,6 @@ public class DistinguishingPairs implements Evaluation {
 	private double diff;
 	
 	/**
-	 * The number of pairs of elements that are in the same clusters 
-	 * in cluster1 and different clusters in cluster2.
-	 * i.e. cluster1[i] == cluster1[j] && cluster2[i] != cluster2[j]
-	 */
-	private double same1diff2;
-	
-	/**
-	 * The number of pairs of elements that are in different clusters 
-	 * in cluster1 and the same clusters in cluster2.
-	 * i.e. cluster1[i] != cluster1[j] && cluster2[i] == cluster2[j]
-	 */
-	private double diff1same2;
-	
-	/**
 	 * Returns the total number of clusters for an assignment
 	 * @param clusters
 	 * @return number of clusters
@@ -105,8 +90,6 @@ public class DistinguishingPairs implements Evaluation {
 		// determine actual sorted clusters
     	same = 0.0;
     	diff = 0.0;
-    	same1diff2 = 0.0;
-    	diff1same2 = 0.0;
     	for (int i = 0; i < cluster1.length; i++) {
     		for (int j = i + 1; j < cluster1.length; j++) {
     			// if i and j in cluster 1 are in the same set and i and j in cluster 2 are in the same set 
@@ -115,11 +98,7 @@ public class DistinguishingPairs implements Evaluation {
         				same++;
         			} else if (cluster1[i] != cluster1[j] && cluster2[i] != cluster2[j]){
         				diff++;
-        			} else if(cluster1[i] == cluster1[j] && cluster2[i] != cluster2[j]) {
-        				same1diff2++;
-        			} else if (cluster1[i] != cluster1[j] && cluster2[i] == cluster2[j]) {
-        				diff1same2++;
-        			}
+        			} 
     			}
     		}		
     	}

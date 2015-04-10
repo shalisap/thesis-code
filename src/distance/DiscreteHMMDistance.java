@@ -4,9 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import clustering.KMeans;
 import be.ac.ulg.montefiore.run.jahmm.Hmm;
 import be.ac.ulg.montefiore.run.jahmm.Observation;
 import be.ac.ulg.montefiore.run.jahmm.ObservationInteger;
@@ -14,11 +12,15 @@ import be.ac.ulg.montefiore.run.jahmm.OpdfInteger;
 import be.ac.ulg.montefiore.run.jahmm.OpdfIntegerFactory;
 import be.ac.ulg.montefiore.run.jahmm.learn.BaumWelchLearner;
 import be.ac.ulg.montefiore.run.jahmm.toolbox.MarkovGenerator;
-import weka.core.Attribute;
-import weka.core.FastVector;
 import weka.core.Instance;
-import weka.core.Instances;
 
+/**
+ * Implementation of HMMDistance with 
+ * a naive initialization approach.
+ * 
+ * @author Shalisa Pattarawuttiwong
+ *
+ */
 public class DiscreteHMMDistance extends AbstractDistance {
 	
     /**

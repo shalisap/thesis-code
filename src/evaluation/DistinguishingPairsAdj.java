@@ -2,7 +2,6 @@ package evaluation;
 
 import java.util.*;
 
-import weka.core.Instance;
 import weka.core.Instances;
 /**
  * An implementation of the Adjusted Rand Index between two clusters.

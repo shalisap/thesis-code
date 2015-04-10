@@ -19,6 +19,13 @@ import weka.core.FastVector;
 import weka.core.Instance;
 import weka.core.Instances;
 
+/**
+ * Implementation of HMMDistance with
+ * Smyth initialization.
+ * 
+ * @author Shalisa Pattarawuttiwong
+ *
+ */
 public class DiscreteSmythHMMDistance extends AbstractDistance {
 	
     /**
@@ -183,7 +190,6 @@ public class DiscreteSmythHMMDistance extends AbstractDistance {
 				xInsts.add(i);
 			}
 		}
-		//System.out.println("Instances: " + xInsts.toString());
 	
 		// cluster x into m clusters with kmeans
         ManhattanDistance manD = new ManhattanDistance();
@@ -193,7 +199,6 @@ public class DiscreteSmythHMMDistance extends AbstractDistance {
         kmeans.setNumIterations(100);
         kmeans.cluster();        
         int[] labels = kmeans.getClusters();
-        //System.out.println(Arrays.toString(labels));
         
         // labels from clusters -> values in mapping
         return partition(xInsts, labels, states-1, multiToDiscrete); 

@@ -4,6 +4,9 @@
 package clustering;
 
 /**
+ * Interface for using the various 
+ * agglomeration methods.
+ * 
  * @author Shalisa Pattarawuttiwong
  *
  */

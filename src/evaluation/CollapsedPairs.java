@@ -1,7 +1,6 @@
 package evaluation;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import weka.core.Instances;
 
@@ -53,11 +52,11 @@ public class CollapsedPairs implements Evaluation {
 	}
 	
 	/** 
-	 * a = the number of pairs that are distinguished in 
+	 * b = the number of pairs that are distinguished in 
 	 * ground truth, and collapsed in the clustering algorithm
 	 * solution.
 	 * 
-	 * collapsed pairs = a / total number of pairs
+	 * collapsed pairs = b / total number of pairs
 	 * 
 	 * An asymmetric distance.
 	 */
@@ -65,7 +64,7 @@ public class CollapsedPairs implements Evaluation {
 	public double evaluate(int[] clusterAlg, int[] groundTruth) {
 		int numCollapsed = 0;
     	for (int i = 0; i < groundTruth.length; i++) {
-    		for (int j = 0; j < groundTruth.length; j++) {
+    		for (int j = i + 1; j < groundTruth.length; j++) {
     			if (groundTruth[i] != groundTruth[j] && clusterAlg[i] == clusterAlg[j]) {
     				numCollapsed++;
     			}
@@ -75,7 +74,7 @@ public class CollapsedPairs implements Evaluation {
     		throw new IllegalArgumentException("To calculate this, each cluster"
     				+ "must have more than 1 member.");
     	} else {
-    		return 1/(numCollapsed / ((1.0/2.0) * (groundTruth.length - 1) * groundTruth.length));
+    		return 1.0 - (numCollapsed / ((1.0/2.0) * (groundTruth.length - 1) * groundTruth.length));
     	}
 	}
 
@@ -85,7 +84,6 @@ public class CollapsedPairs implements Evaluation {
 	public CollapsedPairs(int n, Instances d, int[] ca, int[] gt) {
 		this.data = d;
 		
-		// SHOULD THIS BE ALLOWED???
 		if (getNumClusters(ca) != getNumClusters(gt)) {
     		throw new IllegalArgumentException("Clusters cannot have"
     				+ "different number of total clusters");

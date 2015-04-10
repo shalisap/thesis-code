@@ -2,7 +2,6 @@ package clustering;
 
 import java.util.*;
 
-import weka.core.Attribute;
 import weka.core.Instances;
 import distance.DistanceFunction;
 import weka.core.Instance;
@@ -62,10 +61,6 @@ public class KMeans implements ClusterAlg {
          if (d.numInstances() <= 0) {
      		throw new IllegalArgumentException("The dataset"
      				+ " cannot be empty");
-//         } else if (d.numAttributes() % 2 != 0) {
-//      		throw new IllegalArgumentException("The dataset"
-//      				+ " has an odd number of attributes. It must"
-//      				+ " have pairs of (IN, OUT).");
          } else this.data = d;
          rand = new Random();
     }
@@ -211,7 +206,6 @@ public class KMeans implements ClusterAlg {
         int index = 0;
     	for (int item: pickedCent) {
     		centroids[index] = data.instance(item);
-    		//centroids.add(this.data.instance(item));
     		index++;
     	}
   
@@ -286,7 +280,6 @@ public class KMeans implements ClusterAlg {
 		return this.clusters;
 	}
 	
-	
     /**
      * Runs the kmeans clustering algorithm on the data given.
      */
@@ -359,7 +352,6 @@ public class KMeans implements ClusterAlg {
         				centroids[i] = newCentroid;
         			} 
         		} else { // if empty cluster, split largest variance cluster into 2
-        			//System.out.println(Arrays.toString(countPosition));
         			HashMap<Integer, Instance[]> splitCentroid = 
         					splitCluster(countPosition);
         			int oldCent = Integer.parseInt(splitCentroid.keySet().

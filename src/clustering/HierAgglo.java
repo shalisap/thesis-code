@@ -55,29 +55,7 @@ public class HierAgglo implements ClusterAlg {
     	final double[][] distMatrix = distFn.distMatrix(data);
     	final int numInstances = distMatrix.length;
     	//Initialize: first all in own clusters. Last all in same cluster
-    	// Initialize trianglar array
     	allClusters = new int[numInstances][numInstances];
-        //allClusters = new int[numInstances][];
-        
-        /**
-        for (int i = 0; i < numInstances; i++) {
-    		allClusters[i] = new int[numInstances - i];
-        	for (int j = 0; j < numInstances - i; j++) {
-        		System.out.println(j);
-        		allClusters[i][j] = 0;	
-        	}
-        }
-        
-        // fill in largest array
-        for (int i = 0; i < numInstances; i++) {
-        	allClusters[0][i] = i;
-        }
-        
-        System.out.println("J");
-        for (int[] c: allClusters) {
-        	System.out.println(Arrays.toString(c));
-        }
-        */
         
         for (int x = 0; x < numInstances; x++) {
         	allClusters[0][x] = x;
@@ -104,8 +82,9 @@ public class HierAgglo implements ClusterAlg {
     		// agglomerates former clusters i and j, update distMatrix
     		for (int k = 0; k < numInstances; k++) {
     			if (k != i && k != j && indexUsed[k]) {
-    				final double dist = agglomerationMethod.computeDist(distMatrix[i][k],
-    						distMatrix[j][k], distMatrix[i][j], numPerCluster[i],
+    				final double dist = agglomerationMethod.computeDist(
+    						distMatrix[i][k],distMatrix[j][k], 
+    						distMatrix[i][j], numPerCluster[i],
     						numPerCluster[j], numPerCluster[k]);
     				distMatrix[i][k] = dist;
     				distMatrix[k][i] = dist;
@@ -120,14 +99,12 @@ public class HierAgglo implements ClusterAlg {
     			distMatrix[k][j] = Double.POSITIVE_INFINITY; 
     		}
     	
-    		// update clustering - first copy from previous row 
-    		//allClusters[a] = Arrays.copyOf(allClusters[a - 1], 
-    		//		allClusters[a - 1].length - 1);
-    		
+    		// update clustering - first copy from previous row     		
     		allClusters[a] = Arrays.copyOf(allClusters[a - 1], numInstances);
     		allClusters[a][j] = allClusters[a][i];
     		
-    		// make sure there are only 0 to level of tree are used in that particular cluster
+    		// make sure there are only 0 to level of tree 
+    		// are used in that particular cluster
     		// if the new cluster is smaller than the max value at that cluster
     		if (allClusters[a][j] != numInstances - 1 - a) {
     			// existing clusters must merge
@@ -176,8 +153,8 @@ public class HierAgglo implements ClusterAlg {
     }
     
     /**
-     * Returns the labels from hierarchical agglomerative clustering of the data
-     * from the level specified.
+     * Returns the labels from hierarchical agglomerative clustering of 
+     * the data from the level specified.
      */
     @Override
     public int[] getClusters(){
@@ -208,10 +185,6 @@ public class HierAgglo implements ClusterAlg {
         if (d.numInstances() <= 0) {
      		throw new IllegalArgumentException("The dataset"
      				+ " cannot be empty");
-//        } else if (d.numAttributes() % 2 != 0) {
-//     		throw new IllegalArgumentException("The dataset"
-//     				+ " has an odd number of attributes. It must"
-//     				+ " have pairs of (IN, OUT).");
         } else this.data = d;
         this.agglomerationMethod = a;
    }

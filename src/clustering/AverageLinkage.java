@@ -22,6 +22,8 @@ public class AverageLinkage implements AgglomerationMethod {
 	@Override
 	public double computeDist(double dik, double djk, double dij, int numi,
 			int numj, int numk) {
+		// (num elements of i * d(i,k)) + (num elements of j * d(j,k)) / 
+		// (num elements of i + num elements of j)
 		return (numi * dik + numj * djk) / (numi + numj);
 	}
 	

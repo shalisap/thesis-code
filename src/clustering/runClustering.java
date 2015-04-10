@@ -43,12 +43,16 @@ public class runClustering {
         data = new Instances(reader);
     }
 	
+    /**
+     * Given a .json file, clusters the data with the specified options.
+     * @param args name of .json file to run clustering with
+     * @throws Exception
+     */
 	public static void main(String[] args) throws Exception{
 		JSONParser parser = new JSONParser();
 		String jsonInput = args[0];
-		//String jsonInput = "./testing.json";
+
 		try {
-			// ./thesis-code/testing.json
 			// Read in options from the .json file
 			Object obj = parser.parse(new FileReader(jsonInput));
 			JSONObject jsonObject = (JSONObject) obj;
@@ -79,7 +83,6 @@ public class runClustering {
 			}
 
 			Map<Integer, int[]> clusters = new HashMap<Integer, int[]>();
-			//for (int k = min_k; k <= max_k; k++) {
 			System.out.println("Clustering Algorithm: " + cluster_alg);
 			System.out.println("Distance Measure: " + dist_measure);
 	        System.out.println("NUM INSTANCES: " + data.numInstances());
@@ -121,7 +124,6 @@ public class runClustering {
 			        
 		        } else if (cluster_alg.equalsIgnoreCase("hierarchical")) {
 		        	System.out.println("Agglomeration Method: " + agglo_method);	
-				// need to add all agglomeration method option
 		        	AgglomerationMethod aggloMethod;
 				if (agglo_method.equalsIgnoreCase("single")) {
 					SingleLinkage singleLink = new SingleLinkage();

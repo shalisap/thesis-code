@@ -20,7 +20,8 @@ public class WardLinkage implements AgglomerationMethod {
 	@Override
 	public double computeDist(double dik, double djk, double dij, int numi,
 			int numj, int numk) {
-		return ((numi + numk) * dik + (numj + numk) * djk - numk * dij) / (numi + numj + numk);
+		return (((numi + numk) * dik + (numj + numk) * djk - numk * dij) / 
+				(numi + numj + numk));
 	}
 	
 	/**
