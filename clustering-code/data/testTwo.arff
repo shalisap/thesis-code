@@ -1,0 +1,7 @@
+@relation testTwo
+
+@attribute number numeric
+
+@data
+3
+8
