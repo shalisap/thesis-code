@@ -1,0 +1,384 @@
+diff --git a/src/common/log.c b/src/common/log.c
+index 517fa4f..b8c19d9 100644
+--- a/src/common/log.c
++++ b/src/common/log.c
+@@ -1094,7 +1094,7 @@ log_level_to_string(int level)
+ static const char *domain_list[] = {
+   "GENERAL", "CRYPTO", "NET", "CONFIG", "FS", "PROTOCOL", "MM",
+   "HTTP", "APP", "CONTROL", "CIRC", "REND", "BUG", "DIR", "DIRSERV",
+-  "OR", "EDGE", "ACCT", "HIST", "HANDSHAKE", "HEARTBEAT", "CHANNEL", NULL
++  "OR", "EDGE", "ACCT", "HIST", "HANDSHAKE", "HEARTBEAT", "CHANNEL", "CLIENTLOGGING", NULL
+ };
+ 
+ /** Return a bitmask for the log domain for which <b>domain</b> is the name,
+diff --git a/src/common/torlog.h b/src/common/torlog.h
+index 34f70f3..83726c0 100644
+--- a/src/common/torlog.h
++++ b/src/common/torlog.h
+@@ -97,8 +97,10 @@
+ #define LD_HEARTBEAT (1u<<20)
+ /** Abstract channel_t code */
+ #define LD_CHANNEL   (1u<<21)
++/** CLIENTLOGGING */
++#define LD_CLIENTLOGGING (1u<<22)
+ /** Number of logging domains in the code. */
+-#define N_LOGGING_DOMAINS 22
++#define N_LOGGING_DOMAINS 23
+ 
+ /** This log message is not safe to send to a callback-based logger
+  * immediately.  Used as a flag, not a log domain. */
+diff --git a/src/or/channel.c b/src/or/channel.c
+index b2b670e..7fc8166 100644
+--- a/src/or/channel.c
++++ b/src/or/channel.c
+@@ -76,6 +76,12 @@ static smartlist_t *finished_listeners = NULL;
+ /* Counter for ID numbers */
+ static uint64_t n_channels_allocated = 0;
+ 
++/** CLIENTLOGGING:
++ *  A unique identifier for ips that might be logged by clientlogging
++ *  code.
++ */
++uint64_t cllog_next_remote_addr = 1;
++
+ /* Digest->channel map
+  *
+  * Similar to the one used in connection_or.c, this maps from the identity
+@@ -2378,6 +2384,14 @@ channel_do_open_actions(channel_t *chan)
+     /* only report it to the geoip module if it's not a known router */
+     if (!router_get_by_id_digest(chan->identity_digest)) {
+       if (channel_get_addr_if_possible(chan, &remote_addr)) {
++
++        /* CLIENTLOGGING:
++         * psuedonymizing remote_addrs starts at 1. 
++         */
++        chan->cllog_remote_addr = cllog_next_remote_addr ;
++        cllog_next_remote_addr++ ;
++        
++
+         char *transport_name = NULL;
+         if (chan->get_transport_name(chan, &transport_name) < 0)
+           transport_name = NULL;
+diff --git a/src/or/channel.h b/src/or/channel.h
+index 1481992..8d9fa76 100644
+--- a/src/or/channel.h
++++ b/src/or/channel.h
+@@ -38,10 +38,17 @@ struct channel_s {
+   channel_state_t state;
+ 
+   /** Globally unique ID number for a channel over the lifetime of a Tor
+-   * process.
++   * remote_addr.
+    */
+   uint64_t global_identifier;
+ 
++  /** CLIENTLOGGING:
++   *  A pseudonym for the remote address.  This is used for the client logging
++   *  code.  Pseudonyms are unique across all circuits during a
++   *  single client logging session.
++   */
++  uint64_t cllog_remote_addr;
++
+   /** Should we expect to see this channel in the channel lists? */
+   unsigned char registered:1;
+ 
+@@ -167,6 +174,12 @@ struct channel_s {
+    * to satisfy an EXTEND request.  */
+   unsigned int is_client:1;
+ 
++  /** CLIENTLOGGING:
++   *  True if it is likely that the other end of this connection is
++   *  a client.  This is used by the clientlogging code.
++   */
++  unsigned int cllog_is_likely_op:1;
++
+   /** Set if the channel was initiated remotely (came from a listener) */
+   unsigned int is_incoming:1;
+ 
+diff --git a/src/or/circuitlist.c b/src/or/circuitlist.c
+index f3a8350..a64ca1b 100644
+--- a/src/or/circuitlist.c
++++ b/src/or/circuitlist.c
+@@ -41,6 +41,12 @@
+ struct global_circuitlist_s global_circuitlist =
+   TOR_LIST_HEAD_INITIALIZER(global_circuitlist);
+ 
++/** CLIENTLOGGING:
++ *  A unique identifier for circuits that might be logged by clientlogging
++ *  code.
++ */
++uint64_t cllog_next_circ_id = 1;
++
+ /** A list of all the circuits in CIRCUIT_STATE_CHAN_WAIT. */
+ static smartlist_t *circuits_pending_chans = NULL;
+ 
+@@ -726,6 +732,14 @@ or_circuit_new(circid_t p_circ_id, channel_t *p_chan)
+ 
+   init_circuit_base(TO_CIRCUIT(circ));
+ 
++  /* CLIENTLOGGING:
++   * psuedonymizing circuit ids: starts at 1. 
++   */
++  if (p_chan->cllog_is_likely_op) {
++      (TO_CIRCUIT(circ))->cllog_circ_id = cllog_next_circ_id ;
++      cllog_next_circ_id++ ;
++  } 
++
+   return circ;
+ }
+ 
+diff --git a/src/or/clientlogging.c b/src/or/clientlogging.c
+new file mode 100644
+index 0000000..957e11b
+--- /dev/null
++++ b/src/or/clientlogging.c
+@@ -0,0 +1,68 @@
++/*  
++ *  Shalisa Pattarawuttiwong 
++ *  Last Modified: 03/04/2014
++ */
++
++#include "address.h"
++#include "or.h"
++#include "channel.h"
++#include "config.h"
++
++/**
++ *  Given a cell and circuit, logs the previous and next channel ip addresses
++ *  and circuit ids in the form: 
++ *  	CLIENTLOGGING: previous_ip_addr (direction of cell) next_ip_addr 
++ *                     CIRC pseudonymized_circ_id 
++ *  with direction of cell represented by an arrow symbol: In = "<-", Out = "->". 
++ */
++void cllog_log_cell(circuit_t *circ, cell_t *cell, 
++			cell_direction_t cell_direction, uint8_t command) {
++	
++	tor_assert(circ);
++	tor_assert(cell);
++	tor_assert(cell_direction == CELL_DIRECTION_IN ||
++			cell_direction == CELL_DIRECTION_OUT); 
++	tor_assert(command == CELL_DESTROY || command == CELL_RELAY 
++			|| command == CELL_CREATE);
++	
++	/* If the previous channel is a client (cllog_is_likely_op = 1),
++	 * and if clientlogging is on, log the cell. 
++	 * circ->n_chan acts as a naive guard for channel_get_addr_if_possible
++	 */
++	
++	if (!(CIRCUIT_IS_ORCIRC(circ)) || (circ->cllog_circ_id == 0) || 
++			!(get_options()->AllowClientLogging) || !(circ->n_chan)) {
++		return;
++	}
++	
++	/* Assure that that previous channel is a client (cllog_circ_id > 0)  */
++	tor_assert(circ->cllog_circ_id > 0);
++			 
++	char *arrow;
++	char *log_command;
++	
++	/* Determine which direction the cell is going in
++	 * and find the psudonymized circuit id.
++	 */
++	if (cell_direction == CELL_DIRECTION_OUT) {
++		arrow = "->";
++	} else if (cell_direction == CELL_DIRECTION_IN) {
++		arrow = "<-" ;
++   	} 
++
++	/* Determine if the cell is a create, destroy, or relay cell.
++	*/	
++	if (command == CELL_DESTROY) {
++		log_command = "DESTROY" ;
++    	} else if (command == CELL_RELAY) {
++		log_command = "RELAY" ;
++	} else if (command == CELL_CREATE) {
++		log_command = "CREATE" ;
++	}
++
++	log_notice(LD_CLIENTLOGGING,
++			"CLIENTLOGGING: %s %"PRIx64 " %s %"PRIx64 " CIRC %"PRIx64 "",
++			log_command, TO_OR_CIRCUIT(circ)->p_chan->cllog_remote_addr, arrow,
++ 			circ->n_chan->cllog_remote_addr, circ->cllog_circ_id) ;   
++}
++
+diff --git a/src/or/clientlogging.h b/src/or/clientlogging.h
+new file mode 100644
+index 0000000..357a362
+--- /dev/null
++++ b/src/or/clientlogging.h
+@@ -0,0 +1,15 @@
++/*  
++ *  Shalisa Pattarawuttiwong 
++ *  Last Modified: 08/04/2014
++ */
++
++/**
++ * \file clientlogging.h
++ * \brief Header file for clientlogging.c
++ **/
++
++#include "or.h"
++
++void cllog_log_cell(circuit_t *circ, cell_t *cell,
++		cell_direction_t cell_direction, uint8_t command) ;
++
+diff --git a/src/or/command.c b/src/or/command.c
+index 1f6f93a..25071b1 100644
+--- a/src/or/command.c
++++ b/src/or/command.c
+@@ -20,6 +20,10 @@
+ #include "channel.h"
+ #include "circuitbuild.h"
+ #include "circuitlist.h"
++
++/*CLIENTLOGGING */
++#include "clientlogging.h"
++
+ #include "command.h"
+ #include "connection.h"
+ #include "connection_or.h"
+@@ -306,6 +310,19 @@ command_process_create_cell(cell_t *cell, channel_t *chan)
+     return;
+   }
+ 
++  /*     
++   * CLIENTLOGGING: Is it a known router?
++   */
++  if (!router_get_by_id_digest(chan->identity_digest)) {
++    /* If it is not a known router, presumably, it is a client. 
++     * Not the best way to determine if we are talking to an OP. 
++     * It could be a bridge, which is not a known relay.  
++     */
++    chan->cllog_is_likely_op = 1;
++  } else {
++    chan->cllog_is_likely_op = 0;
++  }
++
+   if (create_cell->handshake_type != ONION_HANDSHAKE_TYPE_FAST) {
+     /* hand it off to the cpuworkers, and then return. */
+     if (connection_or_digest_is_known_relay(chan->identity_digest))
+@@ -410,6 +427,13 @@ command_process_created_cell(cell_t *cell, channel_t *chan)
+       return;
+     }
+   } else { /* pack it into an extended relay cell, and send it. */
++
++    /*
++     *  CLIENTLOGGING: log CREATE. Under else because we don't want it 
++     *  to be an OP.
++     */
++    cllog_log_cell(circ, cell, CELL_DIRECTION_OUT, CELL_CREATE);
++
+     uint8_t command=0;
+     uint16_t len=0;
+     uint8_t payload[RELAY_PAYLOAD_SIZE];
+@@ -548,6 +572,10 @@ command_process_destroy_cell(cell_t *cell, channel_t *chan)
+       chan == TO_OR_CIRCUIT(circ)->p_chan &&
+       cell->circ_id == TO_OR_CIRCUIT(circ)->p_circ_id) {
+     /* the destroy came from behind */
++
++    /* CLIENTLOGGING: log CELL_DESTROY cell */
++    cllog_log_cell(circ, cell, CELL_DIRECTION_OUT, CELL_DESTROY);
++
+     circuit_set_p_circid_chan(TO_OR_CIRCUIT(circ), 0, NULL);
+     circuit_mark_for_close(circ, reason|END_CIRC_REASON_FLAG_REMOTE);
+   } else { /* the destroy came from ahead */
+diff --git a/src/or/config.c b/src/or/config.c
+index 8921082..7b788de 100644
+--- a/src/or/config.c
++++ b/src/or/config.c
+@@ -131,6 +131,10 @@ static config_var_t option_vars_[] = {
+   V(AccountingMax,               MEMUNIT,  "0 bytes"),
+   V(AccountingStart,             STRING,   NULL),
+   V(Address,                     STRING,   NULL),
++
++  /* CLIENTLOGGING: Option to turn on ClientLogging */
++  V(AllowClientLogging,          BOOL,     "1"),
++
+   V(AllowDotExit,                BOOL,     "0"),
+   V(AllowInvalidNodes,           CSV,      "middle,rendezvous"),
+   V(AllowNonRFC953Hostnames,     BOOL,     "0"),
+diff --git a/src/or/include.am b/src/or/include.am
+index 47bdd09..b0edb4f 100644
+--- a/src/or/include.am
++++ b/src/or/include.am
+@@ -41,6 +41,7 @@ LIBTOR_A_SOURCES = \
+ 	src/or/circuitmux_ewma.c			\
+ 	src/or/circuitstats.c				\
+ 	src/or/circuituse.c				\
++	src/or/clientlogging.c                          \
+ 	src/or/command.c				\
+ 	src/or/config.c					\
+ 	src/or/confparse.c				\
+@@ -142,6 +143,7 @@ ORHEADERS = \
+ 	src/or/circuitmux_ewma.h			\
+ 	src/or/circuitstats.h				\
+ 	src/or/circuituse.h				\
++	src/or/clientlogging.h				\
+ 	src/or/command.h				\
+ 	src/or/config.h					\
+ 	src/or/confparse.h				\
+diff --git a/src/or/or.h b/src/or/or.h
+index 1609587..54bdbf2 100644
+--- a/src/or/or.h
++++ b/src/or/or.h
+@@ -2785,6 +2785,13 @@ typedef struct circuit_t {
+   /** Queue of cells waiting to be transmitted on n_chan */
+   cell_queue_t n_chan_cells;
+ 
++  /** CLIENTLOGGING:
++   *  A pseudonym for this circuit.  This is used for the client logging
++   *  code.  Pseudonyms are unique across all circuits during a
++   *  single client logging session.
++   */
++  uint64_t cllog_circ_id ;
++
+   /**
+    * The hop to which we want to extend this circuit.  Should be NULL if
+    * the circuit has attached to a channel.
+@@ -3900,6 +3907,11 @@ typedef struct {
+    * if we are a cache).  For authorities, this is always true. */
+   int DownloadExtraInfo;
+ 
++  /** CLIENTLOGGING:
++   *  If true, turn on clientlogging.
++   */
++  int AllowClientLogging;
++
+   /** If true, and we are acting as a relay, allow exit circuits even when
+    * we are the first hop of a circuit. */
+   int AllowSingleHopExits;
+diff --git a/src/or/relay.c b/src/or/relay.c
+index 9407df0..0990d48 100644
+--- a/src/or/relay.c
++++ b/src/or/relay.c
+@@ -19,6 +19,10 @@
+ #include "circuitbuild.h"
+ #include "circuitlist.h"
+ #include "circuituse.h"
++
++/*CLIENTLOGGING */
++#include "clientlogging.h"
++
+ #include "config.h"
+ #include "connection.h"
+ #include "connection_edge.h"
+@@ -238,9 +242,19 @@ circuit_receive_relay_cell(cell_t *cell, circuit_t *circ,
+ 
+   /* not recognized. pass it on. */
+   if (cell_direction == CELL_DIRECTION_OUT) {
++
++    /* CLIENTLOGGING: log cells going OUT 
++     */
++    cllog_log_cell(circ, cell, cell_direction, CELL_RELAY);
++
+     cell->circ_id = circ->n_circ_id; /* switch it */
+     chan = circ->n_chan;
+   } else if (! CIRCUIT_IS_ORIGIN(circ)) {
++
++    /* CLIENTLOGGING: log cells going IN
++     */
++    cllog_log_cell(circ, cell, cell_direction, CELL_RELAY);
++
+     cell->circ_id = TO_OR_CIRCUIT(circ)->p_circ_id; /* switch it */
+     chan = TO_OR_CIRCUIT(circ)->p_chan;
+   } else {
