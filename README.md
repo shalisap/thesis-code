@@ -10,7 +10,7 @@ Tor is a low-latency network built for anonymity online. Due to ethical concerns
 The clustering algorithms (k-Means, k-Medoids, hierarchical agglomerative clustering and associated agglomeration methods), distance functions (Euclidean, Manhattan, Edit Distances), and evaluation code (Rand index, adjusted Rand index, Collapsed Pairs) are implemented with Java 8. The Java code is located in the clustering-code directory of this
 repository.
 
-In addition, in Python 2.7.3, modifications were made to \citet{Julian} code to allow for preprocessing of data collected from Shadow, visualization, and series modeling of pairs of inbound, outbound cell counts as well as for the clustering evaluation. 
+In addition, in Python 2.7.3, modifications were made to \citet{Julian} code to allow for preprocessing of data collected from Shadow, visualization, and series modeling of pairs of inbound, outbound cell counts as well as for the clustering evaluation.
 
 
 Requirements:
@@ -37,6 +37,7 @@ Available on Pip:
 * scipy 0.10+
 * Pycluster
 * fastcluster
+* liac-arff 2.0
 
 Manual install:
 * ghmm (http://ghmm.org)

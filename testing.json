@@ -13,9 +13,8 @@
 	"max_m": 10,
 	"beta": 1.0,
 	"n_trials": 1,
-   	"cluster_alg" : "kmedoids",
-    	"dist_measure" : "manhattan",
-	"agglo_method" : "",
+   	"cluster_alg" : "hierarchical",
+    	"dist_measure" : "euclidean",
     	"arffpath" : "./data/shadow-200r-750c/seriesdata.arff",
-    	"cluster_outpath" : "./data/shadow-200r-750c/kmeans_man_clusters.json"
+    	"cluster_outpath" : "./data/shadow-200r-750c/clusters.json"
 }
