@@ -6,7 +6,6 @@
 # Package Files #
 *.war
 *.ea
-*.py
 *.pyc
 
 # Output Files #
