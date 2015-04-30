@@ -1,0 +1,117 @@
+Code:
+* Julian's python code additionally containing thesis-code
+* thesis-code directory contains the java code
+
+dependencies (should be in thesis-code/extras):
+    * To run clustering code:
+        * gson-2.3.1.jar
+        * json-simple-1.1.1.jar
+        * weka.jar
+        * jahmm-0.6.1.jar
+    * To run tests:
+        * junit-4.12.jar
+        * hamcrest-core-1.3.jar
+        * mockito-all-1.10.14.jar
+    * To compile clustering output into a csv
+        * opencsv-3.3.jar
+
+In summary, to run through entire pipeline:
+    (1) python post_processing.py -getData path_to_raw_shadow.log
+    (2) Configure json file for one clustering algorithm, distance function pair run
+    (3) python build_models.py path_to_json_file
+    (4) python gen_likelihoods.py path_to_outputdir_of_(2)
+            out_trimmed_good.pickle gen_like_out.log option (-flat or -surface)
+
+Visualization code can be found in exploratory.py.
+
+To run preprocessing code:
+    Either run python post_processing.py -getData path_to_raw_shadow.log
+    which in turn runs
+    (1) python logshadow.py path_to_raw_shadow.log out_tor_fmt.log
+        (where out_tor_fmt.log is name_tor_fmt.log)
+        Converts shadow log to tor formatted log
+    (2) python logparse.py out_tor_fmt.log out_parsed.pickle
+        (where out_parsed.pickle is name_parsed)
+        Parses tor formatted log and outputs a record as a pickled list
+    (3) python window.py out_parsed.pickle out_windowed.pickle
+        (where out_windowed.pickle is name_windowed.pickle)
+        Windows the inputted record
+    (4) python trim_series.py out_windowed.pickle
+            out_trimmed_good.pickle out_trimmed_bad.pickle
+        Trims the inputted windowed record
+
+To run through entire pipeline for one clustering alg, distance fn pair
+    after preprocessing:
+    (1) Set parameters in .json file as below
+    (2) python build_models.py path_to_json_file
+        Runs clustering and builds models. Also generates *_ground_truth.json
+        and the series data in arff format (arffpath) as a consequence.
+    (3) python gen_likelihoods.py path_to_outputdir_of_(2)
+            out_trimmed_good.pickle gen_like_out.log -option (-flat or -surface)
+        Generates the likelihoods of the HMM models generated from (2)
+
+To run clustering algorithms (completely separate from HMM training):
+    To run a specific clustering algorithm:
+    1) Set parameters in .json file
+        (see examples in ~/shalisa/clustering/data/shadow-500r-1800c/1)
+
+        inpath - path_to_trimmed_good.pickle output from data preprocessing.
+            (trimmed, windowed series)
+        gt_path - path_to_pseudo_ip.pickle output from data preprocessing.
+            (dictionary of ip addrs and pseudo addrs)
+        gt_outpath - path_to_ground_truth.json.
+            (ground truth calculated from running build_models.py)
+        shadow_path - path_to_original_shadow.log.
+            (unaltered shadow.log)
+        outdir - path_to_out_directory (where result of hmm training is dumped)
+        first_seed - seed
+        n_jobs - number of jobs
+        min_k - minimum number of clusters
+        max_k - maximum number of clusters
+        min_m - minimum number of HMM states
+        max_m - maximum number of HMM states
+        beta - x, the train/all_series ratio. If x = 1.0, use entire dataset to
+            generate/evaluate clusters, x < 1.0 (usually 0.5), split the
+            dataset into training/testing sets and run entire pipeline.
+        n_trials - number of trials
+        cluster_alg - clustering algorithm choice
+            ("kmeans", "kmedoids", "hierarchical")
+        dist_measure - distance measure choice (
+            "euclidean", "manhattan", "edit", "hmm")
+        agglo_method - if cluster_alg = "hierarchical", indicates the agglo. method
+            ("single", "complete", "average", "centroid", "median",
+                "ward", "weighted average"), "" otherwise.
+        arffpath - path_to_seriesdata.arff output from
+            (arff format of series data generated when running build_models.py)
+        cluster_outpath - path_to_clusters.json
+            (where results of clustering are dumped)
+
+    2) set classpath:
+
+        export CLASSPATH=$HOME/shalisa/clustering/thesis-code/build:$HOME/shalisa/clustering/thesis-code/extras/gson-2.3.1.jar:$HOME/shalisa/clustering/thesis-code/extras/hamcrest-core-1.3.jar:$HOME/shalisa/clustering/thesis-code/extras/jahmm-0.6.1.jar:$HOME/shalisa/clustering/thesis-code/extras/junit-4.12.jar:$HOME/shalisa/clustering/thesis-code/extras/mockito-all-1.10.14.jar:$HOME/shalisa/clustering/thesis-code/extras/weka.jar:$HOME/shalisa/clustering/thesis-code/extras/json-simple-1.1.1.jar:$CLASSPATH
+
+    3) Assuming CLASSPATH set, run clustering code:
+        java clustering/runClustering path_to_json_file > path_to_output.log
+        ex: java clustering/runClustering ./data/shadow-500r-1800c/3/kmeans-man.json
+                > ./data/shadow-500r-1800c/3/results/kmeans-man.log
+
+    4) Resulting clusters in .json format are dumped to cluster_outpath.
+        If all runs of clustering redirect stdout to the same directory results/*.log,
+        java clustering/ToCSV NAME_CSV.csv
+        can be used to export all of the clustering results to a csv.
+
+    To run on the computing cluster:
+    * see example submission scripts on ndanner@petaltail(or swallowtail)
+        in ~/shalisa/clustering.
+        To submit job to cluster: bsub < run.SOME_NAME
+        To view job status: bjobs
+        To kill job: bkill JOBID
+
+    Running only the clustering code (getting python dependencies on the
+    computing cluster seemed to be too much), is a bit messy and hacky.
+    build_models.py must be first run to generate the seriesdata.arff,
+    ground_truth.json, and trimmed_good.pickle files. After ground truth
+    is generated, build_models can be stopped (manually) before clustering
+    completes. After moving those files to the cluster directories, follow the
+    steps above except submit the job to the cluster instead of (3).
+
